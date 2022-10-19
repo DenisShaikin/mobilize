@@ -1,0 +1,327 @@
+<!--
+
+=========================================================
+* Volt Free - Bootstrap 5 Dashboard
+=========================================================
+
+* Product Page: https://themesberg.com/product/admin-dashboard/volt-bootstrap-5-dashboard
+* Copyright 2021 Themesberg (https://www.themesberg.com)
+
+* Designed and coded by https://themesberg.com
+
+=========================================================
+
+* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal. Contact us if you want to remove it.
+
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head> 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<!-- Primary Meta Tags -->
+<title>
+    Подготовка к мобилизации | список вещей
+</title>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="title" content="Подготовка к мобилизации, список вещей">
+<meta name="author" content="Sborveschey">
+<meta name="description" content="Сайт подготовки к мобилизации, список вещей первой необходимости. Предлагается к обсуждению.">
+<meta name="keywords" content="мобилизация 2022, вещи, аптечка для мобилизации, лекарства, рюкзак, обувь, защита, медикаменты, гемостатики, гемофлекс, cellos, гемостоп, гемохит" />
+<link rel="canonical" href="https://themesberg.com/product/admin-dashboard/volt-premium-bootstrap-5-dashboard">
+
+<!-- Open Graph / Facebook
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://demo.themesberg.com/volt-pro">
+<meta property="og:title" content="Volt - Free Bootstrap 5 Admin Dashboard">
+<meta property="og:description" content="Volt Pro is a Premium Bootstrap 5 Admin Dashboard featuring over 800 components, 10+ plugins and 20 example pages using Vanilla JS.">
+<meta property="og:image" content="https://themesberg.s3.us-east-2.amazonaws.com/public/products/volt-pro-bootstrap-5-dashboard/volt-pro-preview.jpg">
+-->
+
+<!-- Favicon -->
+<link rel="apple-touch-icon" sizes="120x120" href="{{ config.ASSETS_ROOT }}/img/favicon/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ config.ASSETS_ROOT }}/img/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ config.ASSETS_ROOT }}/img/favicon/favicon-16x16.png">
+<link rel="manifest" href="{{ config.ASSETS_ROOT }}/img/favicon/site.webmanifest">
+<link rel="mask-icon" href="{{ config.ASSETS_ROOT }}/img/favicon/safari-pinned-tab.svg" color="#ffffff">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="theme-color" content="#ffffff">
+
+<!-- Sweet Alert -->
+<link type="text/css" href="{{ config.ASSETS_ROOT }}/vendor/sweetalert2/dist/sweetalert2.min.css" rel="stylesheet">
+
+<!-- Notyf -->
+<link type="text/css" href="{{ config.ASSETS_ROOT }}/vendor/notyf/notyf.min.css" rel="stylesheet">
+
+<!-- Volt CSS -->
+<link type="text/css" href="{{ config.ASSETS_ROOT }}/css/volt.css" rel="stylesheet">
+
+<!-- NOTICE: You can use the _analytics.html partial to include production code specific code & trackers -->
+
+</head>
+<body>
+
+    <header class="header-global">
+        <nav id="navbar-main" aria-label="Primary navigation" class="navbar navbar-main navbar-expand-lg navbar-theme-primary pt-4 navbar-dark">
+            <div class="container position-relative">
+                <div class="navbar-collapse collapse me-auto" id="navbar_global">
+                    <div class="navbar-collapse-header">
+                        <div class="row">
+                            <div class="col-6 collapse-brand">
+                                <a href="/">
+                                    <img src="{{ config.ASSETS_ROOT }}/img/brand/mobilization.png" alt="Volt logo">
+                                </a>
+                            </div>
+                            <div class="col-6 collapse-close">
+                                <a href="#navbar_global" class="fas fa-times" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" title="close" aria-label="Toggle navigation"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="navbar-nav navbar-nav-hover align-items-lg-center">
+                        <li class="nav-item mr-2">
+                            <img class="navbar-brand-dark mb-4" height="35" src="{{ config.ASSETS_ROOT }}/img/brand/mobilisation.png" alt="Logo light">
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a href="{{ url_for('authentication_blueprint.register') }}" class="nav-link">Регистрация</a>
+                        </li>
+                        <li class="nav-item mr-2">
+                            <a href="{{ url_for('home_blueprint.main') }}" class="nav-link">Главная</a>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="d-flex align-items-center ms-auto">
+                    <a href="https://appseed.us/product/volt-dashboard/flask/" 
+                       target="_blank" 
+                       class="btn btn-outline-white d-inline-flex align-items-center me-md-3">
+                        <svg class="icon icon-xxs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z" clip-rule="evenodd"></path></svg>
+                        Скачать список
+                    </a>
+                    <button class="navbar-toggler ml-2" type="button" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>                    
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- Hero -->
+        <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-5 bg-primary text-white">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="bootstrap-big-icon d-none d-lg-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="700" height="622" class="d-block my-1" viewBox="0 0 118 94" role="img"><title>Bootstrap</title><path fill-rule="evenodd" clip-rule="evenodd" d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z" fill="currentColor"></path></svg>
+                        </div>
+                        <h1 class="fw-bolder">Список вещей при мобилизации</h1>
+                        <h2 class="lead fw-normal text-muted mb-5">
+                            Зарегистрируйтесь и участвуйте в его корректировке
+                        </h2>
+                    </div>
+
+                </div>
+                <div class="row justify-content-center mb-5 mb-lg-6">
+                    <div class="col-12 text-center">
+                        <h2 class="h1 px-lg-5">Зачем этот проект</h2>
+                        <p class="lead px-lg-2 text-start">Этот сайт для помощи сборам при подготовке к мобилизации. <br>
+                            При получении повестки в военкомат времени на сборы дается крайне мало, обычно меньше суток. И хорошо, если рюкзак с
+                            вещами уже подготовлен.<br>
+                            Взять зубную щетку и бритвенный станок не сложно, но большое количество различных списков в интернет показывает, что
+                            однозначного ответа на вопрос: что брать? - нет. Поэтому мы придумали этот проект. Чем больше профессиональных участников будет участвовать в
+                            корректировке списка, тем проще будет собрать необходмые вещи. Приглашаем профессионалов участовать в корректировке списка!<br>
+                            Если Вы не готовы регистрироваться и участвовать в проекте - можете просто нажать Скачать список и получить полный список вещей в формате Excel.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+            <figure class="position-absolute bottom-0 left-0 w-100 d-none d-md-block mb-n2"><svg class="home-pattern" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 185.4"><path d="M3000,0v185.4H0V0c496.4,115.6,996.4,173.4,1500,173.4S2503.6,115.6,3000,0z"></path></svg></figure>
+        </section>
+
+        <section class="section section-lg bg-soft pt-0">
+            <div class="container">
+                <div class="row justify-content-center mb-5 mb-lg-6">
+           <!--
+                    <div class="col-6 col-md-3 text-center mb-4">
+                        <div class="icon icon-shape bg-white shadow-lg rounded mb-4">
+                            <svg class="icon icon-md text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path></svg>
+                        </div>
+                        <h3 class="fw-bolder">21</h3>
+                        <p class="text-gray">Dashboard Pages</p>
+                    </div>
+                    <div class="col-6 col-md-3 text-center mb-4">
+                        <div class="icon icon-shape bg-white shadow-lg rounded mb-4">
+                            <svg class="icon icon-md text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z"></path></svg>
+                        </div>
+                        <h3 class="fw-bolder">800+</h3>
+                        <p class="text-gray">Premium Components</p>
+                    </div>
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="icon icon-shape bg-white shadow-lg rounded mb-4">
+                            <svg class="icon icon-md text-secondary" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"></path></svg>
+                        </div>
+                        <h3 class="fw-bolder">Workflow</h3>
+                        <p class="text-gray">Sass & Gulp</p>
+                    </div>
+                    <div class="col-6 col-md-3 text-center">
+                        <div class="icon icon-shape bg-white shadow-lg rounded mb-4">
+                            <svg class="icon icon-md text-secondary" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="js-square" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zM243.8 381.4c0 43.6-25.6 63.5-62.9 63.5-33.7 0-53.2-17.4-63.2-38.5l34.3-20.7c6.6 11.7 12.6 21.6 27.1 21.6 13.8 0 22.6-5.4 22.6-26.5V237.7h42.1v143.7zm99.6 63.5c-39.1 0-64.4-18.6-76.7-43l34.3-19.8c9 14.7 20.8 25.6 41.5 25.6 17.4 0 28.6-8.7 28.6-20.8 0-14.4-11.4-19.5-30.7-28l-10.5-4.5c-30.4-12.9-50.5-29.2-50.5-63.5 0-31.6 24.1-55.6 61.6-55.6 26.8 0 46 9.3 59.8 33.7L368 290c-7.2-12.9-15-18-27.1-18-12.3 0-20.1 7.8-20.1 18 0 12.6 7.8 17.7 25.9 25.6l10.5 4.5c35.8 15.3 55.9 31 55.9 66.2 0 37.8-29.8 58.6-69.7 58.6z"></path></svg>
+                        </div>
+                        <h3 class="fw-bolder">Vanilla</h3>
+                        <p class="text-gray">Javascript</p>
+                    </div>
+                -->
+                </div>
+                <div class="row justify-content-between align-items-center mb-5 mb-lg-7">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-lg-5 order-lg-2 mb-5 mb-lg-0">
+                            <h2 class="h1">Что выдают?</h2>
+                            <p class="mb-4 lead fw-bold">Надежда на министерство обороны</p>
+                            <p class="mb-4">Сообщается, что мобилизованный должен быть обеспечен всем необходимым. Сюда входит одежда,
+                                обувь, каска, бронежилет - в зависимости от рода выполняемой деятельности. Будет ли одежда и обувь по размеру? <b> Не всегда. </b>
+                            </p>
+                        </div>
+                        <div class="col-lg-6 order-lg-1">
+                            <img src="{{ config.ASSETS_ROOT }}/img/illustrations/armyclothes_.png" alt="Одежда министерства обороны">
+                        </div>
+                    </div>
+                    <div class="col-lg-5 mb-5 mb-lg-0">
+                        <h2 class="h1 d-flex align-items-center">Можно взять </h2>
+                        <p class="mb-4 lead fw-bold">Минимально необходимые вещи</p>
+                        <p class="mb-4">В прессе указывают, что мобилизованному рекомендуется взять с собой предметы личной гигиены,
+                        термобелье, предметы экипировки. Список экипировки может быть обширным: фонарик с батарейками, защитные очки, мультитул, аптечки и так далее.
+                        </p>
+                        <a href="https://jinja-volt-pro.appseed-srv1.com/kanban.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            Хозяйство
+                        </a>
+                        <!-- <a href="https://themesberg.com/docs/volt-bootstrap-5-dashboard/plugins/kanban/" target="_blank" class="btn btn-outline-primary"><span class="fas fa-book me-2"></span> Guide</a> -->
+                    </div>
+                    <div class="col-lg-6">
+                        <img src="{{ config.ASSETS_ROOT }}/img/illustrations/ownclothes.png" alt="Личные вещи">
+                    </div>
+                </div>
+                <div class="row justify-content-between align-items-center mb-5 mb-lg-7">
+                    <div class="col-lg-5 order-lg-2 mb-5 mb-lg-0">
+                        <h2 class="h1 d-flex align-items-center">Аптечки </h2>
+                        <p class="mb-4 lead fw-bold">Хозяйственная и тактические</p>
+                        <p class="mb-4">В походных условиях могут случиться такие же заболевания, как и везде, от расстройства желудка и простуды, до ранения.
+                        Наличие собственных средств может не просто облегчить болезнь, но и спасти вам жизнь. 91% раненых погибает на догоспитальном этапе, поэтому у профессионалов
+                        жгуты и кровоостанавливающие препараты всегда с собой.</p>
+                        <a href="https://jinja-volt-pro.appseed-srv1.com/map.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd"></path></svg>
+                            Аптечки
+                        </a>
+                    </div>
+                    <div class="col-lg-6 order-lg-1">
+                        <img src="{{ config.ASSETS_ROOT }}/img/illustrations/firstaid.png" alt="MapBox Leaflet.js Custom Integration Mockup">
+                    </div>
+                </div>
+                <div class="row justify-content-between align-items-center mb-5 mb-lg-7">
+                    <div class="col-lg-5 mb-5 mb-lg-0">
+                        <h2 class="h1 d-flex align-items-center">Защита </h2>
+                        <p class="mb-4 lead fw-bold">Специальная экипировка</p>
+                        <p class="mb-4">Разгрузки, шлемы, подсумки, бронежилеты -как в этом разобраться? Приглашаем профессионалов принять участие в обсуждении.</p>
+                        <a href="https://jinja-volt-pro.appseed-srv1.com/calendar.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                            <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                            Экипировка
+                        </a>                        
+                    </div>
+                    <div class="col-lg-6">
+                        <img src="{{ config.ASSETS_ROOT }}/img/illustrations/multicam.png" alt="Calendar Preview">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <footer class="footer py-6 bg-gray-800 text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <img class="navbar-brand-dark mb-4" height="35" src="{{ config.ASSETS_ROOT }}/img/brand/mobilisation_white.png" alt="Logo light">
+                    <p>Проект, направленный на помощь мобилизованным в сборе только нужных вещей</p>
+<!--                    <ul class="social-buttons mb-5 mb-lg-0">-->
+<!--                        <li>-->
+<!--                            <a href="https://twitter.com/themesberg" aria-label="twitter social link" class="icon-white me-2">-->
+<!--                                <span class="fab fa-twitter"></span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <a href="https://www.facebook.com/themesberg/" class="icon-white me-2" aria-label="facebook social link">-->
+<!--                                <span class="fab fa-facebook"></span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <a href="https://github.com/themesberg" aria-label="github social link" class="icon-white me-2">-->
+<!--                                <span class="fab fa-github"></span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <a href="https://dribbble.com/themesberg" class="icon-white" aria-label="dribbble social link" >-->
+<!--                                <span class="fab fa-dribbble"></span>-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+                </div>
+<!--                <div class="col-6 col-md-2 mb-5 mb-lg-0">-->
+<!--                    <span class="h5">Themesberg</span>-->
+<!--                    <ul class="links-vertical mt-2">-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/blog">Blog</a></li>-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/products">Products</a></li>-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/about">About Us</a></li>-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/contact">Contact Us</a></li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+<!--                <div class="col-6 col-md-2 mb-5 mb-lg-0">-->
+<!--                    <span class="h5">Other</span>-->
+<!--                    <ul class="links-vertical mt-2">-->
+<!--                        <li><a href="https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/quick-start/" target="_blank">Docs-->
+<!--                                <span class="badge badge-sm bg-secondary text-dark ms-2">v1.4</span></a></li>-->
+<!--                        <li><a href="https://themesberg.com/docs/volt-bootstrap-5-dashboard/getting-started/changelog/" target="_blank">Changelog</a></li>-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/licensing">License</a>-->
+<!--                        </li>-->
+<!--                        <li><a target="_blank" href="https://themesberg.com/contact">Support</a></li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+                <div class="col-12 col-md-4 mb-5 mb-lg-0">
+                    <span class="h5 mb-3 d-block">Подписаться</span>
+                    <form action="#">
+                        <div class="form-row mb-2">
+                            <div class="col-12">
+                                <input type="email" class="form-control mb-2" placeholder="example@company.com" name="email" aria-label="Subscribe form" required>
+                            </div>
+                            <div class="col-12 d-grid">
+                                <button type="submit" class="btn btn-secondary" data-loading-text="Sending">
+                                    <span>Подписаться</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+<!--            <hr class="bg-gray-700 my-5">-->
+<!--            <div class="row">-->
+<!--                <div class="col mb-md-0">-->
+<!--                    <a href="https://themesberg.com" target="_blank" class="d-flex justify-content-center">-->
+<!--                        <img src="{{ config.ASSETS_ROOT }}/img/themesberg-logo-alt.svg" height="35" class="mb-4" alt="Themesberg Logo">-->
+<!--                    </a>-->
+<!--                <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">-->
+<!--                    <p class="fw-normal font-small mb-0">-->
+<!--                        &copy; Themesberg 2019-<span class="current-year">2020</span> - coded by <a target="_blank" href="https://appseed.us">AppSeed</a>.</p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+        </div>
+    </footer>
+
+    {% include 'includes/scripts.html' %}
+
+</body>
+</html>
