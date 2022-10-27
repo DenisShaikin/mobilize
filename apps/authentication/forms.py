@@ -5,10 +5,17 @@ Copyright (c) 2019 - present AppSeed.us
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectField, SubmitField, FloatField
-from wtforms.validators import Email, DataRequired
+from wtforms.validators import Email, DataRequired,  EqualTo
 
 # login and registration
 
+class ResetPasswordRequestForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Пароль', validators=[DataRequired()])
+    password2 = PasswordField('Повторно Пароль', validators=[DataRequired(), EqualTo('password',
+                                                                                     message='Пароль должен совпадать')])  #, EqualTo('password')
 
 class LoginForm(FlaskForm):
     username = StringField('Username',

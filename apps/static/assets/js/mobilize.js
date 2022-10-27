@@ -36,16 +36,15 @@ function changeSelected(id) {
         'value': element.checked }));
 }
 
-//Функция должна срабатывать по Enter в новом комментарии
-function onCommentChange(comment_id){
-    var element = document.getElementById('newComment_field');
-    console.log(comment_id)
+//Функция должна срабатывать по Enter в новом комментарии (для Item)
+function onCommentChange(item_id){
+    var element = document.getElementById('newComment');
     var xhr = new XMLHttpRequest();
     xhr.open('post', 'addNewComment');
     xhr.onload = function() {
         if (this.readyState === 4 && this.status === 200) {
             var myResponse = JSON.parse(xhr.responseText);
-            console.log(myResponse.result)
+//            console.log(myResponse.result)
             window.location.reload();
         }
         else if (xhr.status !== 200) {
@@ -55,9 +54,33 @@ function onCommentChange(comment_id){
     xhr.setRequestHeader("X-CSRFToken", csrf_token);
     xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     xhr.send(JSON.stringify({
-        'item_id': comment_id,
-        'value': element.value }));
+        'item_id': item_id,
+        'value': element.value}));
 }
+
+
+//Функция должна срабатывать по Enter в новом комментарии (для Article)
+function onArticleCommentChange(article_id){
+    var element = document.getElementById('newArticleComment');
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', 'addNewComment');
+    xhr.onload = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var myResponse = JSON.parse(xhr.responseText);
+//            console.log(myResponse.result)
+            window.location.reload();
+        }
+        else if (xhr.status !== 200) {
+        }
+    };
+    var csrf_token = document.querySelector('meta[name=csrf-token]').content;
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send(JSON.stringify({
+        'article_id': article_id,
+        'value': element.value}));
+}
+
 
 if (document.getElementById('personalPhotoFile')) {
     document.getElementById('personalPhotoFile').addEventListener('change', handlePersonalPhoto, false);

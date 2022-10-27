@@ -8,17 +8,21 @@ from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from importlib import import_module
 from flask_wtf.csrf import CSRFProtect
+from flask_ckeditor import CKEditor
+from flask_mail import Mail
 
 
 db = SQLAlchemy()
 login_manager = LoginManager()
-
+ckeditor = CKEditor()
+csrf = CSRFProtect()
+mail = Mail()
 
 def register_extensions(app):
     db.init_app(app)
     login_manager.init_app(app)
-    csrf = CSRFProtect()
     csrf.init_app(app)
+    mail.init_app(app)
 
 def register_blueprints(app):
     for module_name in ('authentication', 'home'):
@@ -43,6 +47,7 @@ def create_app(config):
     app.config.from_object(config)
     register_extensions(app)
     register_blueprints(app)
+    ckeditor.init_app(app)
 
     app.register_blueprint(github_blueprint, url_prefix="/login") 
     

@@ -10,7 +10,9 @@ from sqlalchemy import ForeignKey
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from datetime import datetime, timedelta
 from apps import db, login_manager
-
+from time import time
+import jwt
+from flask import current_app as app
 from apps.authentication.util import hash_pass
 
 class Users(db.Model, UserMixin):
@@ -42,9 +44,31 @@ class Users(db.Model, UserMixin):
                 value = hash_pass(value)  # we need bytes here (not plain str)
 
             setattr(self, property, value)
+        self.avatar_photo='/assets/img/team/profile-picture-1.jpg'
 
     def __repr__(self):
-        return str(self.username) 
+        return str(self.username)
+
+    def set_password(self, value):
+        if not isinstance(value, str):
+            value = value[0]
+        value = hash_pass(value)  # we need bytes here (not plain str)
+        setattr (self, 'password', value)
+
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256')
+
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            id = jwt.decode(token, app.config['SECRET_KEY'],
+                            algorithms=['HS256'])['reset_password']
+        except:
+            return
+        return Users.query.get(id)
+
 
 @login_manager.user_loader
 def user_loader(id):
@@ -121,7 +145,7 @@ class Item(db.Model):
         db.session.commit()
         return Comment.query.join(Users, Users.id==Comment.user_id).\
             with_entities(Comment.id, Users.username, Comment.text).\
-            filter(Comment.item_id == self.id).order_by(Comment.timestamp.asc())
+            filter(Comment.item_id == self.id).order_by(Comment.timestamp.desc())
 
 class ItemPhotos(db.Model):
     __tablename__ = 'ItemPhotos'
@@ -149,6 +173,7 @@ class Activity(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey('Items.id')) #Привязка к предметам
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id')) #Привязка к предметам
+    article_id = db.Column(db.Integer, db.ForeignKey('Articles.id')) #Привязка к статьям
     rating = db.Column(db.Integer)  #Оценка от 1 до 5
     inList = db.Column(db.Boolean) #Включить в список
     haveIt = db.Column(db.Boolean) #Уже есть в наличии
@@ -172,7 +197,70 @@ class Comment(db.Model):  #Комментарии к Items
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id'))  # Привязка к пользователю
     item_id = db.Column(db.Integer, db.ForeignKey('Items.id')) #Привязка к предметам
+    article_id = db.Column(db.Integer, db.ForeignKey('Articles.id')) #Привязка к статьям
     text = db.Column(db.String(200))
 
     def __repr__(self):
         return '<Comment {}>'.format(self.text)
+
+
+class Article(db.Model):
+    __tablename__ = 'Articles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_added = db.Column(db.Integer, ForeignKey("Users.id"))
+    update_date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    title = db.Column(db.String(64))                             #Название предмета
+    body = db.Column(db.String(4000))
+    video_link = db.Column(db.String(255))  #Ссылка на видео
+    activities = db.relationship('Activity', backref='Article', lazy='dynamic', passive_deletes=True)
+    comments = db.relationship('Comment', backref='Article', lazy='dynamic', passive_deletes=True)
+    photos = db.relationship('ArticlePhotos', backref='Article', lazy='dynamic', passive_deletes=True)
+
+    def __init__(self, **kwargs):  #Создание элемента по словарю аргументов
+        for property, value in kwargs.items():
+            # depending on whether value is an iterable or not, we must
+            # unpack it's value (when **kwargs is request.form, some values
+            # will be a 1-element list)
+            if hasattr(value, '__iter__') and not isinstance(value, str):
+                # the ,= unpack of a singleton fails PEP8 (travis flake8 test)
+                value = value[0]
+            setattr(self, property, value)
+    def __repr__(self):
+        return str(self.title)
+
+    def followed_comments(self, User):
+        #Сперва удалим пустые других пользователей
+        db.session.query(Comment).filter((Comment.text=='') & (Comment.user_id != User.id)).delete()
+        db.session.commit()
+        return Comment.query.join(Users, Users.id==Comment.user_id).\
+            with_entities(Comment.id, Users.username, Comment.text).\
+            filter(Comment.article_id == self.id).order_by(Comment.timestamp.desc())
+
+    def add_emptycomment(self, User):
+        '''Функция проверяет наличие пустого комментария и его возвращает, если его нет - создает'''
+
+        if not self.is_emptycommentexist(User):
+            newComment=Comment(user_id=User.id, article_id=self.id, text='')
+            self.comments.append(newComment)
+            db.session.commit()
+            return newComment
+        else:
+            return Comment.query.filter((Comment.user_id==User.id) & (Comment.article_id==self.id) &
+                                        (Comment.text=='')).first()
+
+    def is_emptycommentexist(self, User):
+        return self.comments.filter((Comment.article_id == self.id) &
+                                    (Comment.user_id == User.id) &
+                                    (Comment.text == '')).count() > 0
+
+class ArticlePhotos(db.Model):
+    __tablename__ = 'ArticlePhotos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    article_id = db.Column(db.Integer, db.ForeignKey('Articles.id', ondelete='CASCADE')) #Привязка к владельцу
+    photo = db.Column(db.String(120))
+    def __repr__(self):
+        return self.photo
+    def photos_id(self):
+        return self.photo, self.id

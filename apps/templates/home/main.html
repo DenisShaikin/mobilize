@@ -69,8 +69,8 @@
       <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
           <nav aria-label="Page navigation example">
               <ul class="pagination mb-0">
-                  {% for npage in range(pagesCount+1) %}
-                  <li class="page-item">
+                  {% for npage in range(pagesCount) %}
+                  <li class="page-item {%if npage == currPage-1 %} active {% endif %}">
                       <a class="page-link" href="{{ url_for('home_blueprint.main', page=npage+1) }}">{{ npage+1 }} </a>
                   </li>
                   {% endfor %}
@@ -96,11 +96,9 @@
                     {% for cell_ in row %}
                         <td>
                         {% if loop.index == 1 %}
-<!--                            <div class="col-sm-auto mx-3 my-3">-->
                                 <figure class="figure">
-                                    <img  src="{{ cell_}}"  width="100px" height="100px" class="img-fluid rounded-0 alt="">
+                                        {{ cell_|safe}}
                                 </figure>
-<!--                            </div>-->
                         {% else %}
                             {{ cell_|safe }}
                         {% endif %}

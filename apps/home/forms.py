@@ -4,9 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField, SelectField, BooleanField, RadioField, MultipleFileField, TextAreaField, DateField
+from wtforms import StringField, DecimalField, SelectField, BooleanField, RadioField, \
+    MultipleFileField, TextAreaField, DateField, FileField
 from wtforms.validators import Email, DataRequired, NumberRange
 from flask_wtf.file import  FileRequired, FileAllowed
+from flask_ckeditor import CKEditorField
 
 class SettingsForm(FlaskForm):
     first_name = StringField('Имя', id='first_name')
@@ -49,3 +51,21 @@ class EditItemForm(FlaskForm):
     haveIt = BooleanField('Есть в наличии', default=True)
     rating = RadioField('rating', choices=[('5', '5 stars'), ('4', '4 stars'), ('3', '3 stars'), ('2', '2 stars'), ('1', '1 star')],
                        coerce = int)
+
+class AddArticleForm(FlaskForm):
+    title = StringField('Title')
+    video_link = StringField('Ссылка на видео')
+    body = CKEditorField('Body')  # <--
+    rating = RadioField('rating', choices=[('5', '5 stars'), ('4', '4 stars'), ('3', '3 stars'), ('2', '2 stars'), ('1', '1 star')],
+                       coerce = int)
+    photos = FileField('Выберите файл с фото', validators=[FileRequired(),
+                                    FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
+
+
+class EditArticleForm(FlaskForm):
+    title = StringField('Title')
+    video_link = StringField('Ссылка на видео')
+    body = CKEditorField('Body')  # <--
+    rating = RadioField('rating', choices=[('5', '5 stars'), ('4', '4 stars'), ('3', '3 stars'), ('2', '2 stars'), ('1', '1 star')],
+                       coerce = int)
+    photos = FileField('Выберите файл с фото', validators=[FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])

@@ -18,8 +18,55 @@ from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
 from apps.authentication.models import Users
-
+from apps.authentication.forms import ResetPasswordRequestForm, ResetPasswordForm
+from apps.authentication.email import send_password_reset_email
 from apps.authentication.util import verify_pass
+from apps.authentication.models import Users
+
+
+@blueprint.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('home_blueprint.index'))
+    form = ResetPasswordRequestForm()
+
+    if 'reset_password' in request.form:
+        user = Users.query.filter_by(email=form.email.data).first()
+        if user:
+            send_password_reset_email(user)
+        return redirect(url_for('authentication_blueprint.login'))
+
+    elif request.method == 'GET':
+        form.email.data = ''
+
+    return render_template('accounts/emailpass.html',
+                           msg='Введите Ваш email', form=form)
+
+@blueprint.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('home_blueprint.index'))
+    user = Users.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('home_blueprint.index'))
+    ResetPassForm = ResetPasswordForm()
+    if 'reset_password' in request.form:
+        if ResetPassForm.password.data==ResetPassForm.password2.data:
+            user.set_password(ResetPassForm.password.data)
+            db.session.commit()
+            # flash('Your password has been reset.')
+            return redirect(url_for('authentication_blueprint.login'))
+        else :
+            print('Пароль не совпадает')
+            render_template( 'accounts/reset_passwordform.html',
+                             msg='Пароль не совпадает',
+                             success=False,
+                             form=ResetPassForm)
+
+    return render_template( 'accounts/reset_passwordform.html',
+                            msg='Введите новый пароль 2 раза',
+                            success=False,
+                            form=ResetPassForm)
 
 @blueprint.route('/')
 def route_default():

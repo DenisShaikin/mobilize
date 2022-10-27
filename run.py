@@ -11,6 +11,7 @@ from apps.config import config_dict
 from apps import create_app, db
 from apps.authentication.models import Users, Item, ItemPhotos, Comment, Activity, ActivityPhotos
 
+
 # WARNING: Don't run with debug turned on in production!
 DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 

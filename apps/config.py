@@ -22,15 +22,29 @@ class Config(object):
     
     SOCIAL_AUTH_GITHUB  = False
 
-    ITEMS_PER_PAGE = 3
+    ITEMS_PER_PAGE = 30
     COMMENTS_PER_PAGE = 3
+    ARTICLES_PER_PAGE = 9
 
     PHOTOS_FOLDER = os.path.join('assets', 'img', 'photos')
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'photos')
     PERSO_PHOTO_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'team')
     PERSO_PHOTO = os.path.join('assets', 'img', 'team')
-    ITEMFILES_PATH = os.path.join(basedir, 'static', 'assets', 'downloads')
-    FILES_PATH = os.path.join('assets', 'downloads')
+    ITEMFILES_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
+    FILES_PATH = os.path.join('assets', 'uploads')
+
+    CKEDITOR_PKG_TYPE = 'standard'
+    CKEDITOR_SERVE_LOCAL = True
+    CKEDITOR_HEIGHT = 300
+    CKEDITOR_FILE_UPLOADER= 'home_blueprint.upload'
+    UPLOADED_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
+
+    MAIL_SERVER = os.getenv('MAIL_SERVER')
+    MAIL_PORT = int(os.getenv('MAIL_PORT') or 25)
+    MAIL_USE_SSL = True #os.environ.get('MAIL_USE_SSL')
+    MAIL_USERNAME = os.getenv('MAIL_USERNAME')
+    MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
+    ADMINS = ['chaikide@mail.ru']
 
     GITHUB_ID      = os.getenv('GITHUB_ID')
     GITHUB_SECRET  = os.getenv('GITHUB_SECRET')

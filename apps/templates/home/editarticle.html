@@ -17,13 +17,12 @@
                   </a>
               </li>
               <li class="breadcrumb-item"><a href="#">Мобилизация</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Добавление предмета</li>
+              <li class="breadcrumb-item active" aria-current="page">Редактирование статьи</li>
           </ol>
       </nav>
       <div class="d-flex justify-content-between w-100 flex-wrap">
           <div class="mb-3 mb-lg-0">
-              <h1 class="h4">Редактирование предмета</h1>
-              <p class="mb-0">Создатель предмета может менять все поля, остальные - только часть</p>
+              <h1 class="h4">Редактирование статьи</h1>
           </div>
 <!--          <div>-->
 <!--              <a href="https://themesberg.com/docs/volt-bootstrap-5-dashboard/components-forms/" class="btn btn-outline-gray"><i class="far fa-question-circle me-1"></i> Forms Docs</a>-->
@@ -38,69 +37,65 @@
           <div class="card border-0 shadow components-section">
               <div class="card-body">     
                   <div class="row mb-4">
-                      <div class="col-lg-4 col-sm-6">
-                          <!-- Категория -->
+                      <div class="col-lg-12 col-sm-6">
+                          <!-- тема -->
                           <div class="mb-4">
-                              <label class="my-1 me-2" for="category">Категория</label>
-                              {{ form.category(class='form-select', placeholder='Категория предмета', disabled=not owner) }}
+                              <label class="my-1 me-2" for="category">Тема статьи</label>
+                              {{ form.title(class='form-control') }}
                           </div>
-                            <!-- name -->
-                          <div class="mb-3">
-                              <label for="name">Название</label>
-                              {{ form.name(class='form-control', disabled=not owner) }}
+                          <div class="mb-4">
+                              <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
+                              {{ form.video_link(class='form-control') }}
                           </div>
-                            <!-- цена -->
-                          <div class="mb-3">
-                              <label for="price">Примерная цена</label>
-                              {{ form.price(class='form-control', placeholder='',  disabled=not owner) }}
+                          {% if video_link %}
+                            <div class="card border-1 shadow mb-4">
+                                <div class="card-body">
+                                    <div class="embed-responsive embed-responsive-16by9">
+                                        <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                </div>
+                                </div>
+                            </div>
+                          {% endif%}
+                          <div class="mb-4">
+                              <label class="my-1 me-2" for="body">Статья</label>
+                              {{ form.body(rows=20) }}
                           </div>
-                          <div class = "row">
-                              <div class="d-grid">
-                                  <button type="submit" name="Edititem" class="btn btn-gray-800">Обновить</button>
-                                  <button name="Cancel" class="btn btn-secondary">Отмена</button>
-                              </div>
 
-                          </div>
-                      </div>
-                      <div class="col-lg-8 col-sm-6">
-                            <!-- Описание -->
-                          <div class="my-4">
-                              <label for="textarea">Характеристики, описание</label>
-                              {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
-                              disabled=not owner, rows='5') }}
-                          </div>
+                        <!-- Выбор текущего пользователя -->
                           <div class="mb-3">
-                              <label for="formFile" class="form-label">Выберите фото</label>
+                              <label for="formFile" class="form-label">Выберите фото для статьи</label>
                               {{ form.photos(class='form-control') }}
                           </div>
-                        <!-- Выбор текущего пользователя -->
                           <div class="row">
-                              <div class="my-4">
                                   <span class="h6 fw-bold">Ваш выбор</span>
-                              <div class="form-check form-switch">
-                                    {{ form.inList(class='form-check-input', id='inList', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, чтобы включить в список") }}
-                                  <label class="form-check-label">Включить в список</label>
-                              </div>
-                              <div class="form-check form-switch">
-                                    {{ form.haveIt(class='form-check-input', id='haveIt', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, если  в наличии") }}
-                                  <label class="form-check-label" >Есть в наличии</label>
-                              </div>
-                                <ul class="rate-area">
-                                 {% for subfield in form.rating %}
-                                        {{ subfield}} {{ subfield.label}}
-                                {% endfor %}
-                                </ul>
+                              <div class="my-0">
+                                    <ul class="rate-area">
+                                     {% for subfield in form.rating %}
+                                            {{ subfield}} {{ subfield.label}}
+                                    {% endfor %}
+                                    </ul>
                               </div>
                           </div>
                       </div>
+                  <div class="row">
+                      <div class="d-grid col-lg-3">
+                          <button type="submit" name="editarticle" class="btn btn-gray-800">Сохранить</button>
+                      </div>
+                      <div class="d-grid col-lg-3">
+                          <a href={{ url_for('home_blueprint.articlesMain') }} class="btn btn-secondary">
+                            Отмена
+                          </a>
+                      </div>
+
+                  </div>
 
                   </div>
               </div>
           </div>
       </div>
   </div>
-</form>
 
+</form>
   <div class="card border-0 shadow mb-4">
       <div class="card-body">
           <div class="table-responsive">
@@ -113,7 +108,6 @@
                     {% endfor %}
                   </tbody>
               </table>
-
           </div>
       </div>
   </div>
@@ -133,8 +127,8 @@
                 {{current_user.username}}
               </td>
               <td>
-                <textarea rows="1" class="form-control" placeholder="Ваш коментарий..." id="newComment" name="newComment"
-                          onkeydown="if(event.keyCode == 13) return onCommentChange({{ item_id}});" value=""></textarea>
+                <textarea rows="1" class="form-control" placeholder="Ваш коментарий..." id="newArticleComment" name="newComment"
+                          onkeydown="if(event.keyCode == 13) return onArticleCommentChange({{ article_id}});" value=""></textarea>
             </td>
           </tr>
             {% for row in comments_data %}
@@ -152,17 +146,24 @@
       <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
           <nav aria-label="Page navigation example">
               <ul class="pagination mb-0">
-                  {% for npage in range(pagesCount+1) %}
+                  {% for npage in range(pagesCount) %}
                     <li class="page-item {%if npage == currPage-1 %} active {% endif %}">
-                     <a class="page-link" href="{{ url_for('home_blueprint.edititem', item_id=item_id, page=npage+1) }}" active>{{ npage+1 }} </a>
+                     <a class="page-link" href="{{ url_for('home_blueprint.editarticle', article_id=article_id, page=npage+1) }}" active>{{ npage+1 }} </a>
                   </li>
                   {% endfor %}
               </ul>
           </nav>
-          <div class="fw-normal small mt-4 mt-lg-0">Показ <b>{{ currPage }}</b> из <b>{{ pagesCount+1 }} </b> страниц</div>
+          <div class="fw-normal small mt-4 mt-lg-0">Показ <b>{{ currPage }}</b> из <b>{{ pagesCount }} </b> страниц</div>
       </div>
   </div>
+
+
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body', height=400, file_uploader = '/upload') }}
+
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
-{% block javascripts %}{% endblock javascripts %}
+{% block javascripts %}
+
+{% endblock javascripts %}
