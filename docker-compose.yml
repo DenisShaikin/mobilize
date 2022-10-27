@@ -1,27 +1,55 @@
-version: '3.8'
+ version: '3.8'
 services:
-  appseed-app:
-    container_name: appseed_app
-    restart: always
-    build: .
-    networks:
-      - db_network
-      - web_network
-  nginx:
-    container_name: nginx
-    restart: always
-    image: "nginx:latest"
-    ports:
-      - "5085:5085"
+    
+  mysql:
+    image: mysql/mysql-server:5.7
     volumes:
-      - ./nginx:/etc/nginx/conf.d
-    networks:
-      - web_network
-    depends_on: 
-      - appseed-app
-networks:
-  db_network:
-    driver: bridge
-  web_network:
-    driver: bridge
- 
+      - mobilize_db:/db/
+    ports:
+      - 3306:3306
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=yes
+      - MYSQL_DATABASE=mobilize
+      - MYSQL_USER=mobilize
+      - MYSQL_PASSWORD=mobilizepass_2
+
+    command: 
+      --sql-mode=""
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    restart: on-failure
+      
+  mobilize:
+    build: .
+    restart: always
+    ports:
+      - "80:5000"
+    depends_on:
+      - mysql
+    links:
+      - mysql
+    environment:
+      - SECRET_KEY=mobilizesecret
+      - MAIL_SERVER=smtp.mail.ru
+      - MAIL_PORT=465
+      - MAIL_USE_TLS=0
+      - MAIL_USE_SSL=1
+      - MAIL_USERNAME=chaikide@mail.ru
+      - MAIL_PASSWORD=r20tfKbzMgASvYb8m1bY
+      - "DATABASE_URL=mysql+pymysql://mobilize:mobilizepass_2@mysql/mobilize"
+      - DB_HOST=mysql
+      - DEBUG=False
+      
+    volumes:
+      - mobilize_photos:/home/mobilize/apps/static/assets/img/photos
+    depends_on:
+      - mysql
+            
+volumes:
+  mobilize_photos:
+  mobilize_db:
+
+      

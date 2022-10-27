@@ -1,24 +1,43 @@
-FROM python:3.9
+FROM python:3.9-slim-bullseye
 
-# set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Environment variables, setting app home path and copy of the python app in the container
+ENV PYTHONUNBUFFERED True
+
+ENV APP_HOME /home/mobilize  
+WORKDIR $APP_HOME
+RUN useradd mobilize
+RUN chown -R mobilize:mobilize ./
+# ./
+
+COPY . ./
+
+# Update/upgrade the system
+RUN apt -y update
+RUN apt -y upgrade
+
+# WORKDIR /home/mobilize
+
+copy requirements.txt requirements.txt
+# RUN python -m venv venv 
+# RUN venv/bin/pip install -r requirements.txt
+
+RUN pip install -r requirements.txt
+RUN pip install gunicorn pymysql
+
+COPY apps apps
+COPY media media
+# COPY migrations migrations
+COPY run.py boot.sh  ./
+RUN chmod +x boot.sh
+
 ENV FLASK_APP run.py
-ENV DEBUG True
+ENV FLASK_ENV Production
+ENV DEBUG 0
 
-COPY requirements.txt .
+RUN chown -R mobilize:mobilize ./
+USER mobilize
 
-# install python dependencies
-RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE 5000
 
-COPY env.sample .env
+ENTRYPOINT ["./boot.sh"]
 
-COPY . .
-
-RUN flask db init
-RUN flask db migrate
-RUN flask db upgrade
-
-# gunicorn
-CMD ["gunicorn", "--config", "gunicorn-cfg.py", "run:app"]
