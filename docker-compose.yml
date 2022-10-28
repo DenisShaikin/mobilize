@@ -30,6 +30,8 @@ services:
       - "80:5000"
     expose:
      - '465'
+    network_mode: "host"
+    
     depends_on:
       - mysql
     links:
