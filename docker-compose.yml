@@ -34,8 +34,6 @@ services:
     
     depends_on:
       - mysql
-    links:
-      - mysql
     environment:
       - SECRET_KEY=mobilizesecret342
       - MAIL_SERVER=smtp.mail.ru
