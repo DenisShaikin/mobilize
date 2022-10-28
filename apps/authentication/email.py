@@ -13,7 +13,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
     print('login=', app.config['MAIL_USERNAME'])
     print('pass=', app.config['MAIL_PASSWORD'])
     server = smtplib.SMTP_SSL(app.config['MAIL_SERVER'], app.config['MAIL_PORT'])
-    server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+    print(server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD']))
     msg = EmailMessage()
     msg['Subject'] = subject
     msg['To'] = recipients

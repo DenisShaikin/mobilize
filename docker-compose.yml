@@ -28,6 +28,8 @@ services:
     restart: always
     ports:
       - "80:5000"
+    expose:
+     - '465'
     depends_on:
       - mysql
     links:
@@ -36,7 +38,6 @@ services:
       - SECRET_KEY=mobilizesecret342
       - MAIL_SERVER=smtp.mail.ru
       - MAIL_PORT=465
-      - MAIL_USE_TLS=0
       - MAIL_USE_SSL=1
       - MAIL_USERNAME=chaikide@mail.ru
       - MAIL_PASSWORD=r20tfKbzMgASvYb8m1bY
