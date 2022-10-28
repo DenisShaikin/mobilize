@@ -1,4 +1,5 @@
- version: '3.8'
+version: '3.8'
+
 services:
     
   mysql:
@@ -32,7 +33,7 @@ services:
     links:
       - mysql
     environment:
-      - SECRET_KEY=mobilizesecret
+      - SECRET_KEY=mobilizesecret342
       - MAIL_SERVER=smtp.mail.ru
       - MAIL_PORT=465
       - MAIL_USE_TLS=0

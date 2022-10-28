@@ -49,11 +49,13 @@
             {% for row in row_data %}
             <div class="card col-3 mx-3 my-3 card-body border-1 shadow table-wrapper table-responsive">
 <!--                            <div class="col-sm-auto mx-3 my-3">-->
-
-                <figure class="figure">
-                    <img  src="{{ row[1] }}"  width="200px" height="150px" class="img-fluid rounded-0 alt="">
-                </figure>
+                <div class="row ">
+                    <figure class="figure">
+                        <img  src="{{ row[1] }}"  width="200px" height="200px" class="img-fluid rounded-0 alt="">
+                    </figure>
+                </div>
                 <h4> {{ row[2]|safe }} </h4>
+                <p> Оценка {{row[3]}}</p>
             </div>
             {% endfor %}
 

@@ -166,18 +166,19 @@ def edititem(item_id):
         # print(argslst, True if 'inList' in argslst else False)
         #Чужому Item можно редактировать оценку, добавлять фото, добавлять в свой список, отмечать наличие
         item = Item.query.filter(Item.id == item_id).first()
-        item.category = edititem_form.category.data
-        item.name = edititem_form.name.data
-        item.description = edititem_form.description.data
-        item.price = edititem_form.price.data
+        if item.user_added == current_user.id: #Только создавший пользователь может обновлять Item
+            item.category = edititem_form.category.data
+            item.name = edititem_form.name.data
+            item.description = edititem_form.description.data
+            item.price = edititem_form.price.data
 
-        for file in request.files.getlist('photos'):  #additem_form.photos.data
-            photo = secure_filename(file.filename)
-            if photo:
-                new_filename = current_user.username + "_" + datetime.today().strftime('%Y_%m_%d_%H_%M_%S') + "_" + photo
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
-                newphoto = ItemPhotos(Item=item, photo=new_filename)
-                db.session.add(newphoto)
+            for file in request.files.getlist('photos'):  #additem_form.photos.data
+                photo = secure_filename(file.filename)
+                if photo:
+                    new_filename = current_user.username + "_" + datetime.today().strftime('%Y_%m_%d_%H_%M_%S') + "_" + photo
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+                    newphoto = ItemPhotos(Item=item, photo=new_filename)
+                    db.session.add(newphoto)
         editActivity = Activity.query.filter(Activity.item_id == item_id, Activity.user_id==current_user.id).first()
         setattr(editActivity, 'rating', argslst['rating'])
         setattr(editActivity, 'inList', True if 'inList' in argslst else False)
@@ -292,19 +293,20 @@ def editarticle(article_id):
     if 'editarticle' in request.form:
         argslst = dict(request.form)
         # Чужому Item можно редактировать оценку, добавлять фото, добавлять в свой список, отмечать наличие
-        article = Article.query.filter(Article.id == article_id).first()
-        article.title = article_form.title.data
-        article.video_link = article_form.video_link.data
-        article.body = article_form.body.data
+        article = Article.query.get(article_id)
+        if article.user_added == current_user.id:
+            article.title = article_form.title.data
+            article.video_link = article_form.video_link.data
+            article.body = article_form.body.data
 
-        for file in request.files.getlist('photos'):  # additem_form.photos.data
-            photo = secure_filename(file.filename)
-            if photo:
-                new_filename = current_user.username + "_" + datetime.today().strftime(
-                    '%Y_%m_%d_%H_%M_%S') + "_" + photo
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
-                newphoto = ArticlePhotos(Article=article, photo=new_filename)
-                db.session.add(newphoto)
+            for file in request.files.getlist('photos'):  # additem_form.photos.data
+                photo = secure_filename(file.filename)
+                if photo:
+                    new_filename = current_user.username + "_" + datetime.today().strftime(
+                        '%Y_%m_%d_%H_%M_%S') + "_" + photo
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], new_filename))
+                    newphoto = ArticlePhotos(Article=article, photo=new_filename)
+                    db.session.add(newphoto)
         editActivity = Activity.query.filter(Activity.article_id == article_id, Activity.user_id == current_user.id).first()
         rating = 0 if 'rating' not in argslst else argslst['rating']
         setattr(editActivity, 'rating', rating)
@@ -324,16 +326,16 @@ def editarticle(article_id):
             db.session.add(newactivity)
             db.session.commit()
             values = db.session.query(Article, Activity).with_entities(
-                Article.id, Article.title, Article.body,
+                Article.id, Article.title, Article.body, Article.video_link,
                 Activity.rating).join(Activity).filter(Article.id == article_id,
                                                                  Activity.user_id == current_user.id).first()
 
         values = values._mapping
-        owner = True if values.user_added == current_user.id else False  # Редактирует создатель Item
-        # print(values)
-        article_form.title.data = values['title']
-        article_form.video_link.data = values['video_link']
-        article_form.body.data = values['body']
+        currArticle = Article.query.get(article_id)
+        owner = True if article_id==currArticle.id else False  # Редактирует создатель Item
+        article_form.title.data = currArticle.title
+        article_form.video_link.data = currArticle.video_link
+        article_form.body.data = currArticle.body
         article_form.rating.data = values['rating']
 
         # photos = db.session.query(ItemPhotos).filter(ItemPhotos.item_id == item_id).all()
@@ -369,7 +371,7 @@ def editarticle(article_id):
 
 #список всех статей
 @blueprint.route('/articlesMain.html', methods=['GET'])
-@login_required
+# @login_required
 def articlesMain():
 
     def makeLink(id, name):
@@ -379,8 +381,7 @@ def articlesMain():
     # page = request.args.get('page', 1, type=int)
     dfArticles = pd.read_sql('''SELECT  art.id, art.title, art.user_added, 
             (SELECT atf.photo FROM ArticlePhotos atf WHERE atf.article_id = art.id ORDER BY Photo ASC LIMIT 1) AS Photo
-            FROM Articles art 
-            LEFT JOIN Activity act ON (act.article_id = art.id) WHERE act.user_id=''' + str(current_user.id) +';', db.session.bind)
+            FROM Articles art ;''', db.session.bind)
     #Из Activity рассчитаем среднюю оценку
     query = db.session.query(Activity.query.with_entities(Activity.article_id, func.avg(Activity.rating)).\
             group_by(Activity.article_id).subquery())
@@ -395,12 +396,13 @@ def articlesMain():
     dfArticles['id'] = dfArticles['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(x)) +
                    '">' + str(x) + '</a>')
-    dfArticles = dfArticles[['id', 'Photo', 'title']]
+    dfArticles = dfArticles[['id', 'Photo', 'title', 'rating']]
+
 
     page = request.args.get('page', 1, type=int)
     #выбираем только записи нужной страницы
     pagesCount = ceil(len(dfArticles.index)/app.config['ARTICLES_PER_PAGE'])
-    print(pagesCount)
+
 
     dfArticles = dfArticles[app.config['ARTICLES_PER_PAGE'] * (page-1):app.config['ARTICLES_PER_PAGE'] * (page)]
 

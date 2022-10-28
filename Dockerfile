@@ -15,6 +15,8 @@ COPY . ./
 RUN apt -y update
 RUN apt -y upgrade
 
+RUN apt install -y netcat
+
 # WORKDIR /home/mobilize
 
 copy requirements.txt requirements.txt

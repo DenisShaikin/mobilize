@@ -41,11 +41,11 @@
                           <!-- тема -->
                           <div class="mb-4">
                               <label class="my-1 me-2" for="category">Тема статьи</label>
-                              {{ form.title(class='form-control') }}
+                              {{ form.title(class='form-control',  disabled=not owner) }}
                           </div>
                           <div class="mb-4">
                               <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
-                              {{ form.video_link(class='form-control') }}
+                              {{ form.video_link(class='form-control',  disabled=not owner) }}
                           </div>
                           {% if video_link %}
                             <div class="card border-1 shadow mb-4">
@@ -58,13 +58,13 @@
                           {% endif%}
                           <div class="mb-4">
                               <label class="my-1 me-2" for="body">Статья</label>
-                              {{ form.body(rows=20) }}
+                              {{ form.body(disabled=not owner) }}
                           </div>
 
                         <!-- Выбор текущего пользователя -->
                           <div class="mb-3">
                               <label for="formFile" class="form-label">Выберите фото для статьи</label>
-                              {{ form.photos(class='form-control') }}
+                              {{ form.photos(class='form-control', disabled=not owner) }}
                           </div>
                           <div class="row">
                                   <span class="h6 fw-bold">Ваш выбор</span>
