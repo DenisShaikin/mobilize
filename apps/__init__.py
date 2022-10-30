@@ -12,6 +12,8 @@ from flask_ckeditor import CKEditor
 from flask_mail import Mail
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
+from sqlite3 import Connection as SQLite3Connection
+import sqlalchemy as sa
 
 
 db = SQLAlchemy()
@@ -55,5 +57,14 @@ def create_app(config):
     
     configure_database(app)
     #Включаем каскадное удаление
-    event.listen(Engine, 'connect', lambda c, _: c.execute('pragma foreign_keys=on'))
+    # insp = sa.inspect(Engine)
+    # print(Engine.url)
+    # event.listen(Engine, 'connect', lambda c, _: c.execute('pragma foreign_keys=on'))
     return app
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_pragma(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, SQLite3Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON;")
+        cursor.close()
