@@ -10,6 +10,8 @@ from importlib import import_module
 from flask_wtf.csrf import CSRFProtect
 from flask_ckeditor import CKEditor
 from flask_mail import Mail
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 
 db = SQLAlchemy()
@@ -52,4 +54,6 @@ def create_app(config):
     app.register_blueprint(github_blueprint, url_prefix="/login") 
     
     configure_database(app)
+    #Включаем каскадное удаление
+    event.listen(Engine, 'connect', lambda c, _: c.execute('pragma foreign_keys=on'))
     return app

@@ -98,9 +98,9 @@ class Item(db.Model):
     brand = db.Column(db.String(64))
     price = db.Column(db.Float)
     link = db.Column(db.String(128))
-    photos = db.relationship('ItemPhotos', backref='Item', lazy='dynamic', passive_deletes=True)
-    activities = db.relationship('Activity', backref='Item', lazy='dynamic', passive_deletes=True)
-    comments = db.relationship('Comment', backref='Item', lazy='dynamic', passive_deletes=True)
+    photos = db.relationship('ItemPhotos', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
+    activities = db.relationship('Activity', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
+    comments = db.relationship('Comment', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
 
     def __init__(self, **kwargs):  #Создание элемента по словарю аргументов
         for property, value in kwargs.items():
@@ -171,9 +171,9 @@ class Activity(db.Model):
     __tablename__ = 'Activity'
 
     id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.Integer, db.ForeignKey('Items.id')) #Привязка к предметам
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id')) #Привязка к предметам
-    article_id = db.Column(db.Integer, db.ForeignKey('Articles.id')) #Привязка к статьям
+    item_id = db.Column(db.Integer, db.ForeignKey('Items.id', ondelete='cascade')) #Привязка к предметам
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к предметам
+    article_id = db.Column(db.Integer, db.ForeignKey('Articles.id', ondelete='cascade')) #Привязка к статьям
     rating = db.Column(db.Integer)  #Оценка от 1 до 5
     inList = db.Column(db.Boolean) #Включить в список
     haveIt = db.Column(db.Boolean) #Уже есть в наличии

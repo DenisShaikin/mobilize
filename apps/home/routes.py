@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.home import blueprint
-from flask import render_template, request, redirect, url_for, jsonify
+from flask import render_template, request, redirect, url_for, jsonify, send_file
 from flask import send_from_directory, make_response
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
@@ -186,6 +186,11 @@ def edititem(item_id):
 
         db.session.commit()
         return redirect(url_for('home_blueprint.main'))
+    elif 'Delete' in request.form:  #Удаляем item и связанные Activity
+
+        db.session.delete(Item.query.get(item_id))
+        db.session.commit()
+        return redirect(url_for('home_blueprint.main'))
     elif 'Cancel' in request.form:
         return redirect(url_for('home_blueprint.main'))
 
@@ -196,7 +201,11 @@ def edititem(item_id):
             Item.id, Item.user_added, Item.name,  Item.description, Item.price,
             Item.category, Category.catname, Activity.inList, Activity.haveIt,
             Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id).first()
-
+        query=db.session.query(Item, Category, Activity).with_entities(
+            Item.id, Item.user_added, Item.name,  Item.description, Item.price,
+            Item.category, Category.catname, Activity.inList, Activity.haveIt,
+            Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id)
+        print(query.statement)
         if not values: #На этого пользователя нет записи с рейтингом - другой делал товар
             currItem = Item.query.filter(Item.id == item_id).first()
             newactivity = Activity(Item=currItem, User=current_user, inList=False,
@@ -495,9 +504,10 @@ def save_personnal_photo():
         db.session.commit()
     return jsonify({'result':  url_for('static', filename=current_user.avatar_photo)})
 
-@blueprint.route('/downloadItemsFile', methods=['GET'])
-def downloadItemsFile():
-    query = db.session.query(Item, Activity, Category).join(Activity, Category).filter((Activity.user_id == current_user.id) & (Activity.inList==True))
+@blueprint.route('/downloadItemsFile3', methods=['GET'])
+def downloadItemsFile3():
+    # return send_from_directory('static', 'assets/uploads/denis_2022_10_29_20_50_56.xlsx', as_attachment=True)
+    query = db.session.query(Item, Activity, Category).join(Activity, Category).filter(Activity.inList==True)
     dfItemsList = pd.read_sql(query.statement, query.session.bind)
     dfItemsList = dfItemsList [['id', 'catname', 'name', 'description', 'price', 'rating', 'haveIt']]
     dfItemsList.rename(columns={'rating':'Ваша оценка', 'haveIt':'Уже в наличии'}, inplace=True)
@@ -507,19 +517,19 @@ def downloadItemsFile():
     dfRating = pd.read_sql(query.statement, db.session.bind)
     dfRating.rename(columns={'item_id':'id', 'avg_1':'rating'}, inplace=True)
     dfRating['rating'] = dfRating['rating'].round(1)
-    # print(dfRating.columns, dfItemsList.columns)
     dfItemsList = dfItemsList.merge(dfRating, on='id', how='left')
-    dfItemsList.rename(columns={'rating':'Средняя оценка'}, inplace=True)
-    fileName = current_user.username + '_' + datetime.today().strftime('%Y_%m_%d_%H_%M_%S') + '.xlsx'
+    dfItemsList.rename(columns={'rating':'Средняя оценка', 'catname':'Категория', 'name':'Наименование',
+                                'description':'Описание', 'price':'Оценка'}, inplace=True)
+    dfItemsList.drop(columns=['id'], inplace=True)
+    fileName = current_user.username + '.xlsx'
     filePath = os.path.join(app.config['ITEMFILES_PATH'], fileName)
     dfItemsList.to_excel(filePath)
     time.sleep(1)
-    filePath = os.path.join(app.config['ITEMFILES_PATH']).replace('\\', '/')
+    # filePath = os.path.join(app.config['ITEMFILES_PATH'] + '/' + fileName).replace('\\', '/')
     # print(filePath)
-    # print(currResult)
-    # return jsonify({'result': 'success'})
-    return make_response(send_from_directory(filePath, fileName, as_attachment=True))
-    #redirect(url_for('static', filename=filePath))
+
+    return make_response(jsonify({'buttonId': current_user.username}), 200)
+
 
 
 @blueprint.route('/<template>')

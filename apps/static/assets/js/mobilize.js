@@ -109,11 +109,19 @@ function handlePersonalPhoto() {
 //Просто реакция на кнупку загрузки файла списка
 function handleDownloadListFile() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "/downloadItemsFile", true);
+    xhr.open("GET", "downloadItemsFile3", true);
     xhr.onload = function (){
-//        alert( xhr.responseText);
+        if (this.readyState === 4 && this.status === 200) {
+            var myResponse = JSON.parse(xhr.responseText);
+            var element = document.getElementById(myResponse['buttonId']);
+            element.click()
+        }
+        else if (xhr.status !== 200) {
+        }
     }
-    xhr.send(null);
+    var csrf_token = document.querySelector('meta[name=csrf-token]').content;
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.send();
 //    xhr.open('post', 'downloadItemsFile', true);
 //    xhr.onload = function() {
 //        if (this.readyState === 4 && this.status === 200) {
