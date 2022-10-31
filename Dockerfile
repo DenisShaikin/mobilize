@@ -22,7 +22,7 @@ RUN rm /etc/nginx/sites-enabled/default
 #ставим lets encript
 RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:certbot/certbot
-RUN apt -y update
+#RUN apt -y update
 RUN apt install -y certbot
 
 # WORKDIR /home/mobilize
