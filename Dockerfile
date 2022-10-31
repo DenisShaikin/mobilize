@@ -20,10 +20,10 @@ RUN apt install -y netcat nginx
 RUN rm /etc/nginx/sites-enabled/default
 
 #ставим lets encript
-RUN apt install software-properties-common
+RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:certbot/certbot
 RUN apt -y update
-RUN apt install certbot
+RUN apt install -y certbot
 
 # WORKDIR /home/mobilize
 
