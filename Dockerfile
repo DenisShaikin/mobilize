@@ -15,7 +15,15 @@ COPY . ./
 RUN apt -y update
 RUN apt -y upgrade
 
-RUN apt install -y netcat
+RUN apt install -y netcat nginx
+#После установки nginx удаляем настройки по умолчанию
+RUN rm /etc/nginx/sites-enabled/default
+
+#ставим lets encript
+RUN apt install software-properties-common
+RUN add-apt-repository ppa:certbot/certbot
+RUN apt -y update
+RUN apt install certbot
 
 # WORKDIR /home/mobilize
 
@@ -29,8 +37,12 @@ RUN pip install gunicorn pymysql
 COPY apps apps
 COPY media media
 # COPY migrations migrations
-COPY run.py boot.sh  ./
+COPY run.py boot.sh  ./ 
+COPY mobilize /etc/nginx/sites-enabled/
 RUN chmod +x boot.sh
+RUN service nginx reload
+RUN certbot certonly --webroot -w /var/www/takemobil -d Takemobil.ru
+RUN service nginx reload
 
 ENV FLASK_APP run.py
 ENV FLASK_ENV Production
