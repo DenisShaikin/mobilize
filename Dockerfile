@@ -39,6 +39,8 @@ COPY media media
 # COPY migrations migrations
 COPY run.py boot.sh  ./ 
 COPY mobilize /etc/nginx/sites-enabled/
+RUN cd /etc/nginx/sites-enabled/
+RUN ls
 RUN chmod +x boot.sh
 RUN service nginx reload
 RUN certbot certonly --webroot -w /var/www/takemobil -d Takemobil.ru
