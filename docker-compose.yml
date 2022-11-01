@@ -60,20 +60,11 @@ services:
       - 443:443
     depends_on:
       - mobilize
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+#    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - static_volume:/home/mobilize/apps/static
       - ./data/certbot/conf:/etc/letsencrypt 
-      - ./data/certbot/www:/var/www/certbot
-      
-  certbot:
-# Новый контейнер, который запуститься вместе с nginx
-    container_name: certbot
-    image: certbot/certbot
-  # Образ берется с docker hub
-    volumes:
-      - ./data/certbot/conf:/etc/letsencrypt 
-      - ./data/certbot/www:/var/www/certbot
+      - ./data/certbot/www:/var/www/certbot   
     
 volumes:
   mobilize_photos:
