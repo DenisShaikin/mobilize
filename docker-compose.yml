@@ -27,7 +27,7 @@ services:
     build: .
     restart: always
 
-    ports:
+#    ports:
 #      - "188.225.86.132:8000:8000"
 
     expose:
