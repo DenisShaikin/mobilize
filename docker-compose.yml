@@ -57,14 +57,31 @@ services:
     build: ./nginx
     ports:
       - 80:80
+      - 443:443
+    networks:
+      nginx_net:
+        name: nginx_net
     depends_on:
       - mobilize
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - static_volume:/home/mobilize/apps/static
-
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
+      
+  certbot:
+# Новый контейнер, который запуститься вместе с nginx
+    container_name: certbot
+    image: certbot/certbot
+  # Образ берется с docker hub
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
+    
 volumes:
   mobilize_photos:
   mobilize_db:
   static_volume:
-
+  ./data/certbot/conf:
+  ./data/certbot/www:
       
