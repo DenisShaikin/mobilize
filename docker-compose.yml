@@ -58,9 +58,6 @@ services:
     ports:
       - 80:80
       - 443:443
-    networks:
-      nginx_net:
-        name: nginx_net
     depends_on:
       - mobilize
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
