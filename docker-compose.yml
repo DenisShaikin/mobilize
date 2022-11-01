@@ -26,10 +26,8 @@ services:
   mobilize:
     build: .
     restart: always
-
 #    ports:
 #      - "188.225.86.132:8000:8000"
-
     expose:
      - '465'
      - '5000'
