@@ -48,7 +48,7 @@ services:
       
     volumes:
       - mobilize_photos:/home/mobilize/apps/static/assets/img/photos
-#      - static_volume:/home/mobilize/apps/static
+      - static_volume:/home/mobilize/apps/static
       
     depends_on:
       - mysql
@@ -65,5 +65,6 @@ services:
 volumes:
   mobilize_photos:
   mobilize_db:
+  static_volume:
 
       
