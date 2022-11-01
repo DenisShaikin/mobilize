@@ -28,7 +28,7 @@ services:
     restart: always
 
     ports:
-      - "188.225.86.132:8000:8000"
+#      - "188.225.86.132:8000:8000"
 
     expose:
      - '465'
@@ -50,6 +50,7 @@ services:
       
     volumes:
       - mobilize_photos:/home/mobilize/apps/static/assets/img/photos
+      - static_volume:/home/mobilize/apps/static
     depends_on:
       - mysql
             
@@ -59,6 +60,8 @@ services:
       - 1337:80
     depends_on:
       - mobilize
+    volumes:
+      - static_volume:/home/mobilize/apps/static
 
 volumes:
   mobilize_photos:
