@@ -15,16 +15,6 @@ COPY . ./
 RUN apt -y update
 RUN apt -y upgrade
 
-RUN apt install -y netcat nginx
-#После установки nginx удаляем настройки по умолчанию
-RUN rm /etc/nginx/sites-enabled/default
-
-#ставим lets encript
-RUN apt install -y software-properties-common
-RUN add-apt-repository ppa:certbot/certbot
-#RUN apt -y update
-RUN apt install -y certbot
-
 # WORKDIR /home/mobilize
 
 copy requirements.txt requirements.txt
@@ -42,9 +32,6 @@ COPY mobilize /etc/nginx/sites-enabled/
 RUN cd /etc/nginx/sites-enabled/
 RUN ls
 RUN chmod +x boot.sh
-RUN service nginx reload
-RUN certbot certonly --webroot -w /var/www/takemobil -d Takemobil.ru
-RUN service nginx reload
 
 ENV FLASK_APP run.py
 ENV FLASK_ENV Production
