@@ -79,6 +79,5 @@ volumes:
   mobilize_photos:
   mobilize_db:
   static_volume:
-  ./data/certbot/conf:/etc/letsencrypt
-  ./data/certbot/www:/var/www/certbot
+
       
