@@ -15,7 +15,7 @@ COPY . ./
 RUN apt -y update
 RUN apt -y upgrade
 
-RUN apt install -y netcat nginx
+RUN apt install -y netcat
 
 # WORKDIR /home/mobilize
 
