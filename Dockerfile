@@ -30,9 +30,11 @@ COPY apps apps
 COPY media media
 # COPY migrations migrations
 COPY run.py boot.sh  ./ 
-COPY mobilize /etc/nginx/sites-enabled/
-RUN cd /etc/nginx/sites-enabled/
-RUN ls
+
+#COPY mobilize /etc/nginx/sites-enabled/
+RUN rm /etc/nginx/conf.d/default.conf
+COPY ./nginx/default.conf /etc/nginx/conf.d
+
 RUN chmod +x boot.sh
 
 ENV FLASK_APP run.py
