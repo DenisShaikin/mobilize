@@ -1,0 +1,22 @@
+upstream takemobil {
+    server mobilize:5000;
+}
+
+server {
+    listen 80;
+    server_name takemobil.ru;
+
+	location / {
+        # forward application requests to the gunicorn server
+        proxy_pass http://takemobil;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location /static {
+        alias /home/mobilize/apps/static;
+    }
+
+}
