@@ -54,6 +54,7 @@ services:
       - mysql
             
   nginx:
+    image: 1.23-alpine
     build: ./nginx
     ports:
       - 80:80

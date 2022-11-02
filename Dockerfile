@@ -15,7 +15,7 @@ COPY . ./
 RUN apt -y update
 RUN apt -y upgrade
 
-RUN apt install -y netcat
+RUN apt install -y netcat 
 
 # WORKDIR /home/mobilize
 
@@ -30,9 +30,6 @@ COPY apps apps
 COPY media media
 # COPY migrations migrations
 COPY run.py boot.sh  ./ 
-
-RUN rm /etc/nginx/conf.d/default.conf
-COPY ./nginx/default.conf /etc/nginx/conf.d
 
 RUN chmod +x boot.sh
 
