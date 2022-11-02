@@ -66,7 +66,15 @@ services:
       - static_volume:/home/mobilize/apps/static
       - ./data/certbot/conf:/etc/letsencrypt 
       - ./data/certbot/www:/var/www/certbot   
+
+  certbot:
+    image: certbot/certbot
     
+  #  command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt 
+      - ./data/certbot/www:/var/www/certbot
+          
 volumes:
   mobilize_photos:
   mobilize_db:
