@@ -47,7 +47,7 @@ services:
       - DEBUG=False
       
     volumes:
-      - mobilize_photos:/home/mobilize/apps/static/assets/img/photos
+      #- mobilize_photos:/home/mobilize/apps/static/assets/img/photos
       - static_volume:/home/mobilize/apps/static
       
     depends_on:
