@@ -31,7 +31,6 @@ COPY media media
 # COPY migrations migrations
 COPY run.py boot.sh  ./ 
 
-#COPY mobilize /etc/nginx/sites-enabled/
 RUN rm /etc/nginx/conf.d/default.conf
 COPY ./nginx/default.conf /etc/nginx/conf.d
 
