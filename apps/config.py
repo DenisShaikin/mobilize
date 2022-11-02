@@ -4,6 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 import os
+from datetime import timedelta
 
 class Config(object):
 
@@ -32,6 +33,10 @@ class Config(object):
     PERSO_PHOTO = os.path.join('assets', 'img', 'team')
     ITEMFILES_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
     FILES_PATH = os.path.join('assets', 'uploads')
+
+    # JWT_COOKIE_SECURE = False
+    # JWT_TOKEN_LOCATION = "cookies"
+    # JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
     CKEDITOR_PKG_TYPE = 'standard'
     CKEDITOR_SERVE_LOCAL = True

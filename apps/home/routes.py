@@ -267,6 +267,10 @@ def addarticle():
         argslst = {key: argslst[key]  for key in argslst if key not in ['addarticle']}
         argslst['user_added'] = current_user.id
         article = Article(**argslst)
+        if article_form.video_link.data != '':
+            article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[
+            1] + '/0.jpg'
+
         db.session.add(article)
         for file in request.files.getlist('photos'):  #additem_form.photos.data
             photo = secure_filename(file.filename)
@@ -307,6 +311,9 @@ def editarticle(article_id):
             article.title = article_form.title.data
             article.video_link = article_form.video_link.data
             article.body = article_form.body.data
+            print(article_form.video_link.data, '!=_', article_form.video_link.data !='')
+            if article_form.video_link.data !='':
+                article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[1] + '/0.jpg'
 
             for file in request.files.getlist('photos'):  # additem_form.photos.data
                 photo = secure_filename(file.filename)
@@ -321,6 +328,11 @@ def editarticle(article_id):
         setattr(editActivity, 'rating', rating)
         db.session.commit()
         return redirect(url_for('home_blueprint.articlesMain'))
+    elif 'Delete' in request.form:  #Удаляем item и связанные Activity
+        db.session.delete(Article.query.get(article_id))
+        db.session.commit()
+        return redirect(url_for('home_blueprint.articlesMain'))
+
     elif request.method == 'GET':
         # Все поля может редактировать только создатель Item
 
@@ -341,7 +353,8 @@ def editarticle(article_id):
 
         values = values._mapping
         currArticle = Article.query.get(article_id)
-        owner = True if article_id==currArticle.id else False  # Редактирует создатель Item
+
+        owner = True if currArticle.user_added == current_user.id else False
         article_form.title.data = currArticle.title
         article_form.video_link.data = currArticle.video_link
         article_form.body.data = currArticle.body
@@ -386,9 +399,11 @@ def articlesMain():
     def makeLink(id, name):
         return '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(id)) + \
                '">' + str(name) + '</a>'
+    def selectArticlePhoto(thumbnail, photo):
+        return photo if photo else thumbnail
 
     # page = request.args.get('page', 1, type=int)
-    dfArticles = pd.read_sql('''SELECT  art.id, art.title, art.user_added, 
+    dfArticles = pd.read_sql('''SELECT  art.id, art.title, art.user_added, art.video_thumbnail,
             (SELECT atf.photo FROM ArticlePhotos atf WHERE atf.article_id = art.id ORDER BY Photo ASC LIMIT 1) AS Photo
             FROM Articles art ;''', db.session.bind)
     #Из Activity рассчитаем среднюю оценку
@@ -400,13 +415,15 @@ def articlesMain():
     dfArticles = dfArticles.merge(dfRating, on='id', how='left')
     dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
-
+    dfArticles['Photo'] = dfArticles.apply(lambda x: selectArticlePhoto(x.video_thumbnail, x.Photo), axis=1)
+    dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: '<img  src=' + x + ' width="350px" height="350px" class="img-fluid rounded-0 alt="">')
+    dfArticles['Photo'] = dfArticles.apply(lambda x: makeLink(x['id'], x['Photo']), axis=1)
     dfArticles['title'] = dfArticles.apply(lambda x: makeLink(x['id'], x['title']), axis=1)
     dfArticles['id'] = dfArticles['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(x)) +
                    '">' + str(x) + '</a>')
     dfArticles = dfArticles[['id', 'Photo', 'title', 'rating']]
-
+    print(dfArticles.head())
 
     page = request.args.get('page', 1, type=int)
     #выбираем только записи нужной страницы

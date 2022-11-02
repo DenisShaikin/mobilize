@@ -51,7 +51,7 @@
 <!--                            <div class="col-sm-auto mx-3 my-3">-->
                 <div class="row ">
                     <figure class="figure">
-                        <img  src="{{ row[1] }}"  width="200px" height="200px" class="img-fluid rounded-0 alt="">
+                        {{ row[1]|safe }}
                     </figure>
                 </div>
                 <h4> {{ row[2]|safe }} </h4>

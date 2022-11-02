@@ -213,6 +213,7 @@ class Article(db.Model):
     title = db.Column(db.String(64))                             #Название предмета
     body = db.Column(db.String(4000))
     video_link = db.Column(db.String(255))  #Ссылка на видео
+    video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео
     activities = db.relationship('Activity', backref='Article', lazy='dynamic', passive_deletes=True)
     comments = db.relationship('Comment', backref='Article', lazy='dynamic', passive_deletes=True)
     photos = db.relationship('ArticlePhotos', backref='Article', lazy='dynamic', passive_deletes=True)

@@ -58,7 +58,7 @@ class AddArticleForm(FlaskForm):
     body = CKEditorField('Body')  # <--
     rating = RadioField('rating', choices=[('5', '5 stars'), ('4', '4 stars'), ('3', '3 stars'), ('2', '2 stars'), ('1', '1 star')],
                        coerce = int)
-    photos = FileField('Выберите файл с фото', validators=[FileRequired(),
+    photos = FileField('Выберите файл с фото', validators=[
                                     FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
 
 
