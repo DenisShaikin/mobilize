@@ -322,6 +322,7 @@ def editarticle(article_id):
             article.title = article_form.title.data
             article.video_link = article_form.video_link.data
             article.body = article_form.body.data
+            print('Длина текста =', len(article_form.body.data))
             if article_form.video_link.data !='':
                 article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[1] + '/0.jpg'
 
@@ -450,7 +451,7 @@ def articlesMain():
         (lambda x: '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(x)) +
                    '">' + str(x) + '</a>')
     dfArticles = dfArticles[['id', 'Photo', 'title', 'rating', 'comments']]
-    print(dfArticles.head())
+    # print(dfArticles.head())
 
     page = request.args.get('page', 1, type=int)
     #выбираем только записи нужной страницы
