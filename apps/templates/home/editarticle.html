@@ -40,7 +40,7 @@
                       <div class="col-lg-12 col-sm-6">
                           <!-- тема -->
                           <div class="mb-4">
-                              <label class="my-1 me-2" for="category">Тема статьи</label>
+                              <label class="my-1 me-2" >Тема статьи</label>
                               {% if owner %}
                                   {{ form.title(class='form-control',  disabled=not owner) }}
                               {% else %}
@@ -61,13 +61,17 @@
                               {% endif %}
                           </div>
                           {% if video_link %}
-                            <div class="card border-1 shadow mb-4">
-                                <div class="card-body">
-                                    <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">
-                                        <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                          <div class="container">
+                              <div class="row justify-content-md-center">
+                                <div class="card border-1 shadow mb-4 col-md-auto">
+                                    <div class="card-body ">
+                                        <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">
+                                            <iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                    </div>
+                                    </div>
                                 </div>
-                                </div>
-                            </div>
+                              </div>
+                          </div>
                           {% endif%}
                           <div class="mb-4">
                               {% if owner %}
@@ -83,29 +87,32 @@
                         <!-- Выбор текущего пользователя -->
                           {% if owner %}
                           <div class="mb-3">
-                              <label for="formFile" class="form-label">Выберите фото для статьи</label>
+                              <label for="photos" class="form-label">Выберите фото для статьи</label>
                               {{ form.photos(class='form-control', disabled=not owner) }}
                           </div>
                           {% endif %}
-                          <div class="row">
-                                  <span class="h6 fw-bold">Ваш выбор</span>
-                              <div class="my-0">
-                                    <ul class="rate-area">
-                                     {% for subfield in form.rating %}
-                                            {{ subfield}} {{ subfield.label}}
-                                    {% endfor %}
-                                    </ul>
+                          {% if changeRating %}
+                              <div class="row">
+                                      <span class="h6 fw-bold">Ваша оценка</span>
+                                  <div class="my-0">
+                                        <ul class="rate-area">
+                                         {% for subfield in form.rating %}
+                                                {{ subfield}} {{ subfield.label}}
+                                        {% endfor %}
+                                        </ul>
+                                  </div>
                               </div>
-                          </div>
+                          {% endif %}
                       </div>
                   <div class="row">
-                      <div class="d-grid col-lg-3">
-                          <button type="submit" name="editarticle" class="btn btn-gray-800">Сохранить</button>
-                      </div>
-                      <div class="d-grid col-lg-3">
-                          <button name="Delete" class="btn btn-secondary">Удалить</button>
-                      </div>
-
+                          <div class="d-grid col-lg-3">
+                              <button type="submit" name="editarticle" class="btn btn-gray-800">Сохранить</button>
+                          </div>
+                      {% if owner %}
+                          <div class="d-grid col-lg-3">
+                              <button name="Delete" class="btn btn-secondary">Удалить</button>
+                          </div>
+                      {% endif %}
                       <div class="d-grid col-lg-3">
                           <a href={{ url_for('home_blueprint.articlesMain') }} class="btn btn-secondary">
                             Отмена
@@ -147,6 +154,7 @@
               </tr>
           </thead>
           <tbody>
+          {% if changeRating %}
           <tr>
               <td>
                 {{current_user.username}}
@@ -156,6 +164,7 @@
                           onkeydown="if(event.keyCode == 13) return onArticleCommentChange({{ article_id}});" value=""></textarea>
             </td>
           </tr>
+          {% endif %}
             {% for row in comments_data %}
                     <tr>
                         {% for cell_ in row %}

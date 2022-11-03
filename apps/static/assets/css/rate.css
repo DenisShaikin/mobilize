@@ -5,7 +5,7 @@
 
 .rate-area:not(:checked) > input {
 	position: absolute;
-	top: -9999px;
+	visibility:hidden;
 	clip: rect(0, 0, 0, 0);
 }
 

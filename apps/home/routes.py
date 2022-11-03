@@ -22,6 +22,7 @@ import time
 import uuid
 from flask_ckeditor import upload_success, upload_fail
 from math import ceil
+import xlsxwriter
 
 
 @blueprint.route('/index')
@@ -47,24 +48,24 @@ def settings():
     return render_template('home/settings.html', segment='settings', form = settings_form)
 
 @blueprint.route('/main.html', methods=['GET'])
-@login_required
+# @login_required
 def main():
-    def makeSelectedButton(selectedState, haveItState, id, user):
+    def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
         if selectedState:
             result = '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
-               + '''" id="inList_''' + str(id) + '" checked ' + ''' onclick=changeSelected("inList_''' + str(id) + '''")> 
+               + '''" id="inList_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")> 
                <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         else:
             result =  '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
-                   + '''" id="inList_''' + str(id) + '" ' + ''' onclick=changeSelected("inList_''' + str(id) + '''")>
+                   +  '''" id="inList_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")>
                    <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         if haveItState:
             result = result + ''' <div class="form-switch" > <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
-                     + '''" id="idHaveIt_''' + str(id) + '" checked ' + ''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
+                     + '''" id="idHaveIt_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         else:
             result = result + '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
-                     + '''" id="idHaveIt_''' + str(id) + '" ' + ''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
+                     + '''" id="idHaveIt_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
@@ -74,10 +75,18 @@ def main():
 
     page = request.args.get('page', 1, type=int)
 
-    dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
-            (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
-            FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
-            LEFT JOIN Activity act ON (act.item_id = itm.id) WHERE act.user_id=''' + str(current_user.id) +';', db.session.bind)
+    if not current_user.is_anonymous:
+        dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
+                (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
+                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
+                LEFT JOIN Activity act ON (act.item_id = itm.id) WHERE act.user_id=''' + str(current_user.id) +';', db.session.bind)
+        bDisabled = ''
+    else:
+        dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
+                (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
+                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category);''', db.session.bind)
+        bDisabled = ' Disabled '
+
     #Из Activity рассчитаем среднюю оценку
     query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating)).\
             group_by(Activity.item_id).subquery())
@@ -93,7 +102,8 @@ def main():
     # print(dfRating)
     # print(dfItems.head())
     dfItems['selected'] = dfItems['inList']
-    dfItems['selected'] = dfItems.apply(lambda x: makeSelectedButton(x.selected, x.haveIt, x.id, x.user_added), axis=1)
+    dfItems['selected'] = dfItems.apply(lambda x: makeSelectedButton(x.selected, x.haveIt, x.id, x.user_added, bDisabled), axis=1)
+
     dfItems = dfItems[['Photo', 'id', 'selected', 'catname', 'name', 'rating', 'price']]
     dfItems['Photo'] = dfItems['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
@@ -293,7 +303,7 @@ def addarticle():
 
 
 @blueprint.route('/editarticle.html/<article_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def editarticle(article_id):
     def createPhotoLink(id, photo):
         return '''<figure class="figure"> 
@@ -311,7 +321,6 @@ def editarticle(article_id):
             article.title = article_form.title.data
             article.video_link = article_form.video_link.data
             article.body = article_form.body.data
-            print(article_form.video_link.data, '!=_', article_form.video_link.data !='')
             if article_form.video_link.data !='':
                 article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[1] + '/0.jpg'
 
@@ -334,33 +343,40 @@ def editarticle(article_id):
         return redirect(url_for('home_blueprint.articlesMain'))
 
     elif request.method == 'GET':
+        currArticle = Article.query.get(article_id)
+        user = None if current_user.is_anonymous else current_user
+        owner = False
+
+        changeRating = True
         # Все поля может редактировать только создатель Item
-
-        values = db.session.query(Article, Activity).with_entities(
-            Article.id, Article.user_added, Article.title, Article.body, Article.video_link,
-            Activity.rating).join(Activity).filter(Article.id == article_id,
-                                                             Activity.user_id == current_user.id).first()
-
-        if not values:  # На этого пользователя нет записи с рейтингом - другой делал товар
-            currArticle = Article.query.filter(Article.id == article_id).first()
-            newactivity = Activity(Article=currArticle, User=current_user)
-            db.session.add(newactivity)
-            db.session.commit()
+        if not current_user.is_anonymous:
+            owner = True if currArticle.user_added == current_user.id else False
             values = db.session.query(Article, Activity).with_entities(
-                Article.id, Article.title, Article.body, Article.video_link,
+                Article.id, Article.user_added, Article.title, Article.body, Article.video_link,
                 Activity.rating).join(Activity).filter(Article.id == article_id,
                                                                  Activity.user_id == current_user.id).first()
 
-        values = values._mapping
-        currArticle = Article.query.get(article_id)
+            if not values:  # На этого пользователя нет записи с рейтингом - другой делал товар
+                newactivity = Activity(Article=currArticle, User=current_user)
+                db.session.add(newactivity)
+                db.session.commit()
+                values = db.session.query(Article, Activity).with_entities(
+                    Article.id, Article.title, Article.body, Article.video_link,
+                    Activity.rating).join(Activity).filter(Article.id == article_id,
+                                                                     Activity.user_id == current_user.id).first()
+            article_form.rating.data = values['rating']
+        else:   #пльзователь не залогинен - не будет возможности оценки
+            values = db.session.query(Article).with_entities(
+                Article.id, Article.title, Article.body, Article.video_link).join(Activity)\
+                .filter(Article.id == article_id).first()
+            changeRating = False
 
-        owner = True if currArticle.user_added == current_user.id else False
+        values = values._mapping
+
         article_form.title.data = currArticle.title
         article_form.video_link.data = currArticle.video_link
         article_form.body.data = currArticle.body
-        article_form.rating.data = values['rating']
 
-        # photos = db.session.query(ItemPhotos).filter(ItemPhotos.item_id == item_id).all()
         query = db.session.query(ArticlePhotos).filter(ArticlePhotos.article_id == article_id)
         dfPhotos = pd.read_sql(query.statement, query.session.bind)
         if not dfPhotos.empty:
@@ -368,7 +384,7 @@ def editarticle(article_id):
 
         # Комментарии
         currArticle = Article.query.filter(Article.id == article_id).first()
-        comments = currArticle.followed_comments(current_user).all()
+        comments = currArticle.followed_comments(user).all()
         dfComments = pd.DataFrame.from_records(comments, index='id', columns=['id', 'user', 'text'])
 
         # выбираем только комментарии нужной страницы
@@ -380,13 +396,13 @@ def editarticle(article_id):
             pagesCount = ceil(len(dfComments.index) / app.config['COMMENTS_PER_PAGE'])
         dfComments = dfComments[app.config['COMMENTS_PER_PAGE'] * (page - 1):app.config['COMMENTS_PER_PAGE'] * (page)]
 
-        video_link=None
+        video_link = None
         if currArticle.video_link:
             video_link = currArticle.video_link.split('=')[1] if  '=' in currArticle.video_link else None
 
         return render_template('home/editarticle.html', segment='editarticle', form=article_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
-                               comments_data=list(dfComments.values.tolist()), owner=owner,
+                               comments_data=list(dfComments.values.tolist()), owner=owner, changeRating=changeRating,
                                currPage=page, pagesCount=pagesCount, article_id=article_id, video_link =video_link)
 
     return render_template('home/editarticle.html', segment='editarticle', form=article_form)
@@ -413,6 +429,16 @@ def articlesMain():
     dfRating.rename(columns={'article_id':'id', 'avg_1':'rating'}, inplace=True)
     dfRating['rating'] = dfRating['rating'].round(1)
     dfArticles = dfArticles.merge(dfRating, on='id', how='left')
+
+    #Из Activity рассчитаем количество комментариев
+    query = db.session.query(Comment.query.with_entities(Comment.article_id, func.count()).\
+            group_by(Comment.article_id).subquery())
+    dfComments = pd.read_sql(query.statement, db.session.bind)
+    dfComments.rename(columns={'article_id':'id', 'count_1':'comments'}, inplace=True)
+    dfArticles = dfArticles.merge(dfComments, on='id', how='left')
+    dfArticles['comments'].fillna(0, inplace=True)
+    dfArticles['comments']=dfArticles['comments'].astype(int)
+
     dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
     dfArticles['Photo'] = dfArticles.apply(lambda x: selectArticlePhoto(x.video_thumbnail, x.Photo), axis=1)
@@ -422,7 +448,7 @@ def articlesMain():
     dfArticles['id'] = dfArticles['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(x)) +
                    '">' + str(x) + '</a>')
-    dfArticles = dfArticles[['id', 'Photo', 'title', 'rating']]
+    dfArticles = dfArticles[['id', 'Photo', 'title', 'rating', 'comments']]
     print(dfArticles.head())
 
     page = request.args.get('page', 1, type=int)
@@ -524,28 +550,53 @@ def save_personnal_photo():
 @blueprint.route('/downloadItemsFile3', methods=['GET'])
 def downloadItemsFile3():
     # return send_from_directory('static', 'assets/uploads/denis_2022_10_29_20_50_56.xlsx', as_attachment=True)
-    query = db.session.query(Item, Activity, Category).join(Activity, Category).filter(Activity.inList==True)
-    dfItemsList = pd.read_sql(query.statement, query.session.bind)
-    dfItemsList = dfItemsList [['id', 'catname', 'name', 'description', 'price', 'rating', 'haveIt']]
-    dfItemsList.rename(columns={'rating':'Ваша оценка', 'haveIt':'Уже в наличии'}, inplace=True)
+    if current_user.is_anonymous:
+        query = db.session.query(Item, Category).with_entities(Item.id, Category.catname, Item.name, Item.description,
+                Item.price)\
+                .join(Activity, Category).group_by(Item.id)
+        dfItemsList = pd.read_sql(query.statement, query.session.bind)
+        dfItemsList = dfItemsList[['id', 'catname', 'name', 'description', 'price']]
+        user = 'Anonim'
+    else:
+        query = db.session.query(Item, Activity, Category).join(Activity, Category)\
+            .filter((Activity.inList == True) & (Activity.user_id == current_user.id))
+        dfItemsList = pd.read_sql(query.statement, query.session.bind)
+        dfItemsList = dfItemsList[['id', 'catname', 'name', 'description', 'price', 'rating', 'haveIt']]
+        dfItemsList.rename(columns={'rating': 'Ваша оценка', 'haveIt': 'Уже в наличии'}, inplace=True)
+        user = current_user.username
+
     #считаем средний рейтинг
-    query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating)).\
+    query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating), func.count()).\
             group_by(Activity.item_id).subquery())
     dfRating = pd.read_sql(query.statement, db.session.bind)
-    dfRating.rename(columns={'item_id':'id', 'avg_1':'rating'}, inplace=True)
+    dfRating.rename(columns={'item_id':'id', 'avg_1':'rating', 'count_1':'Кол-во оценок'}, inplace=True)
     dfRating['rating'] = dfRating['rating'].round(1)
     dfItemsList = dfItemsList.merge(dfRating, on='id', how='left')
     dfItemsList.rename(columns={'rating':'Средняя оценка', 'catname':'Категория', 'name':'Наименование',
-                                'description':'Описание', 'price':'Оценка'}, inplace=True)
+                                'description':'Описание', 'price':'Цена'}, inplace=True)
+
     dfItemsList.drop(columns=['id'], inplace=True)
-    fileName = current_user.username + '.xlsx'
+    fileName = user + '.xlsx'
     filePath = os.path.join(app.config['ITEMFILES_PATH'], fileName)
-    dfItemsList.to_excel(filePath)
+    with pd.ExcelWriter(filePath, engine='xlsxwriter') as wb:
+        dfItemsList.to_excel(wb, sheet_name='Sheet1', index=False)
+        sheet = wb.sheets['Sheet1']
+        sheet.autofilter('A1:H' + str(dfItemsList.shape[0]))
+        print(dfItemsList.shape[0])
+        cell_format = wb.book.add_format()
+        cell_format.set_font_color('white')
+        cell_format.set_bg_color('#4F81BD')
+        cell_format.set_bold()
+        sheet.set_column('A:B', 18)
+        sheet.set_column('C:C', 30)
+        sheet.set_column('D:H', 15)
+        sheet.write_row(0, 0, dfItemsList.columns, cell_format)
+        # dfItemsList.to_excel(filePath, index=False)
     time.sleep(1)
     # filePath = os.path.join(app.config['ITEMFILES_PATH'] + '/' + fileName).replace('\\', '/')
     # print(filePath)
 
-    return make_response(jsonify({'buttonId': current_user.username}), 200)
+    return make_response(jsonify({'buttonId': user}), 200)
 
 
 

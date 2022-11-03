@@ -87,18 +87,24 @@
                             <a href="{{ url_for('authentication_blueprint.register') }}" class="nav-link">Регистрация</a>
                         </li>
                         <li class="nav-item mr-2">
-                            <a href="{{ url_for('authentication_blueprint.login') }}" class="nav-link">Вход</a>
+                            <a href="{{ url_for('home_blueprint.articlesMain') }}" class="nav-link">Статьи</a>
                         </li>
 
                     </ul>
                 </div>
                 <div class="d-flex align-items-center ms-auto">
-                    <a href="https://appseed.us/product/volt-dashboard/flask/" 
-                       target="_blank" 
-                       class="btn btn-outline-white d-inline-flex align-items-center me-md-3">
-                        <svg class="icon icon-xxs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z" clip-rule="evenodd"></path></svg>
-                        Скачать список
+                    <button type="button" class="btn btn-outline-white d-inline-flex align-items-center me-md-3" onClick="handleDownloadListFile()">
+                    <svg class="icon icon-xxs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 9.5A3.5 3.5 0 005.5 13H9v2.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 15.586V13h2.5a4.5 4.5 0 10-.616-8.958 4.002 4.002 0 10-7.753 1.977A3.5 3.5 0 002 9.5zm9 3.5H9V8a1 1 0 012 0v5z" clip-rule="evenodd"></path></svg>
+                    Скачать</button>
+                    <div class="btn-group ms-2 ms-lg-3" hidden="true">
+                      {% if not current_user.is_anonymous %}
+                        <a id="{{current_user.username}}" href="{{ config.ASSETS_ROOT }}/uploads/{{current_user.username}}.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                      {% else%}
+                        <a id="Anonim" href="{{ config.ASSETS_ROOT }}/uploads/Anonim.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                      {% endif%}
+                        Файл
                     </a>
+                    </div>
                     <button class="navbar-toggler ml-2" type="button" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>                    
@@ -119,23 +125,25 @@
                         </div>
                         <h1 class="fw-bolder">Список вещей при мобилизации</h1>
                         <h2 class="lead fw-normal text-muted mb-5">
-                            Зарегистрируйтесь и участвуйте в его корректировке
+                            Зарегистрируйтесь и готовьтесь индивидуально
                         </h2>
                     </div>
 
                 </div>
                 <div class="row justify-content-center mb-5 mb-lg-6">
                     <div class="col-12 text-center">
-                        <h2 class="h1 px-lg-5">Зачем этот проект</h2>
-                        <p class="lead px-lg-2 text-start">Этот сайт для помощи составления списка вещей первой необходимости. <br>
-                            При получении повестки в военкомат времени на сборы дается крайне мало, обычно меньше суток. И хорошо, если рюкзак с
-                            вещами уже подготовлен.<br>
-                            Взять зубную щетку и бритву не сложно, но большое количество различных списков в интернет показывает, что
-                            однозначного ответа на вопрос: что брать? - нет. Поэтому мы придумали этот проект. Чем больше профессиональных участников будет участвовать в
-                            подготовке списка, тем проще будет собрать необходмые вещи. Приглашаем профессионалов участовать в подготовке списка!<br>
-                            Если Вы не готовы регистрироваться и участвовать в проекте - можете просто нажать Скачать список и получить полный список вещей в формате Excel.
-                            <br><br>
-                            Поскольку список персонализированный, подразумевает голосование и комментарии, необходимо зарегистрироваться.
+                        <h2 class="h1 px-lg-5">Если кратко...</h2>
+                        <p class="lead px-lg-2 text-start">Данный проект появился для помощи подготовке к сборам. <br>
+                            При получении повестки из военкомата времени на сборы дается крайне мало, обычно меньше суток. И хорошо, если рюкзак с
+                            нужными вещами уже подготовлен.<br>
+                            Взять зубную щетку и бритву не сложно, но большое количество различных списков в интернете показывает, что
+                            однозначного ответа на вопрос: что брать? - не существует. <br> Минобороны даст верхнюю одежду и защиту. Что касается
+                            медикаментов, инструментов (аспирин, капли в нос, ножницы для ногтей, перочинный нож, нижнее белье) - этого никто не предоставляет, во всяком
+                            случае в данный момент. Чем больше профессиональных участников будет задействовано в составлении списка, тем проще всем будет подготовиться заранее.
+                            <br> <br> <b>Приглашаем профессионалов участовать в подготовке граждан!</b><br>
+                            Физическая подготовка так же может быть необходима.
+                            <br>
+                            Поскольку список персонализированный, подразумевает голосование и комментарии, понадобится <a class = "link-info" href="{{ url_for('authentication_blueprint.register') }}">регистрация</a>.
                         </p>
                     </div>
                 </div>
@@ -178,26 +186,26 @@
                     </div>
                 -->
                 </div>
-                <div class="row justify-content-between align-items-center mb-5 mb-lg-7">
+                <div class="row justify-content-between align-items-center mb-3 mb-lg-5">
                     <div class="row justify-content-between align-items-center">
                         <div class="col-lg-5 order-lg-2 mb-5 mb-lg-0">
                             <h2 class="h1">Что выдают?</h2>
                             <p class="mb-4 lead fw-bold">Надежда на министерство обороны</p>
-                            <p class="mb-4">Сообщается, что мобилизованный должен быть обеспечен всем необходимым. Сюда входит одежда,
-                                обувь, каска, бронежилет - в зависимости от рода выполняемой деятельности. Будет ли одежда и обувь по размеру? <b> Не всегда. </b>
+                            <p class="mb-4">Сообщается, что мобилизованный должен быть обеспечен всем необходимым. Сюда входит верхняя одежда,
+                                обувь, защита - в зависимости от рода выполняемой деятельности. Носки, нижнее белье, термобелье <b> может быть личное. </b>
                             </p>
                         </div>
                         <div class="col-lg-6 order-lg-1">
                             <img src="{{ config.ASSETS_ROOT }}/img/illustrations/armyclothes_.png" alt="Одежда министерства обороны">
                         </div>
                     </div>
-                    <div class="col-lg-5 mb-5 mb-lg-0">
+                    <div class="col-lg-5 mb-3 mb-lg-0">
                         <h2 class="h1 d-flex align-items-center">Можно взять </h2>
                         <p class="mb-4 lead fw-bold">Минимально необходимые вещи</p>
                         <p class="mb-4">В прессе указывают, что мобилизованному рекомендуется взять с собой предметы личной гигиены,
                         термобелье, предметы экипировки. Список экипировки может быть обширным: фонарик с батарейками, защитные очки, мультитул, аптечки и так далее.
                         </p>
-                        <a href="https://jinja-volt-pro.appseed-srv1.com/kanban.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                        <a href="{{ url_for('home_blueprint.main') }}" class="btn btn-secondary d-inline-flex align-items-center me-3">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                             Хозяйство
                         </a>
@@ -207,14 +215,14 @@
                         <img src="{{ config.ASSETS_ROOT }}/img/illustrations/ownclothes.png" alt="Личные вещи">
                     </div>
                 </div>
-                <div class="row justify-content-between align-items-center mb-5 mb-lg-7">
+                <div class="row justify-content-between align-items-center mb-3 mb-lg-5">
                     <div class="col-lg-5 order-lg-2 mb-5 mb-lg-0">
                         <h2 class="h1 d-flex align-items-center">Аптечки </h2>
                         <p class="mb-4 lead fw-bold">Хозяйственная и тактические</p>
-                        <p class="mb-4">В походных условиях могут случиться такие же заболевания, как и везде, от расстройства желудка и простуды, до ранения.
-                        Наличие собственных средств может не просто облегчить болезнь, но и спасти вам жизнь. 91% раненых погибает на догоспитальном этапе, поэтому у профессионалов
-                        жгуты и кровоостанавливающие препараты всегда с собой.</p>
-                        <a href="https://jinja-volt-pro.appseed-srv1.com/map.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                        <p class="mb-4">В походных условиях могут случиться такие же заболевания, как и в гражданской жизни, от расстройства желудка и простуды до ранения.
+                        Наличие собственных средств может не просто облегчить болезнь, но и спасти вам жизнь. До 90% раненых погибают в первые 2 часа после ранения, поэтому
+                        жгуты и кровоостанавливающие препараты желательно всегда иметь под рукой.</p>
+                        <a href="{{ url_for('home_blueprint.articlesMain') }}"  class="btn btn-secondary d-inline-flex align-items-center me-3">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M12 1.586l-4 4v12.828l4-4V1.586zM3.707 3.293A1 1 0 002 4v10a1 1 0 00.293.707L6 18.414V5.586L3.707 3.293zM17.707 5.293L14 1.586v12.828l2.293 2.293A1 1 0 0018 16V6a1 1 0 00-.293-.707z" clip-rule="evenodd"></path></svg>
                             Аптечки
                         </a>
@@ -227,8 +235,8 @@
                     <div class="col-lg-5 mb-5 mb-lg-0">
                         <h2 class="h1 d-flex align-items-center">Защита </h2>
                         <p class="mb-4 lead fw-bold">Специальная экипировка</p>
-                        <p class="mb-4">Разгрузки, шлемы, подсумки, бронежилеты -как в этом разобраться? Приглашаем профессионалов принять участие в обсуждении.</p>
-                        <a href="https://jinja-volt-pro.appseed-srv1.com/calendar.html" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
+                        <p class="mb-4">Разгрузки, шлемы, подсумки, бронежилеты - как в этом разобраться? Приглашаем профессионалов принять участие в обсуждении.</p>
+                        <a href="{{ url_for('home_blueprint.articlesMain') }}" target="_blank" class="btn btn-secondary d-inline-flex align-items-center me-3">
                             <svg class="icon icon-xs me-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
                             Экипировка
                         </a>                        

@@ -232,8 +232,9 @@ class Article(db.Model):
 
     def followed_comments(self, User):
         #Сперва удалим пустые других пользователей
-        db.session.query(Comment).filter((Comment.text=='') & (Comment.user_id != User.id)).delete()
-        db.session.commit()
+        if User:
+            db.session.query(Comment).filter((Comment.text=='') & (Comment.user_id != User.id)).delete()
+            db.session.commit()
         return Comment.query.join(Users, Users.id==Comment.user_id).\
             with_entities(Comment.id, Users.username, Comment.text).\
             filter(Comment.article_id == self.id).order_by(Comment.timestamp.desc())

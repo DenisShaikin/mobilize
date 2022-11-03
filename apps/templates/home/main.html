@@ -34,7 +34,11 @@
               <button type="button" class="btn btn-sm btn-outline-gray-600" onClick="handleDownloadListFile()">Скачать</button>
           </div>
           <div class="btn-group ms-2 ms-lg-3" hidden="true">
-            <a id="{{current_user.username}}" href="{{ config.ASSETS_ROOT }}/uploads/{{current_user.username}}.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+              {% if not current_user.is_anonymous %}
+                <a id="{{current_user.username}}" href="{{ config.ASSETS_ROOT }}/uploads/{{current_user.username}}.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+              {% else%}
+                <a id="Anonim" href="{{ config.ASSETS_ROOT }}/uploads/Anonim.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+              {% endif%}
                 Файл
             </a>
           </div>
