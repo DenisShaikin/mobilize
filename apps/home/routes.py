@@ -79,12 +79,13 @@ def main():
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
-                LEFT JOIN Activity act ON (act.item_id = itm.id) WHERE act.user_id=''' + str(current_user.id) +';', db.session.bind)
+                LEFT JOIN Activity act ON (act.item_id = itm.id) WHERE act.user_id=''' + str(current_user.id) +
+                              ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
     else:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
-                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category);''', db.session.bind)
+                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''', db.session.bind)
         bDisabled = ' Disabled '
 
     #Из Activity рассчитаем среднюю оценку
@@ -421,7 +422,7 @@ def articlesMain():
     # page = request.args.get('page', 1, type=int)
     dfArticles = pd.read_sql('''SELECT  art.id, art.title, art.user_added, art.video_thumbnail,
             (SELECT atf.photo FROM ArticlePhotos atf WHERE atf.article_id = art.id ORDER BY Photo ASC LIMIT 1) AS Photo
-            FROM Articles art ;''', db.session.bind)
+            FROM Articles art  ORDER BY art.update_date DESC;''', db.session.bind)
     #Из Activity рассчитаем среднюю оценку
     query = db.session.query(Activity.query.with_entities(Activity.article_id, func.avg(Activity.rating)).\
             group_by(Activity.article_id).subquery())
