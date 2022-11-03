@@ -211,7 +211,7 @@ class Article(db.Model):
     user_added = db.Column(db.Integer, ForeignKey("Users.id"))
     update_date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     title = db.Column(db.String(64))                             #Название предмета
-    body = db.Column(db.String(4000))
+    body = db.Column(db.String(40000))
     video_link = db.Column(db.String(255))  #Ссылка на видео
     video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео
     activities = db.relationship('Activity', backref='Article', lazy='dynamic', passive_deletes=True)

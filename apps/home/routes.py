@@ -584,7 +584,7 @@ def downloadItemsFile3():
         dfItemsList.to_excel(wb, sheet_name='Sheet1', index=False)
         sheet = wb.sheets['Sheet1']
         sheet.autofilter('A1:H' + str(dfItemsList.shape[0]))
-        print(dfItemsList.shape[0])
+        # print(dfItemsList.shape[0])
         cell_format = wb.book.add_format()
         cell_format.set_font_color('white')
         cell_format.set_bg_color('#4F81BD')
