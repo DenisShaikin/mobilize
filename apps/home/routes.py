@@ -438,11 +438,13 @@ def articlesMain():
             group_by(Comment.article_id).subquery())
     dfComments = pd.read_sql(query.statement, db.session.bind)
     dfComments.rename(columns={'article_id':'id', 'count_1':'comments'}, inplace=True)
-    print(dfComments.head())
-    print(dfArticles.head())
-    dfArticles = dfArticles.merge(dfComments, on='id', how='left')
+    if len(dfComments.loc[~dfComments['id'].isna()]) >0:
+        dfArticles = dfArticles.merge(dfComments, on='id', how='left')
+    else:
+        dfArticles['comments'] = 0
     dfArticles['comments'].fillna(0, inplace=True)
     dfArticles['comments']=dfArticles['comments'].astype(int)
+
 
     dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
