@@ -438,6 +438,8 @@ def articlesMain():
             group_by(Comment.article_id).subquery())
     dfComments = pd.read_sql(query.statement, db.session.bind)
     dfComments.rename(columns={'article_id':'id', 'count_1':'comments'}, inplace=True)
+    print(dfComments.head())
+    print(dfArticles.head())
     dfArticles = dfArticles.merge(dfComments, on='id', how='left')
     dfArticles['comments'].fillna(0, inplace=True)
     dfArticles['comments']=dfArticles['comments'].astype(int)
