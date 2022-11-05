@@ -40,20 +40,33 @@
                   <div class="row mb-4">
                       <div class="col-lg-4 col-sm-6">
                           <!-- Категория -->
-                          <div class="mb-4">
-                              <label class="my-1 me-2" for="category">Категория</label>
-                              {{ form.category(class='form-select', placeholder='Категория предмета', disabled=not owner) }}
-                          </div>
+                          <label class="my-1 me-2" for="category">Категория</label>
+                              <div class="mb-4">
+                                  {{ form.category(class='form-select', placeholder='Категория предмета', disabled=not owner) }}
+                                  {{ form.category.data|safe }}
+                              </div>
                             <!-- name -->
-                          <div class="mb-3">
-                              <label for="name">Название</label>
-                              {{ form.name(class='form-control', disabled=not owner) }}
-                          </div>
+                          <label for="name">Название</label>
+                          {% if owner %}
+                              <div class="mb-3">
+                                  {{ form.name(class='form-control', disabled=not owner) }}
+                              </div>
+                          {% else %}
+                              <h4>
+                                  {{ form.name.data|safe }}
+                              </h4>
+                          {% endif %}
                             <!-- цена -->
-                          <div class="mb-3">
-                              <label for="price">Примерная цена</label>
-                              {{ form.price(class='form-control', placeholder='',  disabled=not owner) }}
-                          </div>
+                          <label for="price">Примерная цена</label>
+                          {% if owner %}
+                              <div class="mb-3">
+                                  {{ form.price(class='form-control', placeholder='',  disabled=not owner) }}
+                              </div>
+                          {% else %}
+                              <h4>
+                                  {{ form.price.data|safe }}
+                              </h4>
+                          {% endif %}
                           <div class = "row">
                               <div class="d-grid">
                                   <button type="submit" name="Edititem" class="btn btn-gray-800">Обновить</button>
@@ -67,15 +80,23 @@
                       </div>
                       <div class="col-lg-8 col-sm-6">
                             <!-- Описание -->
-                          <div class="my-4">
-                              <label for="textarea">Характеристики, описание</label>
-                              {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
-                              disabled=not owner, rows='5') }}
+                          <div class="my-4"><label for="textarea">Характеристики, описание</label>
+                          {% if owner %}
+                                  {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
+                                  disabled=not owner, rows='5') }}
+                              {% else %}
+                                <div class="mb-7">
+                                  {{ form.description.data |safe }}
+                                </div>
+                              {% endif %}
+
                           </div>
-                          <div class="mb-3">
-                              <label for="formFile" class="form-label">Выберите фото</label>
-                              {{ form.photos(class='form-control', disabled=not owner) }}
-                          </div>
+                          {% if owner %}
+                              <div class="mb-3">
+                                  <label for="formFile" class="form-label">Выберите фото</label>
+                                  {{ form.photos(class='form-control', disabled=not owner) }}
+                              </div>
+                          {% endif %}
                         <!-- Выбор текущего пользователя -->
                           <div class="row">
                               <div class="my-4">

@@ -87,6 +87,13 @@
                             <a href="{{ url_for('authentication_blueprint.register') }}" class="nav-link">Регистрация</a>
                         </li>
                         <li class="nav-item mr-2">
+                        {% if current_user.is_anonymous %}
+                            <a href="{{ url_for('authentication_blueprint.login') }}" class="nav-link">Войти</a>
+                        {% else %}
+                            <a href="{{ url_for('authentication_blueprint.logout') }}" class="nav-link">Выйти</a>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item mr-2">
                             <a href="{{ url_for('home_blueprint.articlesMain') }}" class="nav-link">Статьи</a>
                         </li>
 
