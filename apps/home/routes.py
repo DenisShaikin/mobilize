@@ -82,7 +82,7 @@ def main():
     page = request.args.get('page', 1, type=int)
     #Собираем строку фильтров
     catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
-        .join(Category).filter(UserCatFilters.user == current_user.id).subquery())
+        .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
     dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
     dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
     dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value), axis=1)

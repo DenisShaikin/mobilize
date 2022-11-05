@@ -120,7 +120,9 @@
                                         {{ cell_|safe}}
                                 </figure>
                         {% else %}
-                            {{ cell_|safe }}
+                            <div class="text-wrap">
+                                {{ cell_|safe }}
+                            </div>
                         {% endif %}
                         </td>
                     {% endfor %}
