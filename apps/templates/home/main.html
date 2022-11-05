@@ -120,9 +120,14 @@
                                         {{ cell_|safe}}
                                 </figure>
                         {% else %}
+                            {% if loop.index == 5 %}
                             <div class="text-wrap">
                                 {{ cell_|safe }}
                             </div>
+                            {% else %}
+                                {{ cell_|safe }}
+                            {% endif %}
+
                         {% endif %}
                         </td>
                     {% endfor %}
