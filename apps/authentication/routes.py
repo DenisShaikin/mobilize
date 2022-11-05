@@ -21,7 +21,7 @@ from apps.authentication.models import Users
 from apps.authentication.forms import ResetPasswordRequestForm, ResetPasswordForm
 from apps.authentication.email import send_password_reset_email
 from apps.authentication.util import verify_pass
-from apps.authentication.models import Users
+from apps.authentication.models import Users, Category, UserCatFilters
 
 
 @blueprint.route('/reset_password_request', methods=['GET', 'POST'])
@@ -124,7 +124,7 @@ def register():
         username = request.form['username']
         email = request.form['email']
 
-        # Check usename exists
+        # Check username exists
         user = Users.query.filter_by(username=username).first()
         if user:
             return render_template('accounts/register.html',
@@ -143,7 +143,14 @@ def register():
         # else we can create the user
         user = Users(**request.form)
         db.session.add(user)
+        db.session.flush()
         db.session.commit()
+        #Добавляем так же все фильтры для всех категорий в True
+        categories = Category.query.all()
+        for cat in categories:
+            userFilter = UserCatFilters(user, cat)
+            db.session.add(userFilter)
+            db.session.commit()
 
         # Delete user from session
         logout_user()

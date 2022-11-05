@@ -122,15 +122,28 @@ function handleDownloadListFile() {
     var csrf_token = document.querySelector('meta[name=csrf-token]').content;
     xhr.setRequestHeader("X-CSRFToken", csrf_token);
     xhr.send();
-//    xhr.open('post', 'downloadItemsFile', true);
-//    xhr.onload = function() {
-//        if (this.readyState === 4 && this.status === 200) {
-//
-//        }
-//        else if (xhr.status !== 200) {
-//        }
-//    };
-//    var csrf_token = document.querySelector('meta[name=csrf-token]').content;
-//    xhr.setRequestHeader("X-CSRFToken", csrf_token);
-//    xhr.send();
+}
+
+//событие смены категории на главной странице предметов
+function changeFilter(id) {
+    var element = document.getElementById(id);
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "changeFilterNow", true);
+
+    xhr.onload = function (){
+        if (this.readyState === 4 && this.status === 200) {
+            var myResponse = JSON.parse(xhr.responseText);
+            console.log(myResponse)
+            if (myResponse['result']=='success'){
+                window.location.reload();
+            }
+        }
+        else if (xhr.status !== 200) {
+        }
+    }
+    var csrf_token = document.querySelector('meta[name=csrf-token]').content;
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.send(JSON.stringify({
+        'id': id,
+        'value': element.checked }));
 }

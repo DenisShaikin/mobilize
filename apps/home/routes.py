@@ -12,7 +12,7 @@ from apps.home.forms import AddItemForm, EditItemForm, SettingsForm, AddArticleF
 from sqlalchemy import func
 from apps.authentication.models import Users
 from apps import db, csrf
-from apps.authentication.models import Category, ItemPhotos, Item, Activity, Comment, Article, ArticlePhotos
+from apps.authentication.models import Category, ItemPhotos, Item, Activity, Comment, Article, ArticlePhotos, UserCatFilters
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timedelta
@@ -69,17 +69,32 @@ def main():
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
+    def makeFilter(id, label, value):
+        result = '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
+                 + '" id="mainFilter_' + str(id) + '" ' + value + 'onclick=changeFilter("mainFilter_' + str(id) + \
+        '")><label class ="form-check-label mx-2" for ="mainFilter_' + str(id) + '">' + label + '</label></div>'
+        return result
+
     def makeLink(id, name):
         return '<a href = "' + url_for('home_blueprint.edititem', item_id=str(id)) + \
                '">' + str(name) + '</a>'
 
     page = request.args.get('page', 1, type=int)
+    #Собираем строку фильтров
+    catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
+        .join(Category).filter(UserCatFilters.user == current_user.id).subquery())
+    dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
+    dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
+    dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value), axis=1)
+    dfFilters.drop(columns=['id', 'value'], inplace=True)
 
+    #Данные
     if not current_user.is_anonymous:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
-                LEFT JOIN Activity act ON (act.item_id = itm.id) WHERE act.user_id=''' + str(current_user.id) +
+                LEFT JOIN Activity act ON (act.item_id = itm.id) 
+                WHERE act.user_id=''' + str(current_user.id) +
                               ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
     else:
@@ -87,6 +102,12 @@ def main():
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''', db.session.bind)
         bDisabled = ' Disabled '
+
+    categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
+        .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
+    dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
+    dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
+    dfItems = dfItems.loc[dfItems['value']==True]
 
     #Из Activity рассчитаем среднюю оценку
     query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating)).\
@@ -115,7 +136,9 @@ def main():
         (lambda x: '<a href = "' + url_for('home_blueprint.edititem', item_id=str(x)) +
                    '">' + str(x) + '</a>')
     return render_template('home/main.html', segment='main', row_data=list(dfItems.values.tolist()),
-                           currPage=page, pagesCount=pagesCount) #
+                           currPage=page, pagesCount=pagesCount, categories=list(dfFilters['catname'])) #
+
+
 
 @blueprint.route('/additem.html', methods=['GET', 'POST'])
 @login_required
@@ -281,8 +304,13 @@ def addarticle():
         argslst['user_added'] = current_user.id
         article = Article(**argslst)
         if article_form.video_link.data != '':
-            article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[
-            1] + '/0.jpg'
+            if 'youtube' in article_form.video_link.data:
+                article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[
+                    1] + '/0.jpg'
+            else:
+                article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('/')[
+                    3] + '/0.jpg'
+
 
         db.session.add(article)
         for file in request.files.getlist('photos'):  #additem_form.photos.data
@@ -326,7 +354,12 @@ def editarticle(article_id):
             article.body = article_form.body.data
             # print('Длина текста =', len(article_form.body.data))
             if article_form.video_link.data !='':
-                article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[1] + '/0.jpg'
+                if 'youtube' in article_form.video_link.data:
+                    article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[
+                        1] + '/0.jpg'
+                else:
+                    article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('/')[
+                        3] + '/0.jpg'
 
             for file in request.files.getlist('photos'):  # additem_form.photos.data
                 photo = secure_filename(file.filename)
@@ -540,6 +573,30 @@ def changeItemState():
     db.session.commit()
     return jsonify({'id': idItem, 'button':btnName, 'status':s['value']})
 
+
+#меняем состояние фильтра для пользователя
+@blueprint.route('/changeFilterNow', methods=['POST'])
+@login_required
+def changeFilterNow():
+
+    s = request.get_json(force=True)
+    # print(s)
+    categoryID = s['id'].split('_')[1]
+
+    #Если для текущего пользователя нет фильтров в таблице -  Добавляем все фильтры
+    categories = Category.query.all()
+    for cat in categories:
+        existingFilter = UserCatFilters.query.filter(UserCatFilters.user == current_user.id,
+                                                     UserCatFilters.category == cat.id).first()
+        if not existingFilter:
+            userFilter = UserCatFilters(current_user, cat)
+            db.session.add(userFilter)
+            db.session.commit()
+    catFilter = UserCatFilters.query.filter(UserCatFilters.user==current_user.id, UserCatFilters.category==categoryID).first()
+    catFilter.value = s['value']
+    db.session.commit()
+
+    return jsonify({'result': 'success'})
 
 @blueprint.route('/save_personnal_photo', methods=['POST'])
 @login_required

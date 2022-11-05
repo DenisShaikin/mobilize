@@ -27,9 +27,9 @@ class Users(db.Model, UserMixin):
     last_name     = db.Column(db.String(64))
     burth_date    = db.Column(db.DateTime)
     avatar_photo = db.Column(db.String(100))
-
     oauth_github  = db.Column(db.String(100), nullable=True)
     activities = db.relationship('Activity', backref='User', lazy='dynamic', passive_deletes=True)
+    category_filters = db.relationship('UserCatFilters', backref='User', lazy='dynamic', passive_deletes=True)  #Здесь будет список фильтров категорий на главной странице, типа {1:True, 2:False, 3:False}
 
     def __init__(self, **kwargs):
         for property, value in kwargs.items():
@@ -69,6 +69,18 @@ class Users(db.Model, UserMixin):
             return
         return Users.query.get(id)
 
+class UserCatFilters(db.Model):
+    __tablename__ = 'Userfilters'
+
+    id     = db.Column(db.Integer, primary_key=True)
+    user   = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='CASCADE'))
+    category = db.Column(db.Integer, db.ForeignKey('Categories.id', ondelete='CASCADE'))
+    value   = db.Column(db.Boolean)
+#инициализируем все пользовательские фильтры в True - все показываем
+    def __init__(self, User, Category):
+        self.user = User.id
+        self.category = Category.id
+        self.value = True
 
 @login_manager.user_loader
 def user_loader(id):

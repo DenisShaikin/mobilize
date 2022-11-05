@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectField, BooleanField, RadioField, \
-    MultipleFileField, TextAreaField, DateField, FileField
+    MultipleFileField, TextAreaField, DateField, FileField, SelectMultipleField
 from wtforms.validators import Email, DataRequired, NumberRange
 from flask_wtf.file import  FileRequired, FileAllowed
 from flask_ckeditor import CKEditorField
