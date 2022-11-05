@@ -143,9 +143,10 @@ def additem():
                 newphoto = ItemPhotos(Item=item, photo=new_filename)
                 db.session.add(newphoto)
 
-        print(argslst)
-        inList = True if 'inList' not in argslst else True if argslst['inList'] == 'y' else False
-        haveIt = True if 'haveIt' not in argslst else True if argslst['haveIt'] == 'y' else False
+        # print(argslst)
+
+        inList = False if 'inList' not in argslst else True if argslst['inList'] == 'y' else False
+        haveIt = False if 'haveIt' not in argslst else True if argslst['haveIt'] == 'y' else False
         rating = 0 if 'rating' not in argslst else argslst['rating']
 
         newactivity = Activity(Item=item, User=current_user, inList=inList,

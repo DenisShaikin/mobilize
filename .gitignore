@@ -38,16 +38,10 @@ migrations
 .env__
 migrations/
 
-app/base/static/assets/img/photos
+apps/static/assets/img/photos
 
-app/__pycache__
+apps/__pycache__
 media/__pycache__
-app/base/__pycache__
-app/home/__pycache__
-
-# sphinx docs 
-_build
-_static
-_templates
+apps/home/__pycache__
 
 
