@@ -192,7 +192,8 @@ def edititem(item_id):
                     newphoto = ItemPhotos(Item=item, photo=new_filename)
                     db.session.add(newphoto)
         editActivity = Activity.query.filter(Activity.item_id == item_id, Activity.user_id==current_user.id).first()
-        setattr(editActivity, 'rating', argslst['rating'])
+
+        setattr(editActivity, 'rating', argslst['rating'] if 'rating' in argslst else 0)
         setattr(editActivity, 'inList', True if 'inList' in argslst else False)
         setattr(editActivity, 'haveIt', True if 'haveIt' in argslst else False)
 
@@ -217,7 +218,7 @@ def edititem(item_id):
             Item.id, Item.user_added, Item.name,  Item.description, Item.price,
             Item.category, Category.catname, Activity.inList, Activity.haveIt,
             Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id)
-        print(query.statement)
+        # print(query.statement)
         if not values: #На этого пользователя нет записи с рейтингом - другой делал товар
             currItem = Item.query.filter(Item.id == item_id).first()
             newactivity = Activity(Item=currItem, User=current_user, inList=False,
@@ -323,7 +324,7 @@ def editarticle(article_id):
             article.title = article_form.title.data
             article.video_link = article_form.video_link.data
             article.body = article_form.body.data
-            print('Длина текста =', len(article_form.body.data))
+            # print('Длина текста =', len(article_form.body.data))
             if article_form.video_link.data !='':
                 article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[1] + '/0.jpg'
 
