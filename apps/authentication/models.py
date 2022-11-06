@@ -106,7 +106,7 @@ class Item(db.Model):
     update_date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     name = db.Column(db.String(64))                             #Название предмета
     category = db.Column(db.Integer, ForeignKey("Categories.id"))
-    description = db.Column(db.Text(10000))
+    description = db.Column(db.Text(20000))
     brand = db.Column(db.String(64))
     price = db.Column(db.Float)
     link = db.Column(db.String(128))
