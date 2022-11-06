@@ -178,7 +178,7 @@ def additem():
 
         inList = False if 'inList' not in argslst else True if argslst['inList'] == 'y' else False
         haveIt = False if 'haveIt' not in argslst else True if argslst['haveIt'] == 'y' else False
-        rating = 0 if 'rating' not in argslst else argslst['rating']
+        rating = argslst['rating'] if 'rating' in argslst else None
 
         newactivity = Activity(Item=item, User=current_user, inList=inList,
                                haveIt=haveIt, rating=rating)
@@ -329,7 +329,8 @@ def addarticle():
                 newphoto = ArticlePhotos(Article=article, photo=new_filename)
                 db.session.add(newphoto)
 
-        rating = 0 if 'rating' not in argslst else argslst['rating']
+        rating = argslst['rating'] if 'rating' in argslst else None
+        # rating = 0 if 'rating' not in argslst else argslst['rating']
         newactivity = Activity(Article=article, User=current_user, rating=rating)
         db.session.add(newactivity)
         db.session.commit()
@@ -378,8 +379,10 @@ def editarticle(article_id):
                     newphoto = ArticlePhotos(Article=article, photo=new_filename)
                     db.session.add(newphoto)
         editActivity = Activity.query.filter(Activity.article_id == article_id, Activity.user_id == current_user.id).first()
-        rating = 0 if 'rating' not in argslst else argslst['rating']
-        setattr(editActivity, 'rating', rating)
+        # rating = 0 if 'rating' not in argslst else argslst['rating']
+        rating = argslst['rating'] if 'rating' in argslst else None
+        if rating:
+            setattr(editActivity, 'rating', rating)
         db.session.commit()
         return redirect(url_for('home_blueprint.articlesMain'))
     elif 'Delete' in request.form:  #Удаляем item и связанные Activity
