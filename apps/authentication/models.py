@@ -110,6 +110,8 @@ class Item(db.Model):
     brand = db.Column(db.String(64))
     price = db.Column(db.Float)
     link = db.Column(db.String(128))
+    video_link = db.Column(db.String(255))  #Ссылка на видео
+    video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео
     photos = db.relationship('ItemPhotos', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
     activities = db.relationship('Activity', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
     comments = db.relationship('Comment', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')

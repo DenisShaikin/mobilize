@@ -28,6 +28,7 @@ class AddItemForm(FlaskForm):
     brand = StringField('Бренд', id = 'brand_additem')
     price = DecimalField('Цена', validators=[NumberRange(min=0, message='Проверьте число!')])
     link = StringField('Ссылка', id = 'link_additem')
+    video_link = StringField('Ссылка на видео')
     photos = MultipleFileField('Выберите файлы с фото', validators=[FileRequired(),
                                     FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
     inList = BooleanField('Включить в список', default=True)
@@ -46,6 +47,7 @@ class EditItemForm(FlaskForm):
     brand = StringField('Бренд', id = 'brand_additem')
     price = DecimalField('Цена', validators=[NumberRange(min=0, message='Проверьте число!')])
     link = StringField('Ссылка', id = 'link_additem')
+    video_link = StringField('Ссылка на видео')
     photos = MultipleFileField('Выберите файлы с фото', validators=[FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
     inList = BooleanField('Включить в список', default=True)
     haveIt = BooleanField('Есть в наличии', default=True)

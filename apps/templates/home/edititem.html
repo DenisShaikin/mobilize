@@ -81,12 +81,20 @@
                             <!-- Описание -->
                           <div class="my-4"><label for="textarea">Характеристики, описание</label>
                           {% if owner %}
+                              <div class="mb-4">
+                                  <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
+                                  {{ form.video_link(class='form-control') }}
+                              </div>
                                   {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
                                   disabled=not owner, rows='5') }}
                               {% else %}
-                                <div class="mb-7">
-                                  {{ form.description.data |safe }}
-                                </div>
+                                  <div class="mb-4">
+                                      <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
+                                      {{ form.video_link.data |safe }}
+                                  </div>
+                                  <div class="mb-7">
+                                      {{ form.description.data |safe }}
+                                  </div>
                               {% endif %}
 
                           </div>
@@ -123,7 +131,7 @@
       </div>
   </div>
 </form>
-
+<!--Фотографии-->
   <div class="card border-0 shadow mb-4">
       <div class="card-body">
           <div class="table-responsive">
@@ -140,6 +148,18 @@
           </div>
       </div>
   </div>
+<!--Видео-->
+{% if video_link %}
+  <div class="row justify-content-md-center">
+      <div class="card border-1 shadow mb-4 col-md-auto">
+          <div class="card-body">
+            <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">
+                <iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+      </div>
+  </div>
+{% endif %}
 
 <!--      Теперь комментарии -->
   <div class="card card-body border-0 shadow table-wrapper table-responsive">

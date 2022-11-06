@@ -165,6 +165,13 @@ def additem():
         # print(argslst)
         # read form data
         item = Item(**argslst)
+        if additem_form.video_link.data != '':
+            if 'youtube' in additem_form.video_link.data:
+                item.video_thumbnail = 'https://img.youtube.com/vi/' + additem_form.video_link.data.split('=')[
+                    1] + '/0.jpg'
+            else:
+                item.video_thumbnail = 'https://img.youtube.com/vi/' + additem_form.video_link.data.split('/')[
+                    3] + '/0.jpg'
         db.session.add(item)
         for file in request.files.getlist('photos'):  #additem_form.photos.data
             photo = secure_filename(file.filename)
@@ -214,7 +221,14 @@ def edititem(item_id):
             item.name = edititem_form.name.data
             item.description = edititem_form.description.data
             item.price = edititem_form.price.data
-
+            item.video_link = edititem_form.video_link.data
+            if edititem_form.video_link.data != '':
+                if 'youtube' in edititem_form.video_link.data:
+                    item.video_thumbnail = 'https://img.youtube.com/vi/' + edititem_form.video_link.data.split('=')[
+                        1] + '/0.jpg'
+                else:
+                    item.video_thumbnail = 'https://img.youtube.com/vi/' + edititem_form.video_link.data.split('/')[
+                        3] + '/0.jpg'
             for file in request.files.getlist('photos'):  #additem_form.photos.data
                 photo = secure_filename(file.filename)
                 if photo:
@@ -242,11 +256,11 @@ def edititem(item_id):
         # Все поля может редактировать только создатель Item
 
         values = db.session.query(Item, Category, Activity).with_entities(
-            Item.id, Item.user_added, Item.name,  Item.description, Item.price,
+            Item.id, Item.user_added, Item.name,  Item.description, Item.price, Item.video_link,
             Item.category, Category.catname, Activity.inList, Activity.haveIt,
             Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id).first()
         query=db.session.query(Item, Category, Activity).with_entities(
-            Item.id, Item.user_added, Item.name,  Item.description, Item.price,
+            Item.id, Item.user_added, Item.name,  Item.description, Item.price, Item.video_link,
             Item.category, Category.catname, Activity.inList, Activity.haveIt,
             Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id)
         # print(query.statement)
@@ -257,7 +271,7 @@ def edititem(item_id):
             db.session.add(newactivity)
             db.session.commit()
             values = db.session.query(Item, Category, Activity).with_entities(
-                Item.id, Item.name, Item.description, Item.price,
+                Item.id, Item.name, Item.description, Item.price, Item.video_link,
                 Item.category, Category.catname, Activity.inList, Activity.haveIt,
                 Activity.rating).join(Category, Activity).filter(Item.id == item_id,
                                                                  Activity.user_id == current_user.id).first()
@@ -271,6 +285,7 @@ def edititem(item_id):
 
         edititem_form.description.data = values['description']
         edititem_form.price.data = values['price']
+        edititem_form.video_link.data = values['video_link']
         # print(edititem_form.price.data)
         edititem_form.inList.data = values['inList']
         edititem_form.haveIt.data = values['haveIt']
@@ -294,10 +309,18 @@ def edititem(item_id):
         page = request.args.get('page', 1, type=int)
         pagesCount = ceil(len(dfComments.index) / app.config['COMMENTS_PER_PAGE'])
         dfComments = dfComments[app.config['COMMENTS_PER_PAGE'] * (page - 1):app.config['COMMENTS_PER_PAGE'] * (page)]
+
+        video_link = None
+        if currItem.video_link:
+            if 'youtube' in currItem.video_link:
+                video_link = currItem.video_link.split('=')[1] if  '=' in currItem.video_link else None
+            else:
+                video_link = currItem.video_link.split('/')[3] if  '/' in currItem.video_link else None
+
         return render_template('home/edititem.html', segment='edititem', form=edititem_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
                                comments_data=list(dfComments.values.tolist()), owner=owner,
-                               currPage=page, pagesCount=pagesCount, item_id=item_id)
+                               currPage=page, pagesCount=pagesCount, item_id=item_id, video_link=video_link)
 
 
 #Добавление новой статьи
@@ -446,7 +469,11 @@ def editarticle(article_id):
 
         video_link = None
         if currArticle.video_link:
-            video_link = currArticle.video_link.split('=')[1] if  '=' in currArticle.video_link else None
+            if 'youtube' in currArticle.video_link:
+                video_link = currArticle.video_link.split('=')[1] if '=' in currArticle.video_link else None
+            else:
+                video_link = currArticle.video_link.split('/')[3] if '/' in currArticle.video_link else None
+
 
         return render_template('home/editarticle.html', segment='editarticle', form=article_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
