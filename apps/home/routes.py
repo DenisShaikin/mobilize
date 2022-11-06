@@ -126,10 +126,10 @@ def main():
     dfItems = dfItems.merge(dfRating, on='id', how='left')
 
     #Посчитаем стоимость предметов в списке
-    dTotalSomme = dfItems.groupby(['inList'])['price'].sum()[1]
+    dTotalSomme = dfItems.loc[dfItems['inList']==True]['price'].sum()
     print(dTotalSomme)
     #Теперь сколько из списка осталось докупить
-    dSommeToBuy = dfItems.loc[dfItems['inList']==True].groupby('haveIt')['price'].sum()[0]
+    dSommeToBuy = dfItems.loc[(dfItems['inList']==True) & (dfItems['haveIt']==False)]['price'].sum()
     print(dSommeToBuy)
 
     #выбираем только записи нужной страницы
