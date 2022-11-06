@@ -125,6 +125,13 @@ def main():
     dfRating['rating'] = dfRating['rating'].round(1)
     dfItems = dfItems.merge(dfRating, on='id', how='left')
 
+    #Посчитаем стоимость предметов в списке
+    dTotalSomme = dfItems.groupby(['inList'])['price'].sum()[1]
+    print(dTotalSomme)
+    #Теперь сколько из списка осталось докупить
+    dSommeToBuy = dfItems.loc[dfItems['inList']==True].groupby('haveIt')['price'].sum()[0]
+    print(dSommeToBuy)
+
     #выбираем только записи нужной страницы
     pagesCount = ceil(len(dfItems.index)/app.config['ITEMS_PER_PAGE'])
     dfItems = dfItems[app.config['ITEMS_PER_PAGE'] * (page-1):app.config['ITEMS_PER_PAGE'] * (page)]
@@ -143,8 +150,11 @@ def main():
     dfItems['id'] = dfItems['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.edititem', item_id=str(x)) +
                    '">' + str(x) + '</a>')
+
+
     return render_template('home/main.html', segment='main', row_data=list(dfItems.values.tolist()),
-                           currPage=page, pagesCount=pagesCount, categories=list(dfFilters['catname'])) #
+                           currPage=page, pagesCount=pagesCount, categories=list(dfFilters['catname']),
+                           dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy)) #
 
 
 
