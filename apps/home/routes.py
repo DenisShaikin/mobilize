@@ -69,9 +69,9 @@ def main():
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
-    def makeFilter(id, label, value):
+    def makeFilter(id, label, value, bDisabled):
         result = '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
-                 + '" id="mainFilter_' + str(id) + '" ' + value + 'onclick=changeFilter("mainFilter_' + str(id) + \
+                 + '" id="mainFilter_' + str(id) + '" ' + value + bDisabled +'onclick=changeFilter("mainFilter_' + str(id) + \
         '")><label class ="form-check-label mx-2" for ="mainFilter_' + str(id) + '">' + label + '</label></div>'
         return result
 
@@ -80,13 +80,6 @@ def main():
                '">' + str(name) + '</a>'
 
     page = request.args.get('page', 1, type=int)
-    #Собираем строку фильтров
-    catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
-        .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
-    dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
-    dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
-    dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value), axis=1)
-    dfFilters.drop(columns=['id', 'value'], inplace=True)
 
     #Данные
     if not current_user.is_anonymous:
@@ -97,17 +90,32 @@ def main():
                 WHERE act.user_id=''' + str(current_user.id) +
                               ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
+    #Собираем строку фильтров
+        catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
+            .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
+        dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
     else:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''', db.session.bind)
         bDisabled = ' Disabled '
+        # Собираем строку фильтров без user, всем True
+        catFiltersquery = db.session.query(Category.query.with_entities(Category.id, Category.catname) \
+            .order_by(Category.id).subquery())
+        dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
+        dfFilters['value'] = True
+    #преобразуем catname в html
+    dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
+    dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value, bDisabled), axis=1)
+    dfFilters.drop(columns=['id', 'value'], inplace=True)
 
-    categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
-        .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
-    dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
-    dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
-    dfItems = dfItems.loc[dfItems['value']==True]
+    #фильтруем Items по выбранным фильтрам, если без пользователя - показываем все предметы
+    if not current_user.is_anonymous:
+        categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
+            .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
+        dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
+        dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
+        dfItems = dfItems.loc[dfItems['value']==True]
 
     #Из Activity рассчитаем среднюю оценку
     query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating)).\

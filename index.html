@@ -62,19 +62,20 @@
 
 </head>
 <body>
+
     <header class="header-global">
         <nav id="navbar-main" aria-label="Primary navigation" class="navbar navbar-main navbar-expand-lg navbar-theme-primary pt-4 navbar-dark">
             <div class="container position-relative">
                 <div class="navbar-collapse collapse me-auto" id="navbar_global">
                     <div class="navbar-collapse-header">
                         <div class="row">
-                            <div class="collapse-close d-md-none">
-                                <a href="#navbar_global" data-bs-toggle="collapse"
-                                    data-bs-target="#navbar_global" aria-controls="navbar_global" aria-expanded="true"
-                                    aria-label="Toggle navigation">
-                                    <svg class="icon icon-xs" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                  </a>
-<!--                                <a href="#navbar_global" class="fas fa-times" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" title="close" aria-label="Toggle navigation"></a>-->
+                            <div class="col-6 collapse-brand">
+                                <a href="/">
+                                    <img src="{{ config.ASSETS_ROOT }}/img/brand/mobilization.png" alt="Volt logo">
+                                </a>
+                            </div>
+                            <div class="col-6 collapse-close">
+                                <a href="#navbar_global" class="fas fa-times" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" title="close" aria-label="Toggle navigation"></a>
                             </div>
                         </div>
                     </div>
@@ -109,16 +110,11 @@
                         <a id="Anonim" href="{{ config.ASSETS_ROOT }}/uploads/Anonim.xlsx" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
                       {% endif%}
                         Файл
-                        </a>
+                    </a>
                     </div>
-                    <div class="nav-item mr-2">
-                        <a href="{{ url_for('home_blueprint.articlesMain') }}" class="nav-link text-white">Статьи</a>
-                    </div>
-<!--Гамбургер уберем - в нем ошибка, прозрачный текст-->
-                    <div class="col-2"></div>
-<!--                    <button class="navbar-toggler ml-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" aria-label="Toggle navigation">-->
-<!--                        <span class="navbar-toggler-icon"></span>-->
-<!--                    </button>-->
+                    <button class="navbar-toggler ml-2" type="button" data-toggle="collapse" data-target="#navbar_global" aria-controls="navbar_global" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>                    
                 </div>
             </div>
         </nav>
@@ -152,7 +148,7 @@
                             медикаментов, инструментов (аспирин, капли в нос, ножницы для ногтей, перочинный нож, нижнее белье) - этого никто не предоставляет, во всяком
                             случае в данный момент. Чем больше профессиональных участников будет задействовано в составлении списка, тем проще всем будет подготовиться заранее.
                             <br> <br> <b>Приглашаем профессионалов участвовать в подготовке граждан!</b><br>
-                            Физическая подготовка также может быть необходима.
+                            Физическая подготовка <так></так>же может быть необходима.
                             <br>
                             Поскольку список персонализированный, подразумевает голосование и комментарии, понадобится <a class = "link-info" href="{{ url_for('authentication_blueprint.register') }}">регистрация</a>.
                         </p>
