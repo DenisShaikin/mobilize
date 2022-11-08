@@ -67,8 +67,8 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_DURATION = 3600
 
-    # PostgreSQL database
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    # MySQL database
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     # SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
     #     os.getenv('DB_ENGINE'   , 'mysql'),
     #     os.getenv('DB_USERNAME' , 'appseed_db_usr'),
