@@ -12,7 +12,7 @@ class Config(object):
 
     # Set up the App SECRET_KEY
     # SECRET_KEY = config('SECRET_KEY'  , default='S#perS3crEt_007')
-    SECRET_KEY = os.getenv('SECRET_KEY', 'S#perPuperS3crEt_013')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'S#perPuperS3eecrEt_013')
 
     # This will create a file in <app> FOLDER
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'sqlite3.db')
@@ -53,6 +53,7 @@ class Config(object):
 
     GITHUB_ID      = os.getenv('GITHUB_ID')
     GITHUB_SECRET  = os.getenv('GITHUB_SECRET')
+    WTF_CSRF_TIME_LIMIT = 7200
 
     # Enable/Disable Github Social Login    
     if GITHUB_ID and GITHUB_SECRET:
@@ -67,7 +68,7 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
     # PostgreSQL database
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     # SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
     #     os.getenv('DB_ENGINE'   , 'mysql'),
     #     os.getenv('DB_USERNAME' , 'appseed_db_usr'),

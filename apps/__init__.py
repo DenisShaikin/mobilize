@@ -57,9 +57,7 @@ def create_app(config):
     
     configure_database(app)
     #Включаем каскадное удаление
-    # insp = sa.inspect(Engine)
-    # print(Engine.url)
-    # event.listen(Engine, 'connect', lambda c, _: c.execute('pragma foreign_keys=on'))
+
     return app
 
 @event.listens_for(Engine, "connect")

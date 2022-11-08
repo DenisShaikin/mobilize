@@ -104,7 +104,7 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_added = db.Column(db.Integer, ForeignKey("Users.id"))
     update_date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    name = db.Column(db.String(64))                             #Название предмета
+    name = db.Column(db.String(255))                             #Название предмета
     category = db.Column(db.Integer, ForeignKey("Categories.id"))
     description = db.Column(db.Text(20000))
     brand = db.Column(db.String(64))
@@ -224,7 +224,7 @@ class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_added = db.Column(db.Integer, ForeignKey("Users.id"))
     update_date = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    title = db.Column(db.String(64))                             #Название предмета
+    title = db.Column(db.String(255))                             #Название предмета
     body = db.Column(db.Text(40000))
     video_link = db.Column(db.String(255))  #Ссылка на видео
     video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео

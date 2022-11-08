@@ -122,15 +122,17 @@ def main():
             group_by(Activity.item_id).subquery())
     dfRating = pd.read_sql(query.statement, db.session.bind)
     dfRating.rename(columns={'item_id':'id', 'avg_1':'rating'}, inplace=True)
-    dfRating['rating'] = dfRating['rating'].round(1)
+    dfRating.dropna(subset=['rating'], inplace=True)
+    if not dfRating.empty:
+        dfRating['rating'] = dfRating['rating'].round(1)
     dfItems = dfItems.merge(dfRating, on='id', how='left')
 
     #Посчитаем стоимость предметов в списке
     dTotalSomme = dfItems.loc[dfItems['inList']==True]['price'].sum()
-    print(dTotalSomme)
+    # print(dTotalSomme)
     #Теперь сколько из списка осталось докупить
     dSommeToBuy = dfItems.loc[(dfItems['inList']==True) & (dfItems['haveIt']==False)]['price'].sum()
-    print(dSommeToBuy)
+    # print(dSommeToBuy)
 
     #выбираем только записи нужной страницы
     pagesCount = ceil(len(dfItems.index)/app.config['ITEMS_PER_PAGE'])
@@ -511,8 +513,11 @@ def articlesMain():
     query = db.session.query(Activity.query.with_entities(Activity.article_id, func.avg(Activity.rating)).\
             group_by(Activity.article_id).subquery())
     dfRating = pd.read_sql(query.statement, db.session.bind)
-    dfRating.rename(columns={'article_id':'id', 'avg_1':'rating'}, inplace=True)
-    dfRating['rating'] = dfRating['rating'].round(1)
+    dfRating.rename(columns={'article_id': 'id', 'avg_1': 'rating'}, inplace=True)
+    dfRating.dropna(subset=['rating'], inplace=True)
+    print(dfRating)
+    if not dfRating.empty:
+        dfRating['rating'] = dfRating['rating'].round(1)
     dfArticles = dfArticles.merge(dfRating, on='id', how='left')
 
     #Из Activity рассчитаем количество комментариев

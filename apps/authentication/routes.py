@@ -147,6 +147,12 @@ def register():
         db.session.commit()
         #Добавляем так же все фильтры для всех категорий в True
         categories = Category.query.all()
+        if len(categories)==0: #Если нет категорий - добавляем по умолчанию
+            catsList= ['Хозяйственный набор', 'Аптечка хозяйственная', 'Аптечка тактическая', 'Защита', 'Подготовка']
+            for category in catsList:
+                cat = Category(catname=category)
+                db.session.add(cat)
+                db.session.commit()
         for cat in categories:
             userFilter = UserCatFilters(user, cat)
             db.session.add(userFilter)
