@@ -48,6 +48,7 @@ class EditItemForm(FlaskForm):
     price = DecimalField('Цена', validators=[NumberRange(min=0, message='Проверьте число!')])
     link = StringField('Ссылка', id = 'link_additem')
     video_link = StringField('Ссылка на видео')
+    video_thumbnail = StringField('Превью')
     photos = MultipleFileField('Выберите файлы с фото', validators=[FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
     inList = BooleanField('Включить в список', default=True)
     haveIt = BooleanField('Есть в наличии', default=True)

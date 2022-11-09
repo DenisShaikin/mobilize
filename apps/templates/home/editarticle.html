@@ -1,7 +1,7 @@
 {% extends "layouts/base.html" %}
 {% from "home/_formhelpers.html" import render_field %}
 
-{% block title %} Редактирование статьи {% endblock %}
+{% block title %} {{form.title.data|safe}} {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -61,12 +61,25 @@
                               {% endif %}
                           </div>
                           {% if video_link %}
+
                           <div class="container">
                               <div class="row justify-content-md-center">
                                 <div class="card border-1 shadow mb-4 col-md-auto">
                                     <div class="card-body ">
                                         <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">
-                                            <iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <!--Код микроразметки  видео -->
+                                            <div id="video-schema" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">
+                                                <div id="video-schema-meta">
+                                                <meta itemprop="description" content="{{ articleStruct.video_description }}"/>
+                                                <meta itemprop="duration" content="{{ articleStruct.video_duration }}"/>
+                                                <link itemprop="url" href="{{ form.video_link.data|safe }}"/>
+                                                <link itemprop="thumbnailUrl" href="{{ articleStruct.video_thumbnail }}"/>
+                                                <meta itemprop="name" content="{{ articleStruct.video_name }}"/>
+                                                <meta itemprop="uploadDate" content="{{ articleStruct.video_uploadDate }}"/>
+                                                <meta itemprop="isFamilyFriendly" content="{{ articleStruct.video_ageRestricted }}"/>
+                                                <meta itemprop="thumbnail" content="{{ articleStruct.video_thumbnail }}"/>
+                                            </div>
+                                            <div itemprop="embedHTML"><iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}?feature=oembed"  title="{{ form.title.data|safe }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>
                                     </div>
                                 </div>

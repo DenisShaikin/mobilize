@@ -23,7 +23,7 @@ import uuid
 from flask_ckeditor import upload_success, upload_fail
 from math import ceil
 import xlsxwriter
-
+from pytube import YouTube
 
 @blueprint.route('/index')
 def index():
@@ -352,9 +352,22 @@ def addarticle():
             if 'youtube' in article_form.video_link.data:
                 article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('=')[
                     1] + '/0.jpg'
+                video_id =article_form.video_link.data.split('=')[1]
             else:
                 article.video_thumbnail = 'https://img.youtube.com/vi/' + article_form.video_link.data.split('/')[
                     3] + '/0.jpg'
+                video_id = article_form.video_link.data.split('/')[3]
+            #Заполним так же мета информацию по видео
+            yt = YouTube('https://www.youtube.com/watch?v=' +video_id )
+            article.video_author = yt.author
+            article.video_description = yt.description
+            article.video_name = yt.title
+            article.video_uploadDate = yt.publish_date.strftime("%Y-%m-%d")
+            article.video_ageRestricted = yt.age_restricted
+            hours = int(yt.length / 3600)
+            minutes = int((yt.length - hours * 3660) / 60)
+            seconds = int(yt.length - hours * 3600 - minutes * 60)
+            article.video_duration = 'PT' + str(hours) + 'H' + str(minutes) +'M' + str(seconds) + 'S'
 
 
         db.session.add(article)
@@ -461,14 +474,14 @@ def editarticle(article_id):
         article_form.title.data = currArticle.title
         article_form.video_link.data = currArticle.video_link
         article_form.body.data = currArticle.body
-
+        # article_form.video_thumbnail.data = currArticle.video_thumbnail
         query = db.session.query(ArticlePhotos).filter(ArticlePhotos.article_id == article_id)
         dfPhotos = pd.read_sql(query.statement, query.session.bind)
         if not dfPhotos.empty:
             dfPhotos['photo'] = dfPhotos.apply(lambda x: createPhotoLink(x.id, x.photo), axis=1)
 
         # Комментарии
-        currArticle = Article.query.filter(Article.id == article_id).first()
+        currArticle = Article.query.get(article_id)
         comments = currArticle.followed_comments(user).all()
         dfComments = pd.DataFrame.from_records(comments, index='id', columns=['id', 'user', 'text'])
 
@@ -487,12 +500,19 @@ def editarticle(article_id):
                 video_link = currArticle.video_link.split('=')[1] if '=' in currArticle.video_link else None
             else:
                 video_link = currArticle.video_link.split('/')[3] if '/' in currArticle.video_link else None
-
+            articleStruct = {'video_thumbnail':currArticle.video_thumbnail,
+                             'video_author' :currArticle.video_thumbnail,
+                             'video_description' : currArticle.video_thumbnail,
+                            'video_name' : currArticle.video_thumbnail,
+                            'video_uploadDate' : currArticle.video_thumbnail,
+                            'video_ageRestricted' : currArticle.video_thumbnail,
+                            'video_duration' : currArticle.video_duration}
 
         return render_template('home/editarticle.html', segment='editarticle', form=article_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
                                comments_data=list(dfComments.values.tolist()), owner=owner, changeRating=changeRating,
-                               currPage=page, pagesCount=pagesCount, article_id=article_id, video_link =video_link)
+                               currPage=page, pagesCount=pagesCount, article_id=article_id, video_link =video_link,
+                               articleStruct=articleStruct)
 
     return render_template('home/editarticle.html', segment='editarticle', form=article_form)
 

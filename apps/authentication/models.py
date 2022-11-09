@@ -245,6 +245,12 @@ class Article(db.Model):
     body = db.Column(db.Text(40000))
     video_link = db.Column(db.String(255))  #Ссылка на видео
     video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео
+    video_author = db.Column(db.String(100))
+    video_description = db.Column(db.Text(1000))
+    video_name = db.Column(db.String(255))
+    video_uploadDate = db.Column(db.String(15))
+    video_ageRestricted = db.Column(db.Boolean)
+    video_duration =db.Column(db.String(50))
     activities = db.relationship('Activity', backref='Article', lazy='dynamic', passive_deletes=True)
     comments = db.relationship('Comment', backref='Article', lazy='dynamic', passive_deletes=True)
     photos = db.relationship('ArticlePhotos', backref='Article', lazy='dynamic', passive_deletes=True)
