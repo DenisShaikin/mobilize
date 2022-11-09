@@ -1,7 +1,7 @@
 {% extends "layouts/base.html" %}
 {% from "home/_formhelpers.html" import render_field %}
 
-{% block title %} Редактирование предмета {% endblock %}
+{% block title %} {{form.name.data|safe}} {% endblock %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
