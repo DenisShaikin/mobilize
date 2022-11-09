@@ -97,7 +97,6 @@ class OAuth(OAuthConsumerMixin, db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("Users.id", ondelete="cascade"), nullable=False)
     user = db.relationship(Users)
 
-
 class Item(db.Model):
     __tablename__ = 'Items'
 
@@ -108,7 +107,7 @@ class Item(db.Model):
     category = db.Column(db.Integer, ForeignKey("Categories.id"))
     description = db.Column(db.Text(20000))
     brand = db.Column(db.String(64))
-    price = db.Column(db.Float)
+    price = db.Column(db.Float, default=0)
     link = db.Column(db.String(128))
     video_link = db.Column(db.String(255))  #Ссылка на видео
     video_thumbnail = db.Column(db.String(255)) #Ссылка на превью ютуб видео
@@ -143,12 +142,10 @@ class Item(db.Model):
         else:
             return Comment.query.filter((Comment.user_id==User.id) & (Comment.item_id==self.id) &
                                         (Comment.text=='')).first()
-
     def is_emptycommentexist(self, User):
         return self.comments.filter((Comment.item_id == self.id) &
                                     (Comment.user_id == User.id) &
                                     (Comment.text == '')).count() > 0
-
     def is_commentexist(self, comment):
         return self.comments.filter(
             comment.c.item_id == self.id).count() > 0
@@ -172,6 +169,26 @@ class ItemPhotos(db.Model):
     def photos_id(self):
         return self.photo, self.id
 
+class Posts(db.Model):
+    __tablename__ = 'Posts'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к Юзеру
+    body = db.Column(db.Text(20000))
+    photos = db.relationship('PostPhotos', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
+    parentPost = db.Column(db.Integer,  db.ForeignKey('Posts.id', ondelete='cascade')) #родительский пост
+    def __repr__(self):
+        return '<Post {}>'.format(self.body)
+class PostPhotos(db.Model):
+    __tablename__ = 'PostPhotos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('Posts.id', ondelete='CASCADE')) #Привязка к владельцу
+    photo = db.Column(db.String(120))
+    def __repr__(self):
+        return self.photo
+    def photos_id(self):
+        return self.photo, self.id
 
 class Category(db.Model):
     __tablename__ = 'Categories'

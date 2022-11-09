@@ -153,6 +153,7 @@ def register():
                 cat = Category(catname=category)
                 db.session.add(cat)
                 db.session.commit()
+            categories = Category.query.all()
         for cat in categories:
             userFilter = UserCatFilters(user, cat)
             db.session.add(userFilter)

@@ -106,7 +106,9 @@ def main():
         dfFilters['value'] = True
     #преобразуем catname в html
     dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
-    dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value, bDisabled), axis=1)
+    print(dfFilters.head())
+    if not dfFilters.empty:
+        dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value, bDisabled), axis=1)
     dfFilters.drop(columns=['id', 'value'], inplace=True)
 
     #фильтруем Items по выбранным фильтрам, если без пользователя - показываем все предметы
