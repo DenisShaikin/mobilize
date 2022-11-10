@@ -537,7 +537,8 @@ def editarticle(article_id):
 def updateMeta():
     articles = Article.query.all()
     for currArticle in articles:
-        if currArticle.video_link!= '':
+        #заполняем только если не заполнено еще
+        if (currArticle.video_link!= '') & (not currArticle.video_views):
             if 'youtube' in currArticle.video_link:
                 currArticle.video_thumbnail = 'https://img.youtube.com/vi/' + currArticle.video_link.split('=')[
                     1] + '/0.jpg'
