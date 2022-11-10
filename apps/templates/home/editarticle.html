@@ -88,8 +88,9 @@
                                                 </div>
                                                 <meta itemprop="commentCount" content="{{ articleStruct.video_commentsCount }}"/>
                                                 <meta itemprop="keywords" content="{{ articleStruct.video_keywords }}"/>
+                                                <meta itemprop="embedURL" content="https://www.youtube.com/embed/{{ video_link }}"/>
                                             </div>
-                                            <div itemprop="embedHTML"><iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}?feature=oembed"  title="{{ form.title.data|safe }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                            <div><iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}?feature=oembed"  title="{{ form.title.data|safe }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>
                                     </div>
                                 </div>
