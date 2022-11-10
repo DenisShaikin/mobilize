@@ -79,6 +79,15 @@
                                                 <meta itemprop="uploadDate" content="{{ articleStruct.video_uploadDate }}"/>
                                                 <meta itemprop="isFamilyFriendly" content="{{ articleStruct.video_ageRestricted }}"/>
                                                 <meta itemprop="thumbnail" content="{{ articleStruct.video_thumbnail }}"/>
+                                                <div itemprop="interactionStatistic" itemscope itemtype="https://schema.org/InteractionCounter">
+                                                  <div itemprop="interactionService" itemscope itemid="https://www.youtube.com" itemtype="https://schema.org/WebSite">
+                                                    <meta itemprop="name" content="YouTube" />
+                                                  </div>
+                                                  <link itemprop="interactionType" href="https://schema.org/LikeAction"/>
+                                                  <span itemprop="userInteractionCount">{{ articleStruct.video_likes }}</span>
+                                                </div>
+                                                <meta itemprop="commentCount" content="{{ articleStruct.video_commentsCount }}"/>
+                                                <meta itemprop="keywords" content="{{ articleStruct.video_keywords }}"/>
                                             </div>
                                             <div itemprop="embedHTML"><iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}?feature=oembed"  title="{{ form.title.data|safe }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>

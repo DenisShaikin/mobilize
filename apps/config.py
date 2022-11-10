@@ -33,6 +33,7 @@ class Config(object):
     PERSO_PHOTO = os.path.join('assets', 'img', 'team')
     ITEMFILES_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
     FILES_PATH = os.path.join('assets', 'uploads')
+    YT_APIKEY = "AIzaSyDf5wahfC678VPXr4Ru2uPxWbP-0wKihno"
 
     # JWT_COOKIE_SECURE = False
     # JWT_TOKEN_LOCATION = "cookies"
@@ -68,7 +69,7 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
     # MySQL database
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     # SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
     #     os.getenv('DB_ENGINE'   , 'mysql'),
     #     os.getenv('DB_USERNAME' , 'appseed_db_usr'),

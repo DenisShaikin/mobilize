@@ -250,7 +250,13 @@ class Article(db.Model):
     video_name = db.Column(db.String(255))
     video_uploadDate = db.Column(db.String(15))
     video_ageRestricted = db.Column(db.Boolean)
-    video_duration =db.Column(db.String(50))
+    video_duration = db.Column(db.String(50))
+    video_rating = db.Column(db.Float) #Рейтинг на Utube
+    video_likes = db.Column(db.Integer)
+    video_views = db.Column(db.Integer)  #Количество просмотров на Utube
+    video_commentsCount = db.Column(db.Integer)
+    video_keywords = db.Column(db.String(255))
+
     activities = db.relationship('Activity', backref='Article', lazy='dynamic', passive_deletes=True)
     comments = db.relationship('Comment', backref='Article', lazy='dynamic', passive_deletes=True)
     photos = db.relationship('ArticlePhotos', backref='Article', lazy='dynamic', passive_deletes=True)

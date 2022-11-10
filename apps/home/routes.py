@@ -24,6 +24,7 @@ from flask_ckeditor import upload_success, upload_fail
 from math import ceil
 import xlsxwriter
 from pytube import YouTube
+import requests
 
 @blueprint.route('/index')
 def index():
@@ -106,7 +107,7 @@ def main():
         dfFilters['value'] = True
     #преобразуем catname в html
     dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
-    print(dfFilters.head())
+    # print(dfFilters.head())
     if not dfFilters.empty:
         dfFilters['catname'] = dfFilters.apply(lambda x: makeFilter(x.id, x.catname, x.value, bDisabled), axis=1)
     dfFilters.drop(columns=['id', 'value'], inplace=True)
@@ -364,11 +365,23 @@ def addarticle():
             article.video_name = yt.title
             article.video_uploadDate = yt.publish_date.strftime("%Y-%m-%d")
             article.video_ageRestricted = yt.age_restricted
+            article.video_rating = yt.rating
+            article.video_views = yt.views
+            article.video_keywords = ', '.join(yt.keywords)
+            # print(article.video_keywords)
             hours = int(yt.length / 3600)
             minutes = int((yt.length - hours * 3660) / 60)
             seconds = int(yt.length - hours * 3600 - minutes * 60)
             article.video_duration = 'PT' + str(hours) + 'H' + str(minutes) +'M' + str(seconds) + 'S'
-
+            #количество комментариев
+            params = {
+                'part': 'statistics',
+                'id': video_id,
+                'key': app.config['YT_APIKEY']
+            }
+            d = requests.get('https://www.googleapis.com/youtube/v3/videos', params=params).json()
+            article.video_commentsCount = d['items'][0]['statistics']['commentCount']
+            article.video_likes = d['items'][0]['statistics']['likeCount']
 
         db.session.add(article)
         for file in request.files.getlist('photos'):  #additem_form.photos.data
@@ -501,13 +514,17 @@ def editarticle(article_id):
             else:
                 video_link = currArticle.video_link.split('/')[3] if '/' in currArticle.video_link else None
             articleStruct = {'video_thumbnail':currArticle.video_thumbnail,
-                             'video_author' :currArticle.video_thumbnail,
-                             'video_description' : currArticle.video_thumbnail,
-                            'video_name' : currArticle.video_thumbnail,
-                            'video_uploadDate' : currArticle.video_thumbnail,
-                            'video_ageRestricted' : currArticle.video_thumbnail,
-                            'video_duration' : currArticle.video_duration}
-
+                             'video_author' :currArticle.video_author,
+                             'video_description' : currArticle.video_description,
+                            'video_name' : currArticle.c,
+                            'video_uploadDate' : currArticle.video_uploadDate,
+                            'video_ageRestricted' : currArticle.video_ageRestricted,
+                            'video_duration' : currArticle.video_duration,
+                            'video_likes' :  currArticle.video_likes,
+                            'video_views' : currArticle.video_views,
+                            'video_commentsCount': currArticle.video_commentsCount,
+                            'video_keywords': currArticle.video_keywords}
+            # print(articleStruct)
         return render_template('home/editarticle.html', segment='editarticle', form=article_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
                                comments_data=list(dfComments.values.tolist()), owner=owner, changeRating=changeRating,
@@ -515,6 +532,55 @@ def editarticle(article_id):
                                articleStruct=articleStruct)
 
     return render_template('home/editarticle.html', segment='editarticle', form=article_form)
+
+@blueprint.route('/updateMeta', methods=['GET'])
+def updateMeta():
+    articles = Article.query.all()
+    for currArticle in articles:
+        if currArticle.video_link!= '':
+            if 'youtube' in currArticle.video_link:
+                currArticle.video_thumbnail = 'https://img.youtube.com/vi/' + currArticle.video_link.split('=')[
+                    1] + '/0.jpg'
+                video_id =currArticle.video_link.split('=')[1]
+            else:
+                currArticle.video_thumbnail = 'https://img.youtube.com/vi/' + currArticle.video_link.split('/')[
+                    3] + '/0.jpg'
+                video_id = currArticle.video_link.split('/')[3]
+            #Заполним так же мета информацию по видео
+            yt = YouTube('https://www.youtube.com/watch?v=' +video_id )
+            currArticle.video_author = yt.author
+            currArticle.video_description = yt.description
+            currArticle.video_name = yt.title
+            currArticle.video_uploadDate = yt.publish_date.strftime("%Y-%m-%d")
+            currArticle.video_ageRestricted = yt.age_restricted
+            currArticle.video_rating = yt.rating
+            currArticle.video_views = yt.views
+            currArticle.video_keywords = ', '.join(yt.keywords)
+            # print(article.video_keywords)
+            hours = int(yt.length / 3600)
+            minutes = int((yt.length - hours * 3660) / 60)
+            seconds = int(yt.length - hours * 3600 - minutes * 60)
+            currArticle.video_duration = 'PT' + str(hours) + 'H' + str(minutes) +'M' + str(seconds) + 'S'
+            #количество комментариев
+            params = {
+                'part': 'statistics',
+                'id': video_id,
+                'key': app.config['YT_APIKEY']
+            }
+            d = requests.get('https://www.googleapis.com/youtube/v3/videos', params=params).json()
+            if 'commentCount' in d['items'][0]['statistics']:
+                currArticle.video_commentsCount = d['items'][0]['statistics']['commentCount']
+            else:
+                currArticle.video_commentsCount = 0
+                # print(d['items'][0]['statistics'])
+            if 'likeCount' in d['items'][0]['statistics']:
+                currArticle.video_likes = d['items'][0]['statistics']['likeCount']
+            else:
+                currArticle.video_likes=0
+
+            db.session.add(currArticle)
+            db.session.commit()
+    return render_template('home/index.html', segment='index')
 
 #список всех статей
 @blueprint.route('/articlesMain.html', methods=['GET'])
