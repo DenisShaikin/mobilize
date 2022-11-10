@@ -516,7 +516,7 @@ def editarticle(article_id):
             articleStruct = {'video_thumbnail':currArticle.video_thumbnail,
                              'video_author' :currArticle.video_author,
                              'video_description' : currArticle.video_description,
-                            'video_name' : currArticle.c,
+                            'video_name' : currArticle.video_name,
                             'video_uploadDate' : currArticle.video_uploadDate,
                             'video_ageRestricted' : currArticle.video_ageRestricted,
                             'video_duration' : currArticle.video_duration,
