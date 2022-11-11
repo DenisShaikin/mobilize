@@ -2,9 +2,12 @@
 
 {% block title %} Список вещей {% endblock %}
 
+{% block canonicallinks %}
+    <link rel="canonical" href="{{ url_for('home_blueprint.main') }}">
+{% endblock canonicallinks %}
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
 
+{% block stylesheets %}{% endblock stylesheets %}
 {% block content %}
 
 

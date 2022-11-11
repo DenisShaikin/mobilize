@@ -4,6 +4,10 @@
 {% block title %} {{form.title.data|safe}} {% endblock %}
 <meta name="description" content="Сайт подготовки к мобилизации, список вещей первой необходимости. Предлагается к обсуждению.">
 
+{% block canonicallinks %}
+    <link rel="canonical" href="{{ url_for('home_blueprint.editarticle', article_id=article_id) }}">
+{% endblock canonicallinks %}
+
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
 

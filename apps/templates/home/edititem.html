@@ -3,6 +3,10 @@
 
 {% block title %} {{form.name.data|safe}} {% endblock %}
 
+{% block canonicallinks %}
+    <link rel="canonical" href="{{ url_for('home_blueprint.edititem', item_id=item_id)}}">
+{% endblock canonicallinks %}
+
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
 
