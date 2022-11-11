@@ -61,6 +61,8 @@ services:
       - 443:443
     depends_on:
       - mobilize
+    links:
+      - mobilize
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - static_volume:/home/mobilize/apps/static
