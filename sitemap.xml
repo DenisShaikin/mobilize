@@ -2,145 +2,313 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://takemobil.ru/index</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/register</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/login</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/login</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/register</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/articlesMain.html</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://takemobil.ru/editarticle.html/7</loc>
-    <lastmod>2022-11-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/main.html</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/8</loc>
-    <lastmod>2022-11-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://takemobil.ru/articlesMain.html?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://takemobil.ru/editarticle.html/5</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/editarticle.html/3</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/editarticle.html/4</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/3</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/editarticle.html/5</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/editarticle.html/6</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/11</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/editarticle.html/1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/12</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/14</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/15</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/13</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/10</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/17</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/18</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/19</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/editarticle.html/2</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/main.html?page=2</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/20</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/main.html?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/21</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/22</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/23</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/24</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/16</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/25</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/26</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/27</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/28</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/29</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/31</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/34</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/32</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/36</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/37</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/35</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/38</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/30</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/editarticle.html/8</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/editarticle.html/7</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/39</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://takemobil.ru/reset_password_request</loc>
-    <lastmod>2022-11-09</lastmod>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/4?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/33</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/3</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/1?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/4</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/3?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/5</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/7?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/2</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/8?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/9</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/6?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/8</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://takemobil.ru/editarticle.html/2?page=1</loc>
-    <lastmod>2022-11-09</lastmod>
+    <loc>https://takemobil.ru/edititem.html/7</loc>
+    <lastmod>2022-11-11</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://takemobil.ru/edititem.html/6</loc>
+    <lastmod>2022-11-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
