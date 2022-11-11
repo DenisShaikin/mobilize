@@ -31,135 +31,150 @@
       </div>
   </div>
 
-<form method="post" action="" class="form" method="post" role="form" enctype="multipart/form-data">
-  {{ form.hidden_tag() }}
-  <div class="row">
-      <div class="col-12 mb-4">
-          <div class="card border-0 shadow components-section">
-              <div class="card-body">     
-                  <div class="row mb-4">
-                      <div class="col-lg-4 col-sm-6">
-                          <!-- Категория -->
-                          <label class="my-1 me-2" for="category">Категория</label>
-                              <div class="mb-4">
-                                  {{ form.category(class='form-select', placeholder='Категория предмета', disabled=not owner) }}
-                              </div>
-                            <!-- name -->
-                          <label for="name">Название</label>
-                          {% if owner %}
-                              <div class="mb-3">
-                                  {{ form.name(class='form-control', disabled=not owner) }}
-                              </div>
-                          {% else %}
-                              <h4>
-                                  {{ form.name.data|safe }}
-                              </h4>
-                          {% endif %}
-                            <!-- цена -->
-                          <label for="price">Примерная цена</label>
-                          {% if owner %}
-                              <div class="mb-3">
-                                  {{ form.price(class='form-control', placeholder='',  disabled=not owner) }}
-                              </div>
-                          {% else %}
-                              <h4>
-                                  {{ form.price.data|safe }}
-                              </h4>
-                          {% endif %}
-                          <div class = "row">
-                              <div class="d-grid">
-                                  <button type="submit" name="Edititem" class="btn btn-gray-800">Обновить</button>
-                                  {% if owner %}
-                                    <button name="Delete" class="btn btn-secondary">Удалить</button>
-                                  {% endif %}
-                                  <button name="Cancel" class="btn btn-secondary">Отмена</button>
-                              </div>
+<!--Фотографии-->
+<div itemscope itemtype="https://schema.org/Thing">
+  <div class="card border-1 shadow mb-4 col-md-auto">
+      <div class="card-body">
+          <div class="row justify-content-md-center d-flex flex-column flex-lg-row btn-group mb-2">
+              {% if video_link %}
+                  <div class="col embed-responsive-16by9 d-flex ">
+                      <iframe width="500" height="281" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                  </div>
+              {% endif %}
+              {% for photo in photos %}
+                  <div class="col bg-soft ms-2">
+                      {{ photo|safe }}
+                  </div>
+              {% endfor %}
+          </div>
+      </div>
+  </div>
 
-                          </div>
-                      </div>
-                      <div class="col-lg-8 col-sm-6">
-                            <!-- Описание -->
-                          <div class="my-4"><label for="textarea">Характеристики, описание</label>
-                          {% if owner %}
-                              <div class="mb-4">
-                                  <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
-                                  {{ form.video_link(class='form-control') }}
-                              </div>
-                                  {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
-                                  disabled=not owner, rows='5') }}
+    <form method="post" action="" class="form" method="post" role="form" enctype="multipart/form-data">
+      {{ form.hidden_tag() }}
+      <div class="row">
+          <div class="col-12 mb-4">
+              <div class="card border-0 shadow components-section">
+                  <div class="card-body">
+                      <div class="row mb-4">
+                          <div class="col-lg-4 col-sm-6">
+                              <!-- Категория -->
+                              <label class="my-1 me-2" for="category">Категория</label>
+                                  <div class="mb-4">
+                                      {{ form.category(class='form-select', placeholder='Категория предмета', disabled=not owner) }}
+                                  </div>
+                                <!-- name -->
+                              <label for="name">Название</label>
+                              {% if owner %}
+                                  <div class="mb-3">
+                                      {{ form.name(class='form-control', itemprop="name", disabled=not owner) }}
+                                  </div>
                               {% else %}
+                                  <h4 itemprop="name">
+                                      {{ form.name.data|safe }}
+                                  </h4>
+                              {% endif %}
+                                <!-- цена -->
+                              <div itemprop="offers" itemscope itemtype="https://schema.org/AggregateOffer">
+                                  <label for="price">Примерная цена</label>
+                                  {% if owner %}
+                                      <div class="mb-3">
+                                          {{ form.price(class='form-control', placeholder='', itemprop="lowPrice", disabled=not owner) }}
+                                      </div>
+                                  {% else %}
+                                      <h4 itemprop="lowPrice">
+                                          {{ form.price.data|safe }}
+                                      </h4>
+                                  {% endif %}
+                              </div>
+                              <div class = "row">
+                                  <div class="d-grid">
+                                      {% if changeRating %}
+                                        <button type="submit" name="Edititem" class="btn btn-gray-800">Обновить</button>
+                                      {% endif %}
+                                      {% if owner %}
+                                        <button name="Delete" class="btn btn-secondary">Удалить</button>
+                                      {% endif %}
+                                      <button name="Cancel" class="btn btn-secondary">Отмена</button>
+                                  </div>
+
+                              </div>
+                          </div>
+                          <div class="col-lg-8 col-sm-6">
+                                <!-- Описание -->
+                              <div class="my-4"><label for="textarea">Характеристики, описание</label>
+                              {% if owner %}
                                   <div class="mb-4">
                                       <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
-                                      {{ form.video_link.data |safe }}
+                                      {{ form.video_link(class='form-control') }}
                                   </div>
-                                  <div class="mb-7">
-                                      {{ form.description.data |safe }}
+                                      {{ form.description(class='form-control', placeholder='Заполните характеристики и описание предмета',
+                                      disabled=not owner, rows='5', itemprop='description') }}
+                                  {% else %}
+                                      <div class="mb-4">
+                                          <label class="my-1 me-2" for="video_link">Ссылка на видео</label>
+                                          {{ form.video_link.data |safe }}
+                                      </div>
+                                      <div class="mb-7" itemprop='description'>
+                                          {{ form.description.data |safe }}
+                                      </div>
+                                  {% endif %}
+
+                              </div>
+                              {% if owner %}
+                                  <div class="mb-3">
+                                      <label for="formFile" class="form-label">Выберите фото</label>
+                                      {{ form.photos(class='form-control', disabled=not owner) }}
                                   </div>
                               {% endif %}
+                            <!-- Выбор текущего пользователя -->
+                              {% if changeRating %}
+                                  <div class="row">
+                                      <div class="my-4">
+                                          <span class="h6 fw-bold">Ваш выбор</span>
+                                      <div class="form-check form-switch">
+                                            {{ form.inList(class='form-check-input', id='inList', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, чтобы включить в список") }}
+                                          <label class="form-check-label">Включить в список</label>
+                                      </div>
+                                      <div class="form-check form-switch">
+                                            {{ form.haveIt(class='form-check-input', id='haveIt', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, если  в наличии") }}
+                                          <label class="form-check-label" >Есть в наличии</label>
+                                      </div>
+                              {% endif %}
 
-                          </div>
-                          {% if owner %}
-                              <div class="mb-3">
-                                  <label for="formFile" class="form-label">Выберите фото</label>
-                                  {{ form.photos(class='form-control', disabled=not owner) }}
-                              </div>
-                          {% endif %}
-                        <!-- Выбор текущего пользователя -->
-                          <div class="row">
-                              <div class="my-4">
-                                  <span class="h6 fw-bold">Ваш выбор</span>
-                              <div class="form-check form-switch">
-                                    {{ form.inList(class='form-check-input', id='inList', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, чтобы включить в список") }}
-                                  <label class="form-check-label">Включить в список</label>
-                              </div>
-                              <div class="form-check form-switch">
-                                    {{ form.haveIt(class='form-check-input', id='haveIt', data_bs_toggle="tooltip", data_bs_placement="top", title="Включить, если  в наличии") }}
-                                  <label class="form-check-label" >Есть в наличии</label>
-                              </div>
-                                <ul class="rate-area">
-                                 {% for subfield in form.rating %}
-                                        {{ subfield}} {{ subfield.label}}
-                                {% endfor %}
-                                </ul>
-                              </div>
+                                        <div itemprop="reviewRating" itemscope hidden itemtype="https://schema.org/Rating">
+                                          <meta itemprop="worstRating" content = "1">
+                                          <meta itemprop="ratingValue" content = "{{form.rating.data|safe}}">
+                                          <meta itemprop="bestRating" content = "5">
+                                        </div>
+                                        <ul class="rate-area">
+                                         {% for subfield in form.rating %}
+                                                {{ subfield}} {{ subfield.label}}
+                                        {% endfor %}
+                                        </ul>
+                                      </div>
+                                  </div>
                           </div>
                       </div>
-
                   </div>
               </div>
           </div>
       </div>
-  </div>
-</form>
-<!--Фотографии-->
-  <div class="card border-0 shadow mb-4">
-      <div class="card-body">
-          <div class="table-responsive">
-              <table class="table table-centered table-nowrap mb-0 rounded">
-                  <thead class="thead-light">
-                  </thead>
-                  <tbody>
-                    {% for photo in photos %}
-                        {{ photo|safe }}
-                    {% endfor %}
-                  </tbody>
-              </table>
+    </form>
+</div>
 
-          </div>
-      </div>
-  </div>
 <!--Видео-->
-{% if video_link %}
-  <div class="row justify-content-md-center">
-      <div class="card border-1 shadow mb-4 col-md-auto">
-          <div class="card-body">
-            <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">
-                <iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-          </div>
-      </div>
-  </div>
-{% endif %}
+<!--{% if video_link %}-->
+<!--  <div class="row justify-content-md-center">-->
+<!--      <div class="card border-1 shadow mb-4 col-md-auto">-->
+<!--          <div class="card-body">-->
+<!--            <div class="embed-responsive embed-responsive-16by9 d-flex justify-content-center">-->
+<!--                <iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}"  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--      </div>-->
+<!--  </div>-->
+<!--{% endif %}-->
 
 <!--      Теперь комментарии -->
   <div class="card card-body border-0 shadow table-wrapper table-responsive">
@@ -171,6 +186,7 @@
               </tr>
           </thead>
           <tbody>
+          {% if changeRating %}
           <tr>
               <td>
                 {{current_user.username}}
@@ -180,6 +196,8 @@
                           onkeydown="if(event.keyCode == 13) return onCommentChange({{ item_id}});" value=""></textarea>
             </td>
           </tr>
+          {% endif %}
+
             {% for row in comments_data %}
                     <tr>
                         {% for cell_ in row %}
@@ -195,7 +213,7 @@
       <div class="card-footer px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
           <nav aria-label="Page navigation example">
               <ul class="pagination mb-0">
-                  {% for npage in range(pagesCount+1) %}
+                  {% for npage in range(pagesCount) %}
                     <li class="page-item {%if npage == currPage-1 %} active {% endif %}">
                      <a class="page-link" href="{{ url_for('home_blueprint.edititem', item_id=item_id, page=npage+1) }}" active>{{ npage+1 }} </a>
                   </li>
@@ -205,6 +223,7 @@
           <div class="fw-normal small mt-4 mt-lg-0">Показ <b>{{ currPage }}</b> из <b>{{ pagesCount+1 }} </b> страниц</div>
       </div>
   </div>
+
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->

@@ -57,20 +57,17 @@
                               <label for="formFile" class="form-label">Выберите фото для статьи</label>
                               {{ form.photos(class='form-control') }}
                           </div>
-
                       </div>
-                  <div class="row">
-                      <div class="d-grid col-lg-3">
-                          <button type="submit" name="addarticle" class="btn btn-gray-800">Сохранить</button>
+                      <div class="row">
+                          <div class="d-grid col-lg-3">
+                              <button type="submit" name="addarticle" class="btn btn-gray-800">Сохранить</button>
+                          </div>
+                          <div class="d-grid col-lg-3">
+                              <a href={{ url_for('home_blueprint.articlesMain') }} class="btn btn-secondary">
+                                Отмена
+                              </a>
+                          </div>
                       </div>
-                      <div class="d-grid col-lg-3">
-                          <a href={{ url_for('home_blueprint.articlesMain') }} class="btn btn-secondary">
-                            Отмена
-                          </a>
-                      </div>
-
-                  </div>
-
                   </div>
               </div>
           </div>
@@ -78,7 +75,6 @@
   </div>
 
 </form>
-
 
 {{ ckeditor.load() }}
 {{ ckeditor.config(name='body', height=400, file_uploader = '/upload') }}

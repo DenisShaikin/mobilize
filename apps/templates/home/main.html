@@ -48,9 +48,9 @@
           </div>
       </div>
   </div>
-  <div class="d-flex flex-column flex-lg-row btn-group mb-2">
+  <div class="d-flex flex-column justify-content flex-lg-row btn-group mb-2">
       {% for category in categories %}
-          <div class="col-2 ms-2">
+          <div class="col bg-soft ms-2">
             {{ category|safe }}
           </div>
       {% endfor%}
@@ -92,7 +92,7 @@
                                 </figure>
                         {% else %}
                             {% if loop.index == 5 %}
-                            <div class="text-wrap">
+                            <div class="text-wrap ">
                                 {{ cell_|safe }}
                             </div>
                             {% else %}

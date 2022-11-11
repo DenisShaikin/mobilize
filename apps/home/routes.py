@@ -79,6 +79,8 @@ def main():
     def makeLink(id, name):
         return '<a href = "' + url_for('home_blueprint.edititem', item_id=str(id)) + \
                '">' + str(name) + '</a>'
+    def makePhoto(link, alt):
+        return '<img  src=' + str(link) + ' width="100px" height="100px" class="img-fluid rounded-0 alt="' + str(alt) + '">'
 
     page = request.args.get('page', 1, type=int)
 
@@ -149,7 +151,7 @@ def main():
     dfItems = dfItems[['Photo', 'id', 'selected', 'catname', 'name', 'rating', 'price']]
     dfItems['Photo'] = dfItems['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
-    dfItems['Photo'] = dfItems['Photo'].apply( lambda x: '<img  src=' + x + ' width="100px" height="100px" class="img-fluid rounded-0 alt="">')
+    dfItems['Photo'] = dfItems.apply( lambda x: makePhoto(x['Photo'], x['name']), axis=1)
     dfItems['Photo'] = dfItems.apply(lambda x: makeLink(x['id'], x['Photo']), axis=1)
     dfItems['name'] = dfItems.apply(lambda x: makeLink(x['id'], x['name']), axis=1)
     dfItems['id'] = dfItems['id'].apply \
@@ -211,13 +213,13 @@ def additem():
     return render_template('home/additem.html', segment='additem', form = additem_form)
 
 @blueprint.route('/edititem.html/<item_id>', methods=['GET', 'POST'])
-@login_required
+# @login_required
 def edititem(item_id):
-    def createPhotoLink(id, photo):
+    def createPhotoLink(id, photo, alt):
         return '''<figure class="figure"> 
-                <img id=photo_''' + str(id) + ' src="'+ url_for('static',
+                <img itemprop="image" id=photo_''' + str(id) + ' src="'+ url_for('static',
                 filename=os.path.join(app.config['PHOTOS_FOLDER'], photo).replace('\\','/'))\
-               + '''"  width="150px" height="150px" class="img-fluid rounded-0 alt="">
+               + '''"  width="250px" height="250px" class="img-fluid rounded-0" alt="''' + alt.replace('"','in') + '''">
                </figure>'''
 
     categories = Category.query.with_entities(Category.id, Category.catname).all()
@@ -269,57 +271,70 @@ def edititem(item_id):
 
     elif request.method == 'GET':
         # Все поля может редактировать только создатель Item
-
-        values = db.session.query(Item, Category, Activity).with_entities(
-            Item.id, Item.user_added, Item.name,  Item.description, Item.price, Item.video_link,
-            Item.category, Category.catname, Activity.inList, Activity.haveIt,
-            Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id).first()
-        query=db.session.query(Item, Category, Activity).with_entities(
-            Item.id, Item.user_added, Item.name,  Item.description, Item.price, Item.video_link,
-            Item.category, Category.catname, Activity.inList, Activity.haveIt,
-            Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id)
-        # print(query.statement)
-        if not values: #На этого пользователя нет записи с рейтингом - другой делал товар
-            currItem = Item.query.filter(Item.id == item_id).first()
-            newactivity = Activity(Item=currItem, User=current_user, inList=False,
-                                   haveIt=False)
-            db.session.add(newactivity)
-            db.session.commit()
+        changeRating=True
+        owner=False
+        user = None if current_user.is_anonymous else current_user
+        rating=None
+        # Все поля может редактировать только создатель Item
+        if not current_user.is_anonymous:
+            values = db.session.query(Item, Category, Activity).with_entities(
+                Item.id, Item.user_added, Item.name,  Item.description, Item.price, Item.video_link,
+                Item.category, Category.catname, Activity.inList, Activity.haveIt,
+                Activity.rating).join(Category, Activity).filter(Item.id == item_id, Activity.user_id==current_user.id).first()
+            owner = True if values['user_added'] == current_user.id else False  # Редактирует создатель Item
+            # print(query.statement)
+            if not values: #На этого пользователя нет записи с рейтингом - другой делал товар
+                currItem = Item.query.filter(Item.id == item_id).first()
+                newactivity = Activity(Item=currItem, User=current_user, inList=False,
+                                       haveIt=False)
+                db.session.add(newactivity)
+                db.session.commit()
+                values = db.session.query(Item, Category, Activity).with_entities(
+                    Item.id, Item.name, Item.description, Item.price, Item.video_link,
+                    Item.category, Category.catname, Activity.inList, Activity.haveIt,
+                    Activity.rating).join(Category, Activity).filter(Item.id == item_id,
+                                                                     Activity.user_id == current_user.id).first()
+            edititem_form.inList.data = values['inList']
+            edititem_form.haveIt.data = values['haveIt']
+            rating = values['rating']
+            # print('Мы здесь', values['rating'], edititem_form.rating.data)
+        else:  #аноним
+            # values = db.session.query(Item, Category).with_entities(
+            #     Item.id, Item.name, Item.description, Item.price, Item.video_link,
+            # Item.category, Category.catname).join(Category) \
+            #     .filter(Item.id == item_id).first()
             values = db.session.query(Item, Category, Activity).with_entities(
                 Item.id, Item.name, Item.description, Item.price, Item.video_link,
                 Item.category, Category.catname, Activity.inList, Activity.haveIt,
-                Activity.rating).join(Category, Activity).filter(Item.id == item_id,
-                                                                 Activity.user_id == current_user.id).first()
+                Activity.rating).join(Category, Activity).filter(Item.id == item_id).first()
+            rating = values['rating']
+            changeRating = False
 
         values = values._mapping
-        owner = True if values.user_added == current_user.id else False  #Редактирует создатель Item
         # print(values)
         edititem_form.category.default = values['category']
         edititem_form.process()
         edititem_form.name.data = values['name']
+        edititem_form.rating.data = rating if rating else 0
 
         edititem_form.description.data = values['description']
         edititem_form.price.data = values['price']
         edititem_form.video_link.data = values['video_link']
         # print(edititem_form.price.data)
-        edititem_form.inList.data = values['inList']
-        edititem_form.haveIt.data = values['haveIt']
-        edititem_form.rating.data = values['rating']
 
-        # photos = db.session.query(ItemPhotos).filter(ItemPhotos.item_id == item_id).all()
+        currItem=Item.query.get(item_id)
         query = db.session.query(ItemPhotos).filter(ItemPhotos.item_id == item_id)
         dfPhotos = pd.read_sql(query.statement, query.session.bind)
         if not dfPhotos.empty:
             # print(dfPhotos)
-            dfPhotos['photo'] = dfPhotos.apply(lambda x: createPhotoLink(x.id, x.photo), axis=1)
+            dfPhotos['photo'] = dfPhotos.apply(lambda x: createPhotoLink(x.id, x.photo, currItem.name), axis=1)
 
         #Комментарии
-        currItem = Item.query.filter(Item.id == item_id).first()
         # newComment = currItem.add_emptycomment(current_user)
-        comments = currItem.followed_comments(current_user).all()
-        # print(comments)
+        comments = currItem.followed_comments(user).all()
+        print(user, currItem, comments)
         dfComments = pd.DataFrame.from_records(comments, index='id', columns=['id', 'user', 'text'])
-
+        print(dfComments)
         # выбираем только комментарии нужной страницы
         page = request.args.get('page', 1, type=int)
         pagesCount = ceil(len(dfComments.index) / app.config['COMMENTS_PER_PAGE'])
@@ -334,7 +349,7 @@ def edititem(item_id):
 
         return render_template('home/edititem.html', segment='edititem', form=edititem_form,
                                photos=list(dfPhotos['photo'].values.tolist()),
-                               comments_data=list(dfComments.values.tolist()), owner=owner,
+                               comments_data=list(dfComments.values.tolist()), owner=owner, changeRating=changeRating,
                                currPage=page, pagesCount=pagesCount, item_id=item_id, video_link=video_link)
 
 
@@ -408,12 +423,11 @@ def addarticle():
 @blueprint.route('/editarticle.html/<article_id>', methods=['GET', 'POST'])
 # @login_required
 def editarticle(article_id):
-    def createPhotoLink(id, photo):
+    def createPhotoLink(id, photo, alt):
         return '''<figure class="figure"> 
                 <img id=photo_''' + str(id) + ' src="'+ url_for('static',
                 filename=os.path.join(app.config['PHOTOS_FOLDER'], photo).replace('\\','/'))\
-               + '''"  width="150px" height="150px" class="img-fluid rounded-0 alt="">
-               </figure>'''
+               + '''"  width="150px" height="150px" class="img-fluid rounded-0 alt="''' + alt + '"></figure>'
 
     article_form = EditArticleForm(request.form)
     if 'editarticle' in request.form:
@@ -482,16 +496,18 @@ def editarticle(article_id):
                 .filter(Article.id == article_id).first()
             changeRating = False
 
-        values = values._mapping
+        # values = values._mapping
 
         article_form.title.data = currArticle.title
         article_form.video_link.data = currArticle.video_link
         article_form.body.data = currArticle.body
         # article_form.video_thumbnail.data = currArticle.video_thumbnail
+
+        currArticle=Article.query.get(article_id)
         query = db.session.query(ArticlePhotos).filter(ArticlePhotos.article_id == article_id)
         dfPhotos = pd.read_sql(query.statement, query.session.bind)
         if not dfPhotos.empty:
-            dfPhotos['photo'] = dfPhotos.apply(lambda x: createPhotoLink(x.id, x.photo), axis=1)
+            dfPhotos['photo'] = dfPhotos.apply(lambda x: createPhotoLink(x.id, x.photo, currArticle.title), axis=1)
 
         # Комментарии
         currArticle = Article.query.get(article_id)
