@@ -63,6 +63,7 @@ services:
       - mobilize
     links:
       - mobilize
+
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - static_volume:/home/mobilize/apps/static
@@ -72,6 +73,8 @@ services:
   certbot:
     image: certbot/certbot
     depends_on:
+      - nginx 
+    links:
       - nginx 
     entrypoint: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
