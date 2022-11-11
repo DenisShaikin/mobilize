@@ -71,7 +71,8 @@ services:
 
   certbot:
     image: certbot/certbot
-    
+    depends_on:
+      - nginx 
     entrypoint: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt 
