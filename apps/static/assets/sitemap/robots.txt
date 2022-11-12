@@ -1,0 +1,13 @@
+User-agent: Googlebot
+Disallow: /nogooglebot/
+
+User-agent: *
+Allow: /
+Disallow: /addarticle.html
+Disallow: /additem.html
+Disallow: /addarticle/
+Disallow: /additem/
+Disallow: /settings.html
+Disallow: /settings/
+
+Sitemap: https://takemobil.ru/sitemap.xml

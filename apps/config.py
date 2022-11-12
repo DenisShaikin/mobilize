@@ -70,8 +70,8 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
     # MySQL database
-    print(os.getenv('FLASK_ENV'))
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    if os.getenv('FLASK_ENV')=='Production':
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     # SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
     #     os.getenv('DB_ENGINE'   , 'mysql'),
     #     os.getenv('DB_USERNAME' , 'appseed_db_usr'),
