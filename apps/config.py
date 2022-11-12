@@ -19,8 +19,8 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False 
 
     # Assets Management
-    ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')    
-    
+    ASSETS_ROOT = os.getenv('ASSETS_ROOT', '/static/assets')
+
     SOCIAL_AUTH_GITHUB  = False
 
     ITEMS_PER_PAGE = 30
@@ -31,6 +31,7 @@ class Config(object):
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'photos')
     PERSO_PHOTO_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'team')
     PERSO_PHOTO = os.path.join('assets', 'img', 'team')
+    SITEMAP_FILEPATH = os.path.join(basedir, 'static', 'assets', 'sitemap')
     ITEMFILES_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
     FILES_PATH = os.path.join('assets', 'uploads')
     YT_APIKEY = "AIzaSyDf5wahfC678VPXr4Ru2uPxWbP-0wKihno"
@@ -69,6 +70,7 @@ class ProductionConfig(Config):
     REMEMBER_COOKIE_DURATION = 3600
 
     # MySQL database
+    print(os.getenv('FLASK_ENV'))
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     # SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
     #     os.getenv('DB_ENGINE'   , 'mysql'),

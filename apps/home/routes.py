@@ -33,8 +33,8 @@ def index():
 @blueprint.route('/robots.txt')
 @blueprint.route('/sitemap.xml')
 def static_from_root():
-    print(app.config['ASSETS_ROOT'], request.path[1:])
-    return send_from_directory(app.config['ASSETS_ROOT'], request.path[1:])
+    print(app.config['SITEMAP_FILEPATH'], request.path[1:])
+    return send_from_directory(app.config['SITEMAP_FILEPATH'], request.path[1:])
 
 @blueprint.route('/settings.html', methods=['GET', 'POST'])
 @login_required
