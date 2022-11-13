@@ -170,16 +170,34 @@ class ItemPhotos(db.Model):
     def photos_id(self):
         return self.photo, self.id
 
-class Posts(db.Model):
+
+class Post(db.Model):
     __tablename__ = 'Posts'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к Юзеру
-    body = db.Column(db.Text(20000))
+    category_id = db.Column(db.Integer, db.ForeignKey('Categories.id', ondelete='cascade'))
+    user_added = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к Юзеру
+    body = db.Column(db.Text(20000)) #текст сообщения
+    sourcebody = db.Column(db.Text(20000)) #исходный текст сообщения, на который отвечают
     photos = db.relationship('PostPhotos', backref='Item', lazy='dynamic', passive_deletes=True, cascade='save-update, merge, delete')
     parentPost = db.Column(db.Integer,  db.ForeignKey('Posts.id', ondelete='cascade')) #родительский пост
+    activities = db.relationship('Activity', backref='Post', lazy='dynamic', passive_deletes=True,
+                                 cascade='save-update, merge, delete')
+
+    def __init__(self, **kwargs):  #Создание элемента по словарю аргументов
+        for property, value in kwargs.items():
+            # depending on whether value is an iterable or not, we must
+            # unpack it's value (when **kwargs is request.form, some values
+            # will be a 1-element list)
+            if hasattr(value, '__iter__') and not isinstance(value, str):
+                # the ,= unpack of a singleton fails PEP8 (travis flake8 test)
+                value = value[0]
+            setattr(self, property, value)
+
     def __repr__(self):
         return '<Post {}>'.format(self.body)
+
+
 class PostPhotos(db.Model):
     __tablename__ = 'PostPhotos'
 
@@ -191,13 +209,22 @@ class PostPhotos(db.Model):
     def photos_id(self):
         return self.photo, self.id
 
+
 class Category(db.Model):
     __tablename__ = 'Categories'
-
     id = db.Column(db.Integer, primary_key=True)
     catname = db.Column(db.String(64))
     def __repr__(self):
         return str(self.catname)
+
+class CategoryPhotos(db.Model):
+    __tablename__ = 'CategoryPhotos'
+    id = db.Column(db.Integer, primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('Categories.id', ondelete='CASCADE')) #Привязка к владельцу
+    photo = db.Column(db.String(120))
+    def __repr__(self):
+        return self.photo
+
 
 class Activity(db.Model):
     __tablename__ = 'Activity'
@@ -206,6 +233,7 @@ class Activity(db.Model):
     item_id = db.Column(db.Integer, db.ForeignKey('Items.id', ondelete='cascade')) #Привязка к предметам
     user_id = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к предметам
     article_id = db.Column(db.Integer, db.ForeignKey('Articles.id', ondelete='cascade')) #Привязка к статьям
+    post_id = db.Column(db.Integer, db.ForeignKey('Posts.id', ondelete='cascade')) #Привязка к постам на форуме
     rating = db.Column(db.Integer)  #Оценка от 1 до 5
     inList = db.Column(db.Boolean) #Включить в список
     haveIt = db.Column(db.Boolean) #Уже есть в наличии

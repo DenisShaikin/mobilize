@@ -21,7 +21,7 @@ from apps.authentication.models import Users
 from apps.authentication.forms import ResetPasswordRequestForm, ResetPasswordForm
 from apps.authentication.email import send_password_reset_email
 from apps.authentication.util import verify_pass
-from apps.authentication.models import Users, Category, UserCatFilters
+from apps.authentication.models import Users, Category, UserCatFilters, CategoryPhotos
 
 
 @blueprint.route('/reset_password_request', methods=['GET', 'POST'])
@@ -149,10 +149,16 @@ def register():
         categories = Category.query.all()
         if len(categories)==0: #Если нет категорий - добавляем по умолчанию
             catsList= ['Хозяйственный набор', 'Аптечка хозяйственная', 'Аптечка тактическая', 'Защита', 'Подготовка']
-            for category in catsList:
+            catPhotos = ['ownclothes.png', 'medics.png', 'firstaid.png', 'multicam.png', 'phisics.png']
+            for catPhoto, category in zip(catPhotos, catsList):
+                print(category, catPhoto)
                 cat = Category(catname=category)
                 db.session.add(cat)
                 db.session.commit()
+                photo = CategoryPhotos(category_id=cat.id, photo=catPhoto)
+                db.session.add(photo)
+                db.session.commit()
+
             categories = Category.query.all()
         for cat in categories:
             userFilter = UserCatFilters(user, cat)

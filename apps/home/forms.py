@@ -64,6 +64,10 @@ class AddArticleForm(FlaskForm):
     photos = FileField('Выберите файл с фото', validators=[
                                     FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
 
+class AddPostForm(FlaskForm):
+    category_id = StringField('Категория')
+    title = StringField('Title')
+    body = CKEditorField('Body')  # <--
 
 class EditArticleForm(FlaskForm):
     title = StringField('Title')

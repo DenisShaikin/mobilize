@@ -1,0 +1,75 @@
+{% extends "layouts/base.html" %}
+{% from "home/_formhelpers.html" import render_field %}
+
+{% block title %} Добавление поста {% endblock %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="py-4">
+      <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+              <li class="breadcrumb-item">
+                  <a href="#">
+                      <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                  </a>
+              </li>
+              <li class="breadcrumb-item"><a href="#">Мобилизация</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Добавление поста</li>
+          </ol>
+      </nav>
+      <div class="d-flex justify-content-between w-100 flex-wrap">
+          <div class="mb-3 mb-lg-0">
+              <h1 class="h4">Редактирование Поста</h1>
+          </div>
+      </div>
+  </div>
+
+<form method="post" action="" class="form" method="post" role="form" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <div class="row">
+      <div class="col-12 mb-4">
+          <div class="card border-0 shadow components-section">
+              <div class="card-body">     
+                  <div class="row mb-4">
+                      <div class="col-lg-12 col-sm-6">
+                          <!-- категория - скрытое поле -->
+                          {{ form.category_id(class='form-control', hidden=True) }}
+                          <div class="mb-4">
+                              <label class="my-1 me-2" for="title">Топик</label>
+                              {{ form.title(class='form-control') }}
+                          </div>
+                          <div class="mb-4">
+                              <label class="my-1 me-2" for="category">Пост</label>
+                              {{ form.body(rows=20) }}
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="d-grid col-lg-3">
+                              <button type="submit" name="addPost" class="btn btn-gray-800">Сохранить</button>
+                          </div>
+                          <div class="d-grid col-lg-3">
+                              <a href={{ url_for('home_blueprint.postsMain') }} class="btn btn-secondary">
+                                Отмена
+                              </a>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+</form>
+
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='body', height=400, file_uploader = '/upload') }}
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+{% endblock javascripts %}

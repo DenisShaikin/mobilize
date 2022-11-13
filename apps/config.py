@@ -28,6 +28,8 @@ class Config(object):
     ARTICLES_PER_PAGE = 9
 
     PHOTOS_FOLDER = os.path.join('assets', 'img', 'photos')
+    ILLUSTRATIONS_FOLDER = os.path.join('assets', 'img', 'illustrations')
+
     UPLOAD_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'photos')
     PERSO_PHOTO_FOLDER = os.path.join(basedir, 'static', 'assets', 'img', 'team')
     PERSO_PHOTO = os.path.join('assets', 'img', 'team')

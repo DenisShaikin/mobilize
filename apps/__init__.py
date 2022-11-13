@@ -14,6 +14,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from sqlite3 import Connection as SQLite3Connection
 import sqlalchemy as sa
+from flask_moment import Moment
 
 
 db = SQLAlchemy()
@@ -21,12 +22,15 @@ login_manager = LoginManager()
 ckeditor = CKEditor()
 csrf = CSRFProtect()
 mail = Mail()
+moment = Moment()
+
 
 def register_extensions(app):
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
+    moment.init_app(app)
 
 def register_blueprints(app):
     for module_name in ('authentication', 'home'):

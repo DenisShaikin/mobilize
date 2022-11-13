@@ -8,11 +8,12 @@ from flask import render_template, request, redirect, url_for, jsonify, send_fil
 from flask import send_from_directory, make_response
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
-from apps.home.forms import AddItemForm, EditItemForm, SettingsForm, AddArticleForm, EditArticleForm
+from apps.home.forms import AddItemForm, EditItemForm, SettingsForm, AddArticleForm, EditArticleForm, AddPostForm
 from sqlalchemy import func
 from apps.authentication.models import Users
 from apps import db, csrf
-from apps.authentication.models import Category, ItemPhotos, Item, Activity, Comment, Article, ArticlePhotos, UserCatFilters
+from apps.authentication.models import Category, ItemPhotos, Item, Activity, Comment, Article, \
+    ArticlePhotos, UserCatFilters, Post
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timedelta
@@ -338,9 +339,9 @@ def edititem(item_id):
         #Комментарии
         # newComment = currItem.add_emptycomment(current_user)
         comments = currItem.followed_comments(user).all()
-        print(user, currItem, comments)
+        # print(user, currItem, comments)
         dfComments = pd.DataFrame.from_records(comments, index='id', columns=['id', 'user', 'text'])
-        print(dfComments)
+        # print(dfComments)
         # выбираем только комментарии нужной страницы
         page = request.args.get('page', 1, type=int)
         pagesCount = ceil(len(dfComments.index) / app.config['COMMENTS_PER_PAGE'])
@@ -530,6 +531,7 @@ def editarticle(article_id):
         dfComments = dfComments[app.config['COMMENTS_PER_PAGE'] * (page - 1):app.config['COMMENTS_PER_PAGE'] * (page)]
 
         video_link = None
+        articleStruct = None
         if currArticle.video_link:
             if 'youtube' in currArticle.video_link:
                 video_link = currArticle.video_link.split('=')[1] if '=' in currArticle.video_link else None
@@ -554,6 +556,90 @@ def editarticle(article_id):
                                articleStruct=articleStruct)
 
     return render_template('home/editarticle.html', segment='editarticle', form=article_form)
+
+
+#список всех статей
+@blueprint.route('/postsMain.html', methods=['GET'])
+# @login_required
+def postsMain():
+
+    def makeLink(id, name):
+        return '<a href = "' + url_for('home_blueprint.forumPage', category_id=str(id)) + \
+               '">' + str(name) + '</a>'
+    def CategoriesPhoto(src, alt):
+        return '<img src=' + src if src else '' + ' width="200px" height="200px" class="img-fluid rounded-0 alt="' + alt + '">'
+
+    # page = request.args.get('page', 1, type=int)
+    dfCategories = pd.read_sql('''SELECT  Categories.id, Categories.catname,
+            (SELECT ctf.photo FROM CategoryPhotos ctf WHERE ctf.category_id = Categories.id ORDER BY ctf.id ASC LIMIT 1) AS Photo
+            FROM Categories  ORDER BY Categories.id;''', db.session.bind)
+
+    #Из Activity рассчитаем количество постов по категориям
+    query = db.session.query(Post.query.with_entities(Post.category_id, func.count()).\
+            group_by(Post.category_id).subquery())
+    dfPosts = pd.read_sql(query.statement, db.session.bind)
+    dfPosts.rename(columns={'category_id':'id', 'count_1':'posts'}, inplace=True)
+    if len(dfPosts.loc[~dfPosts['id'].isna()]) >0:
+        dfCategories = dfCategories.merge(dfPosts, on='id', how='left')
+    else:
+        dfCategories['posts'] = 0
+    dfCategories['posts'].fillna(0, inplace=True)
+    dfCategories['posts']=dfCategories['posts'].astype(int)
+    dfCategories['Photo'] = dfCategories['Photo'].apply( lambda x: url_for('static',
+                    filename=os.path.join(app.config['ILLUSTRATIONS_FOLDER'], x).replace('\\','/')) if x else None)
+    dfCategories['Photo'] = dfCategories.apply( lambda x: CategoriesPhoto(x['Photo'], x.catname), axis=1)
+    # dfCategories['Photo'] = dfCategories.apply(lambda x: makeLink(x['id'], x['Photo']), axis=1)
+    dfCategories['catname'] = dfCategories.apply(lambda x: makeLink(x['id'], x['catname']), axis=1)
+    # dfArticles['id'] = dfArticles['id'].apply \
+    #     (lambda x: '<a href = "' + url_for('home_blueprint.editarticle', article_id=str(x)) +
+    #                '">' + str(x) + '</a>')
+    dfCategories = dfCategories[['id', 'Photo', 'catname', 'posts']]
+
+    return render_template('home/postsMain.html', segment='postsMain', row_data=list(dfCategories.values.tolist()))
+
+
+#Добавление новой статьи
+@blueprint.route('/forumPage.html/<category_id>', methods=['GET', 'POST'])
+@login_required
+def forumPage(category_id):
+    # post_form = AddPostForm(request.form)
+    if request.method=='GET':
+        query = db.session.query(Post).with_entities(Users.username, Post.timestamp, Post.body,
+                            Post.parentPost).join(Users).filter(Post.category_id == category_id)
+        dfPosts = pd.read_sql(query.statement, query.session.bind)
+        # dfPosts['timestamp'] = pd.to_datetime(dfPosts['timestamp'], dayfirst=True)
+        print(dfPosts.head())
+        dfPosts['timestamp'] =dfPosts['timestamp'].apply(lambda x:  datetime.strptime(str(x).split('.')[0], '%Y-%m-%d %H:%M:%S'))
+        print(dfPosts.head())
+        return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()))
+
+# @blueprint.template_filter('strftime')
+# def _jinja2_filter_datetime(date, fmt):
+#     date = dateutil.parser.parse(date)
+#     native = date.replace(tzinfo=None)
+#     # format='%b %d, %Y'
+#     return native.strftime(fmt)
+
+#Добавление новой статьи
+@blueprint.route('/addPost.html', methods=['GET', 'POST'])
+@login_required
+def addPost():
+    post_form = AddPostForm(request.form)
+    if 'addPost' in request.form:
+        argslst = dict(request.form)
+        argslst = {key: argslst[key]  for key in argslst if key not in ['addPost']}
+        argslst['user_added'] = current_user.id
+        post = Post(**argslst)
+
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for('home_blueprint.postsMain'))
+    elif 'Cancel' in request.form:
+        return redirect(url_for('home_blueprint.postsMain'))
+    elif request.method=='GET':
+        post_form.category_id.data=request.args['category_id']
+        return render_template('home/addPost.html', segment='addPost', form=post_form)
+
 
 @blueprint.route('/updateMeta', methods=['GET'])
 def updateMeta():
@@ -647,7 +733,8 @@ def articlesMain():
     dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
     dfArticles['Photo'] = dfArticles.apply(lambda x: selectArticlePhoto(x.video_thumbnail, x.Photo), axis=1)
-    dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: '<img  src=' + x + ' width="350px" height="350px" class="img-fluid rounded-0 alt="">')
+
+    dfArticles['Photo'] = dfArticles['Photo'].apply( lambda x: '<img  src=' + x + ' width="350px" height="350px" class="img-fluid rounded-0 alt="">' if x else '')
     dfArticles['Photo'] = dfArticles.apply(lambda x: makeLink(x['id'], x['Photo']), axis=1)
     dfArticles['title'] = dfArticles.apply(lambda x: makeLink(x['id'], x['title']), axis=1)
     dfArticles['id'] = dfArticles['id'].apply \
@@ -711,7 +798,7 @@ def UpdateActivities():
     Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == current_user.id).all()
     activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
     listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
-    # print(listToAdd)
+    print(listToAdd)
     for item in listToAdd:
         newactivity = Activity(item_id=item, User=current_user, inList=False,
                                haveIt=False)

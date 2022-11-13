@@ -4,8 +4,8 @@ Disallow: /nogooglebot/
 User-agent: *
 Allow: /
 Disallow: /addarticle.html
-Disallow: /additem.html
 Disallow: /addarticle/
+Disallow: /additem.html
 Disallow: /additem/
 Disallow: /settings.html
 Disallow: /settings/
