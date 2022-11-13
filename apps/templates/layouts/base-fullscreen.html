@@ -73,11 +73,13 @@
 
     {% include 'includes/scripts.html' %}
 
-  <!-- Specific Page JS goes HERE  -->
-  {% block javascripts %}
+{% block scripts %}
     {{ super() }}
     {{ moment.include_moment() }}
-  {% endblock javascripts %}
-  
+{% endblock %}
+
+  <!-- Specific Page JS goes HERE  -->
+  {% block javascripts %}{% endblock javascripts %}
+
 </body>
 </html>
