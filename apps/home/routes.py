@@ -27,6 +27,7 @@ import xlsxwriter
 from pytube import YouTube
 import requests
 
+
 @blueprint.route('/index')
 def index():
     return render_template('home/index.html', segment='index')
@@ -558,16 +559,16 @@ def editarticle(article_id):
     return render_template('home/editarticle.html', segment='editarticle', form=article_form)
 
 
-#список всех статей
+#список категорий топиков
 @blueprint.route('/postsMain.html', methods=['GET'])
 # @login_required
 def postsMain():
 
     def makeLink(id, name):
-        return '<a href = "' + url_for('home_blueprint.forumPage', category_id=str(id)) + \
+        return '<a href = "' + url_for('home_blueprint.postsTopics', category_id=str(id)) + \
                '">' + str(name) + '</a>'
     def CategoriesPhoto(src, alt):
-        return '<img src=' + src if src else '' + ' width="200px" height="200px" class="img-fluid rounded-0 alt="' + alt + '">'
+        return '<img src=' + src if src else '' + ' width="250px" height="250px" class="img-fluid rounded-0 alt="' + alt + '">'
 
     # page = request.args.get('page', 1, type=int)
     dfCategories = pd.read_sql('''SELECT  Categories.id, Categories.catname,
@@ -598,47 +599,118 @@ def postsMain():
     return render_template('home/postsMain.html', segment='postsMain', row_data=list(dfCategories.values.tolist()))
 
 
-#Добавление новой статьи
-@blueprint.route('/forumPage.html/<category_id>', methods=['GET', 'POST'])
+#список категорий топиков
+@blueprint.route('/postsTopics.html/<category_id>', methods=['GET'])
+def postsTopics(category_id):
+    def makeLink(id, name):
+        return '<a href = "' + url_for('home_blueprint.forumPage', category_id=str(id)) + \
+               '">' + str(name) + '</a>'
+    def CategoriesPhoto(src, alt):
+        return '<img src=' + src if src else '' + ' width="250px" height="250px" class="img-fluid rounded-0 alt="' + alt + '">'
+
+    currCat = Category.query.get(category_id)
+
+    query = db.session.query(Post.query.with_entities(Post.topic_label, Post.category_id, Users.username).join(Users).\
+            filter(Post.category_id==category_id).group_by(Post.topic_label).order_by(Post.timestamp).subquery())
+    dfTopics = pd.read_sql(query.statement, db.session.bind)
+    # print(dfTopics)
+    #рассчитаем количество постов по топикам
+    query = db.session.query(Post.query.with_entities(Post.topic_label, func.count()).filter(Post.category_id==category_id).\
+            group_by(Post.topic_label).subquery())
+    dfPosts = pd.read_sql(query.statement, db.session.bind)
+    dfPosts.rename(columns={'count_1':'posts'}, inplace=True)
+    if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
+        dfTopics = dfTopics.merge(dfPosts, on='topic_label', how='left')
+    else:
+        dfTopics['posts'] = 0
+    dfTopics['posts'].fillna(0, inplace=True)
+    dfTopics['posts']=dfTopics['posts'].astype(int)
+
+    #Теперь найдем последний пост по каждому топику
+    query = db.session.query(Post.query.with_entities(Post.body, Post.topic_label, Users.username, func.max(Post.timestamp)).\
+                             join(Users).filter(Post.category_id==category_id).group_by(Post.topic_label).subquery())
+    dfLastPosts=pd.read_sql(query.statement, db.session.bind)
+    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
+    dfLastPosts.rename(columns={'username':'lastModifiedBy', 'max_1':'last'
+                                                                     'Time', 'body':'lastPostBody'}, inplace=True)
+    if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
+        dfTopics = dfTopics.merge(dfLastPosts, on='topic_label', how='left')
+
+    #Теперь найдем количество просмотров - в первом посте с этим топиком, без родителей
+    query = db.session.query(Post.query.with_entities(Post.id, Post.topic_label, Post.views)\
+                             .filter((Post.category_id==category_id) & (Post.parentPost == None)).subquery())
+    dfPostViews=pd.read_sql(query.statement, db.session.bind)
+
+    # print(dfPostViews)
+    if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
+        dfTopics = dfTopics.merge(dfPostViews, on='topic_label', how='left')
+
+    if not dfTopics.empty:
+        dfTopics['views'].fillna(0, inplace=True)
+        dfTopics['views'] = dfTopics['views'].round(0).astype(int)
+        dfTopics['lastPostBody'] = dfTopics['lastPostBody'].str.replace('&nbsp;', '')
+        dfTopics = dfTopics[['topic_label', 'username', 'posts', 'lastModifiedBy', 'lastTime', 'lastPostBody', 'views', 'id']]
+    # print('Topics = ', dfTopics)
+
+    return render_template('home/postsTopics.html', segment='postsTopics', row_data=list(dfTopics.values.tolist()), catname=currCat.catname)
+
+#Просмотр поста по id и всех связанных
+@blueprint.route('/forumPage.html/<post_id>', methods=['GET', 'POST'])
 @login_required
-def forumPage(category_id):
+def forumPage(post_id):
     # post_form = AddPostForm(request.form)
     if request.method=='GET':
-        query = db.session.query(Post).with_entities(Users.username, Post.timestamp, Post.body,
-                            Post.parentPost).join(Users).filter(Post.category_id == category_id)
+        #получим топик и по нему заберем все субтопики
+        # print(post_id)
+        currPost = Post.query.get(post_id)
+        topic_label = currPost.topic_label
+        query = db.session.query(Post).with_entities(Post.id, Users.username, Users.avatar_photo, Post.timestamp, Post.body,
+                            Post.parentPost, Post.parentPost).join(Users).filter(Post.topic_label == topic_label).order_by(Post.timestamp)
         dfPosts = pd.read_sql(query.statement, query.session.bind)
-        # dfPosts['timestamp'] = pd.to_datetime(dfPosts['timestamp'], dayfirst=True)
-        print(dfPosts.head())
-        dfPosts['timestamp'] =dfPosts['timestamp'].apply(lambda x:  datetime.strptime(str(x).split('.')[0], '%Y-%m-%d %H:%M:%S'))
-        print(dfPosts.head())
-        return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()))
+        dfPosts['avatar_photo'] = dfPosts['avatar_photo'].apply(lambda x: url_for('static', filename=x))
+        dfPosts['child'] = False
+        dfPosts.loc[~dfPosts['parentPost'].isna(), 'child'] = True
+        dfPosts=dfPosts[['username', 'avatar_photo', 'timestamp', 'body', 'child']]
+        # print(dfPosts.head(), topic_label)
 
-# @blueprint.template_filter('strftime')
-# def _jinja2_filter_datetime(date, fmt):
-#     date = dateutil.parser.parse(date)
-#     native = date.replace(tzinfo=None)
-#     # format='%b %d, %Y'
-#     return native.strftime(fmt)
+        return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()), topic_label=topic_label, post_id=post_id)
 
 #Добавление новой статьи
-@blueprint.route('/addPost.html', methods=['GET', 'POST'])
+@blueprint.route('/addPost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
-def addPost():
+def addPost(category_id=None, post_id=None):
     post_form = AddPostForm(request.form)
     if 'addPost' in request.form:
         argslst = dict(request.form)
         argslst = {key: argslst[key]  for key in argslst if key not in ['addPost']}
         argslst['user_added'] = current_user.id
         post = Post(**argslst)
+        newParent = Post.query.filter(Post.topic_label==post_form.title.data).all()
+        if post_id != '-1':
+            parentPost=Post.query.get(post_id)
+            post.category_id=parentPost.category_id
+            if len(newParent)>0:  #есть уже такой топик
+                post.parentPost = post_id
+            else:
+                post.parentPost = None
 
+        post.topic_label= post_form.title.data
         db.session.add(post)
         db.session.commit()
-        return redirect(url_for('home_blueprint.postsMain'))
+        if post_id !='-1':
+            return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
+        else:
+            return redirect(url_for('home_blueprint.postsMain'))
     elif 'Cancel' in request.form:
-        return redirect(url_for('home_blueprint.postsMain'))
+        parentPost = Post.query.get(post_id)
+
+        return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
     elif request.method=='GET':
-        post_form.category_id.data=request.args['category_id']
-        return render_template('home/addPost.html', segment='addPost', form=post_form)
+        if post_id != '-1':
+            post_form.post_id.data=post_id
+            parentPost= Post.query.get(post_id)
+            post_form.title.data = parentPost.topic_label
+        return render_template('home/addPost.html', segment='addPost', form=post_form, category_id=category_id, post_id=post_id)
 
 
 @blueprint.route('/updateMeta', methods=['GET'])

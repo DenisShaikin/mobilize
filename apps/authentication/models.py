@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from flask_login import UserMixin
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy import ForeignKey
 from flask_dance.consumer.storage.sqla import OAuthConsumerMixin
 from datetime import datetime, timedelta
@@ -176,6 +176,8 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     category_id = db.Column(db.Integer, db.ForeignKey('Categories.id', ondelete='cascade'))
+    topic_label = db.Column(db.String(255))
+    views = db.Column(db.Integer)   #Количество просмотров
     user_added = db.Column(db.Integer, db.ForeignKey('Users.id', ondelete='cascade')) #Привязка к Юзеру
     body = db.Column(db.Text(20000)) #текст сообщения
     sourcebody = db.Column(db.Text(20000)) #исходный текст сообщения, на который отвечают
@@ -183,6 +185,7 @@ class Post(db.Model):
     parentPost = db.Column(db.Integer,  db.ForeignKey('Posts.id', ondelete='cascade')) #родительский пост
     activities = db.relationship('Activity', backref='Post', lazy='dynamic', passive_deletes=True,
                                  cascade='save-update, merge, delete')
+    children = relationship("Post", backref=backref("parent", remote_side=[id]))
 
     def __init__(self, **kwargs):  #Создание элемента по словарю аргументов
         for property, value in kwargs.items():

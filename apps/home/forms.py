@@ -65,7 +65,7 @@ class AddArticleForm(FlaskForm):
                                     FileAllowed(['png', 'jpg', 'bmp'], "Некорректный формат!")])
 
 class AddPostForm(FlaskForm):
-    category_id = StringField('Категория')
+    post_id = StringField('Родительский пост')
     title = StringField('Title')
     body = CKEditorField('Body')  # <--
 

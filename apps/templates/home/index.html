@@ -58,6 +58,9 @@
 <link type="text/css" href="{{ config.ASSETS_ROOT }}/css/volt.css" rel="stylesheet">
 
 <!-- NOTICE: You can use the _analytics.html partial to include production code specific code & trackers -->
+{% block canonicallinks %}
+    <link rel="canonical" href="{{ url_for('home_blueprint.index') }}">
+{% endblock canonicallinks %}
 
 </head>
 <body>

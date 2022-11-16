@@ -81,6 +81,14 @@
                   <span class="sidebar-text">Добавить предмет</span>
                 </a>
               </li>
+              <li class="nav-item {% if 'postsMain' in segment %} active {% endif %}">
+                <a href="/postsMain.html" class="nav-link">
+                  <span class="sidebar-icon">
+                    <svg enable-background="new 0 0 24 24" height="24px" fill="currentColor" version="1.1" viewBox="0 0 24 24" width="24px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g id="Layer_2"/><g id="Layer_3"/><g id="Layer_4"/><g id="Layer_5"/><g id="Layer_6"/><g id="Layer_7"/><g id="Layer_8"/><g id="Layer_9"/><g id="Layer_10"/><g id="Layer_11"/><g id="Layer_12"/><g id="Layer_13"/><g id="Layer_14"/><g id="Layer_15"><path d="M17,6H4C2.897,6,2,6.897,2,8v14l5.333-4H17c1.103,0,2-0.897,2-2V8C19,6.897,18.103,6,17,6z M17,16H6.667L4,18V8h13V16z    M22,3v15h-2V4H6V2h15C21.553,2,22,2.448,22,3z"/></g><g id="Layer_16"/><g id="Layer_17"/><g id="Layer_18"/><g id="Layer_19"/><g id="Layer_20"/><g id="Layer_21"/><g id="Layer_22"/><g id="Layer_23"/><g id="Layer_24"/><g id="Layer_25"/><g id="Layer_26"/></svg>
+                  </span>
+                  <span class="sidebar-text">Форум</span>
+                </a>
+              </li>
               <li role="separator" class="dropdown-divider mt-4 mb-3 border-gray-700"></li>
               <li class="nav-item">
                 <a href="{{ url_for('authentication_blueprint.logout') }}" class="nav-link">

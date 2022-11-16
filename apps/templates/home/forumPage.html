@@ -29,7 +29,7 @@
       </div>
 
       <div class="btn-toolbar mb-2 mb-md-0">
-          <a href="{{ url_for('home_blueprint.addPost') }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+          <a href="{{ url_for('home_blueprint.addPost', post_id=post_id) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
               <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
               Добавить
           </a>
@@ -47,38 +47,44 @@
     </div>
     <div class="col-12">
         {% for row in row_data %}
-            <div class="card border-0 shadow p-4 mb-4">
+        {% if not row[4] %}
+            <div class="card border-0 shadow p-4 mb-2  bg-gray-800 text-white">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="font-small">
                         <a href="#">
-                            <img class="avatar-sm img-fluid rounded-circle me-2" src="../assets/img/team/profile-picture-1.jpg" alt="avatar">
+                            <img class="avatar-sm img-fluid rounded-circle me-2" src="{{row[1]|safe}}" alt="avatar">
                             <span class="fw-bold">{{row[0]|safe}}</span>
                         </a>
-                        <span class="fw-normal ms-2">{{row[1]}}{{ moment(row[1]).format('LLL') }}</span>
+                        <span class="fw-normal ms-2">{{ moment(row[2]).fromNow() }}</span>
                     </span>
                     <div class="d-none d-sm-block">
-                        <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
+                        <a href="">
+                            <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </a>
                     </div>
                 </div>
-                <div class="m-0"> {{row[2]|safe}}</div>
+                <div class="m-0"> {{row[3]|safe}}</div>
             </div>
-            <div class="card bg-gray-800 text-white border-0 shadow p-4 ms-md-5 ms-lg-6 mb-4">
+        {% else %}
+            <div class="card border-0 shadow p-4 ms-md-5 ms-lg-6 mb-2">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="font-small"><span class="fw-bold">Your Answer</span>
-                        <span class="fw-normal text-gray-300 ms-2">March 26, 19:25</span>
+                    <span class="font-small"><span class="fw-bold">{{row[0]|safe}}</span>
+                        <span class="fw-normal text-gray-300 ms-2">{{ moment(row[2]).fromNow() }}</span>
                     </span>
                     <div class="d-none d-sm-block">
+                        <a href="">
                         <svg class="icon icon-xs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z">
-
                             </path>
+                        </a>
                         </svg>
                     </div>
                 </div>
-                <p class="m-0">Ответ</p>
+                <p class="m-0">{{row[3]|safe}}</p>
             </div>
+        {% endif %}
         {% endfor %}
     </div>
 </div>
