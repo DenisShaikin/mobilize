@@ -60,20 +60,21 @@ def settings():
 # @login_required
 def main():
     def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
+        bLogged = 'False' if current_user.is_anonymous else 'True'
         if selectedState:
-            result = '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result = '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                + '''" id="inList_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")> 
                <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         else:
-            result =  '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result =  '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                    +  '''" id="inList_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")>
                    <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         if haveItState:
-            result = result + ''' <div class="form-switch" > <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + ''' <div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         else:
-            result = result + '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
@@ -736,6 +737,7 @@ def addPost(category_id=None, post_id=None):
 
         return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
     elif request.method=='GET':
+        print(app.config['CKEDITOR_EXTRA_PLUGINS'])
         if post_id != '-1':
             post_form.post_id.data=post_id
             parentPost= Post.query.get(post_id)

@@ -14,7 +14,6 @@ COPY . ./
 # Update/upgrade the system
 RUN apt -y update
 RUN apt -y upgrade
-
 RUN apt install -y netcat 
 
 # WORKDIR /home/mobilize

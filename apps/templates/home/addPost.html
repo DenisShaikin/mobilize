@@ -64,9 +64,11 @@
   </div>
 
 </form>
-
 {{ ckeditor.load() }}
+
 {{ ckeditor.config(name='body', height=400, file_uploader = '/upload') }}
+<!--extraPlugins='font, richcombo', ajax, autocomplete, textmatch, xml, panelbutton, button, floatpanel, emoji, panel, textmatch-->
+
 
 {% endblock content %}
 

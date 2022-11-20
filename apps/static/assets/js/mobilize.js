@@ -15,10 +15,16 @@ function encode_params(object) {
     return encodedString;
 }
 
+//Проверяем статус логина, если нет - сообщение о необходимости залогиниться
+function checkButtonsStatus(cur_user) {
+    console.log(cur_user==='True')
+}
+
 
 /*   Функция меняет статус В Списке, В Наличии */
 function changeSelected(id) {
     var element = document.getElementById(id);
+    console.log('Здесь!')
 /*отправляем на сервер сообщение с id элемента, который надо поменять*/
     var xhr = new XMLHttpRequest();
     xhr.open('post', 'changeItemState');
