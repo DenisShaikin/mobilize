@@ -25,14 +25,14 @@
           <div class="mb-3 mb-lg-0">
               <h1 class="h4">Топики форума в категории {{catname}}</h1>
           </div>
-          <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="mb-3 mb-lg-0">
               {% if post_id is defined %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=-1, post_id=post_id) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                <a href="{{ url_for('home_blueprint.addPost', category_id=-1, post_id=post_id) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
               {% else %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+                <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
               {% endif %}
                   <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                  Добавить
+                  Новый топик
               </a>
           </div>
       </div>
