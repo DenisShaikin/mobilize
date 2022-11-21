@@ -29,6 +29,10 @@ COPY apps apps
 COPY media media
 # COPY migrations migrations
 COPY run.py boot.sh  ./ 
+COPY /ckeditor/dialogui /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/dialogui
+COPY /ckeditor/font /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/font
+COPY /ckeditor/richcombo /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/richcombo
+COPY /ckeditor/smiley /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/smiley
 
 RUN chmod +x boot.sh
 
