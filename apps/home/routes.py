@@ -62,25 +62,25 @@ def main():
     def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
         bLogged = 'False' if current_user.is_anonymous else 'True'
         if selectedState:
-            result = '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                + '''" id="inList_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")> 
                <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         else:
-            result =  '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result =  '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                    +  '''" id="inList_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")>
                    <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         if haveItState:
-            result = result + ''' <div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + ''' <div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         else:
-            result = result + '''<div class="form-switch" onclick=checkButtonsStatus(''' + bLogged + ''')> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
     def makeFilter(id, label, value, bDisabled):
-        result = '''<div class="form-switch" > <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
+        result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
                  + '" id="mainFilter_' + str(id) + '" ' + value + bDisabled +'onclick=changeFilter("mainFilter_' + str(id) + \
         '")><label class ="form-check-label mx-2" for ="mainFilter_' + str(id) + '">' + label + '</label></div>'
         return result
@@ -173,6 +173,10 @@ def main():
                            dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy)) #
 
 
+@blueprint.route('/checkStatus', methods=['POST'])
+def checkStatus():
+    return jsonify({'logged': not current_user.is_anonymous, 'link': url_for('authentication_blueprint.login'),
+                    'register': url_for('authentication_blueprint.register')})
 
 @blueprint.route('/additem.html', methods=['GET', 'POST'])
 @login_required

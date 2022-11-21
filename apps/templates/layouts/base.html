@@ -60,6 +60,7 @@
 <!-- Specific Page JS goes HERE  -->    
 {% block stylesheets %}{% endblock stylesheets %}
 
+{% if not config.DEBUG %}
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -87,6 +88,7 @@
 
   gtag('config', 'G-QMYYZE53J1');
 </script>
+{% endif %}
 </head>
 <body>
 
@@ -109,5 +111,6 @@
 
   <!-- Specific Page JS goes HERE  -->
   {% block javascripts %}{% endblock javascripts %}
+
 </body>
 </html>

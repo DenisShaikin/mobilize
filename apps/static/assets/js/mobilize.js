@@ -16,15 +16,35 @@ function encode_params(object) {
 }
 
 //Проверяем статус логина, если нет - сообщение о необходимости залогиниться
-function checkButtonsStatus(cur_user) {
-    console.log(cur_user==='True')
+function checkButtonsStatus() {
+/*отправляем на сервер сообщение с id элемента, который надо поменять*/
+    var xhr = new XMLHttpRequest();
+    xhr.open('post', 'checkStatus');
+    xhr.onload = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            var myResponse = JSON.parse(xhr.responseText);
+            console.log(myResponse.link);
+            if (myResponse.logged===false){
+                Swal.fire({
+                    title: 'Обратите внимание...',
+                    text: 'Для изменения необходимо залогиниться!',
+                    footer: '<div col-2><a href="' + myResponse.register + '">Регистрация &emsp;</a></div><div col-2> <a href="' + myResponse.link + '">Войти</a></div>'
+                });
+            }
+        }
+        else if (xhr.status !== 200) {
+        }
+    };
+    var csrf_token = document.querySelector('meta[name=csrf-token]').content;
+    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    xhr.send();
 }
 
 
 /*   Функция меняет статус В Списке, В Наличии */
 function changeSelected(id) {
     var element = document.getElementById(id);
-    console.log('Здесь!')
 /*отправляем на сервер сообщение с id элемента, который надо поменять*/
     var xhr = new XMLHttpRequest();
     xhr.open('post', 'changeItemState');
