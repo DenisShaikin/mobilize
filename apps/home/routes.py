@@ -656,7 +656,7 @@ def postsTopics(category_id):
     query = db.session.query(Post.query.with_entities(Post.body, Post.topic_label, Users.username, func.max(Post.timestamp)).\
                              join(Users).filter(Post.category_id==category_id).group_by(Post.topic_label).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
-    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: bbcode.render_html(x)[:50] + '...')
+    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] + '...')
     dfLastPosts.rename(columns={'username':'lastModifiedBy', 'max_1':'last'
                                                                      'Time', 'body':'lastPostBody'}, inplace=True)
     if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
