@@ -47,7 +47,8 @@ class Config(object):
     CKEDITOR_HEIGHT = 300
     CKEDITOR_FILE_UPLOADER= 'home_blueprint.upload'
     UPLOADED_PATH = os.path.join(basedir, 'static', 'assets', 'uploads')
-    CKEDITOR_EXTRA_PLUGINS = ['font', 'richcombo', 'dialogui', 'smiley', 'bbcode', 'entities', 'quote', 'api']
+    CKEDITOR_EXTRA_PLUGINS = ['font', 'richcombo', 'dialogui', 'smiley', 'bbcode', 'entities', 'quote', 'api', 'dialog',
+                              'widget', 'image2']
                               # 'blockquote', 'widget', 'toolbar', 'lineutils', 'clipboard', 'widgetselection', 'notification']
                               # 'ajax', 'autocomplete', 'textmatch', 'textwatcher'
                               # 'xml','panelbutton', 'button', 'floatpanel', 'emoji', 'panel']

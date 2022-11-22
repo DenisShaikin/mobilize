@@ -37,6 +37,9 @@ COPY /ckeditor/bbcode /usr/local/lib/python3.9/site-packages/flask_ckeditor/stat
 COPY /ckeditor/entities /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/entities
 COPY /ckeditor/quote /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/quote
 COPY /ckeditor/api /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/api
+COPY /ckeditor/dialog /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/dialog
+COPY /ckeditor/image2 /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/image2
+COPY /ckeditor/widget /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/widget
 
 
 RUN chmod +x boot.sh
