@@ -76,9 +76,11 @@
                                 <p>{{ row[6]|safe }}</p>
                           </td>
                           <td class="border-0 col-4">
-                              <p>{{ row[5]}}</p>
-                              <span class="font-small"><span class="fw-bold">{{row[3]|safe}}</span><br>
-                               <span class="fw-normal text-gray-300 ms-2">{{ moment(row[4]).format('LLL') }}</span>
+                               <a class="link" href="{{ url_for('home_blueprint.forumPage', category_id=category_id,  post_id=row[7])}}">
+                                  <p>{{ row[5]}}</p>
+                                  <span class="font-small"><span class="fw-bold">{{row[3]|safe}}</span><br>
+                                  <span class="fw-normal text-gray-300 ms-2">{{ moment(row[4]).format('LLL') }}</span>
+                               </a>
                           </td>
                       </tr>
                       {% endfor %}

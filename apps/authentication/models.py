@@ -22,6 +22,7 @@ class Users(db.Model, UserMixin):
     id            = db.Column(db.Integer, primary_key=True)
     username      = db.Column(db.String(64), unique=True)
     email         = db.Column(db.String(64), unique=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     password      = db.Column(db.LargeBinary)
     first_name    = db.Column(db.String(64))
     last_name     = db.Column(db.String(64))

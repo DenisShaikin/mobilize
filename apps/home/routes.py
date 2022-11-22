@@ -26,7 +26,7 @@ from math import ceil
 import xlsxwriter
 from pytube import YouTube
 import requests
-
+import bbcode
 
 @blueprint.route('/index')
 def index():
@@ -609,7 +609,7 @@ def postsMain():
     dfCategories = dfCategories.merge(dfTopics, on='id', how='left')
     dfCategories['topics'].fillna(0, inplace=True)
     dfCategories['topics']=dfCategories['topics'].astype(int)
-    print(dfPosts.head(10))
+    # print(dfPosts.head(10))
 
     #Теперь найдем последний пост по каждому топику
     query = db.session.query(Post.query.with_entities(Post.body, Post.category_id, Users.username, func.max(Post.timestamp)).\
@@ -621,7 +621,6 @@ def postsMain():
         dfCategories = dfCategories.merge(dfLastPosts, on='id', how='left')
     dfCategories[['lastModifiedBy', 'lastTime']].fillna('-', inplace=True)
     dfCategories['lastPostBody'] = dfCategories['lastPostBody'].str.replace('&nbsp;', '')
-    print(dfCategories['Photo'].tolist())
     dfCategories = dfCategories[['id', 'Photo', 'catname', 'topics', 'posts', 'lastModifiedBy', 'lastTime', 'lastPostBody']]
     return render_template('home/postsMain.html', segment='postsMain', row_data=list(dfCategories.values.tolist()))
 
@@ -657,7 +656,7 @@ def postsTopics(category_id):
     query = db.session.query(Post.query.with_entities(Post.body, Post.topic_label, Users.username, func.max(Post.timestamp)).\
                              join(Users).filter(Post.category_id==category_id).group_by(Post.topic_label).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
-    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
+    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: bbcode.render_html(x)[:50] + '...')
     dfLastPosts.rename(columns={'username':'lastModifiedBy', 'max_1':'last'
                                                                      'Time', 'body':'lastPostBody'}, inplace=True)
     if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
@@ -686,7 +685,9 @@ def postsTopics(category_id):
 @blueprint.route('/forumPage.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
 def forumPage(category_id, post_id):
-    # post_form = AddPostForm(request.form)
+    def createBody(x, y):
+        return ''.join([x if x else '','<br><br>', y if y else ''])
+
     if request.method=='GET':
         #получим топик и по нему заберем все субтопики
         # print(post_id)
@@ -696,14 +697,17 @@ def forumPage(category_id, post_id):
         db.session.commit()
         topic_label = currPost.topic_label
         query = db.session.query(Post).with_entities(Post.id, Users.username, Users.avatar_photo, Post.timestamp, Post.body,
-                            Post.parentPost, Post.parentPost).join(Users).\
+                            Post.parentPost, Post.sourcebody).join(Users).\
             filter((Post.topic_label == topic_label) & (Post.category_id==category_id)).order_by(Post.timestamp)
         dfPosts = pd.read_sql(query.statement, query.session.bind)
         dfPosts['avatar_photo'] = dfPosts['avatar_photo'].apply(lambda x: url_for('static', filename=x))
         dfPosts['child'] = False
         dfPosts.loc[~dfPosts['parentPost'].isna(), 'child'] = True
-        dfPosts=dfPosts[['username', 'avatar_photo', 'timestamp', 'body', 'child']]
-        # print(category_id, topic_label)
+        dfPosts['body'] = dfPosts['body'].apply(lambda x: bbcode.render_html(x))
+        dfPosts['body'] = dfPosts.apply(lambda x: createBody(x.body, x.sourcebody), axis=1)
+        print(dfPosts.head())
+        dfPosts = dfPosts [['username', 'avatar_photo', 'timestamp', 'body', 'child', 'id']]
+#         print(dfPosts.head())
 
         return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()), topic_label=topic_label,
                                category_id=category_id, post_id=post_id)
@@ -719,7 +723,7 @@ def addPost(category_id=None, post_id=None):
         argslst['user_added'] = current_user.id
         argslst['category_id'] = category_id
         post = Post(**argslst)
-        print(argslst)
+        # print(argslst)
         newParent = Post.query.filter(Post.topic_label==post_form.title.data).all()
         if post_id != '-1':
             parentPost=Post.query.get(post_id)
@@ -741,12 +745,65 @@ def addPost(category_id=None, post_id=None):
 
         return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
     elif request.method=='GET':
-        print(app.config['CKEDITOR_EXTRA_PLUGINS'])
+        # print(app.config['CKEDITOR_EXTRA_PLUGINS'])
         if post_id != '-1':
             post_form.post_id.data=post_id
             parentPost= Post.query.get(post_id)
             post_form.title.data = parentPost.topic_label
-        return render_template('home/addPost.html', segment='addPost', form=post_form, category_id=category_id, post_id=post_id)
+        return render_template('home/addPost.html', segment='postsMain', form=post_form, category_id=category_id, post_id=post_id)
+
+
+@blueprint.route('/quotePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
+@login_required
+def quotePost(category_id=None, post_id=None):
+    def makeBody(username, post_body, parent_username, parent_body):
+        return '<figure> <blockquote class="blockquote"><p>Ответ на: ' + str(parent_body) + '</p></blockquote><figcaption>-' + str(username) +\
+               '<cite>'+ str(parent_username) + '</cite></figcaption></figure><br>' + str(post_body)
+
+    post_form = AddPostForm(request.form)
+    if 'addPost' in request.form:
+        argslst = dict(request.form)
+        argslst = {key: argslst[key]  for key in argslst if key not in ['addPost']}
+        argslst['user_added'] = current_user.id
+        argslst['category_id'] = category_id
+        post = Post(**argslst)
+        # print(argslst)
+        newParent = Post.query.filter(Post.topic_label==post_form.title.data).all()
+        if post_id != '-1':
+            parentPost=Post.query.get(post_id)
+            userAdded = Users.query.get(parentPost.user_added)
+            post.category_id=parentPost.category_id
+            if len(newParent)>0:  #есть уже такой топик
+                post.parentPost = post_id
+                post.sourcebody = '<figure> <blockquote class="blockquote"><p>Ответ на: ' + str(parentPost.body) + '</p></blockquote><figcaption>-' +\
+               '<cite>' +  str(userAdded.username) + '</cite></figcaption></figure>'
+            else:
+                post.parentPost = None
+
+        # print(post_form.body.data)
+        post.topic_label= post_form.title.data
+        # print(post_id)
+        db.session.add(post)
+        db.session.commit()
+        if post_id !='-1':
+            return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
+        else:
+            return redirect(url_for('home_blueprint.postsMain'))
+    elif 'Cancel' in request.form:
+        parentPost = Post.query.get(post_id)
+
+        return redirect(url_for('home_blueprint.forumPage', category_id=parentPost.category_id, post_id=post_id))
+    elif request.method=='GET':
+        # print(app.config['CKEDITOR_EXTRA_PLUGINS'])
+        if post_id != '-1':
+            post_form.post_id.data=post_id
+            parentPost= Post.query.get(post_id)
+            userAdded = Users.query.get(parentPost.user_added)
+            post_form.title.data = parentPost.topic_label
+            post_form.body.data = ''.join(['[quote=Опубликовал: ', str(userAdded.username), ']', str(parentPost.body),
+                                            '[/quote]', '.'])
+
+        return render_template('home/quotePost.html', segment='postsMain', form=post_form, category_id=category_id, post_id=post_id)
 
 
 @blueprint.route('/updateMeta', methods=['GET'])

@@ -35,6 +35,9 @@ COPY /ckeditor/richcombo /usr/local/lib/python3.9/site-packages/flask_ckeditor/s
 COPY /ckeditor/smiley /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/smiley
 COPY /ckeditor/bbcode /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/bbcode
 COPY /ckeditor/entities /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/entities
+COPY /ckeditor/quote /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/quote
+COPY /ckeditor/api /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/api
+
 
 RUN chmod +x boot.sh
 
