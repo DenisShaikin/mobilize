@@ -50,4 +50,3 @@ WTForms==3.0.1
 xlsxwriter==3.0.3
 pytube==12.1.0
 flask-moment==1.0.5
-bbcode==1.1.0

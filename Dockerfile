@@ -33,7 +33,6 @@ COPY /ckeditor/dialogui /usr/local/lib/python3.9/site-packages/flask_ckeditor/st
 COPY /ckeditor/font /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/font
 COPY /ckeditor/richcombo /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/richcombo
 COPY /ckeditor/smiley /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/smiley
-COPY /ckeditor/bbcode /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/bbcode
 COPY /ckeditor/entities /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/entities
 COPY /ckeditor/quote /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/quote
 COPY /ckeditor/api /usr/local/lib/python3.9/site-packages/flask_ckeditor/static/standard/plugins/api

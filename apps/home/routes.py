@@ -26,7 +26,7 @@ from math import ceil
 import xlsxwriter
 from pytube import YouTube
 import requests
-import bbcode
+# import bbcode
 
 @blueprint.route('/index')
 def index():
@@ -703,9 +703,9 @@ def forumPage(category_id, post_id):
         dfPosts['avatar_photo'] = dfPosts['avatar_photo'].apply(lambda x: url_for('static', filename=x))
         dfPosts['child'] = False
         dfPosts.loc[~dfPosts['parentPost'].isna(), 'child'] = True
-        dfPosts['body'] = dfPosts['body'].apply(lambda x: bbcode.render_html(x))
+        # dfPosts['body'] = dfPosts['body'].apply(lambda x: bbcode.render_html(x))
         dfPosts['body'] = dfPosts.apply(lambda x: createBody(x.body, x.sourcebody), axis=1)
-        print(dfPosts.head())
+        # print(dfPosts.head())
         dfPosts = dfPosts [['username', 'avatar_photo', 'timestamp', 'body', 'child', 'id']]
 #         print(dfPosts.head())
 
