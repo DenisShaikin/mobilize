@@ -26,6 +26,7 @@ from math import ceil
 import xlsxwriter
 from pytube import YouTube
 import requests
+import re
 # import bbcode
 
 @blueprint.route('/index')
@@ -615,12 +616,15 @@ def postsMain():
     query = db.session.query(Post.query.with_entities(Post.body, Post.category_id, Users.username, func.max(Post.timestamp)).\
                              join(Users).group_by(Post.category_id).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
-    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
+    # dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
+
+    dfLastPosts['body'] = dfLastPosts['body'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
     dfLastPosts.rename(columns={'category_id':'id', 'username':'lastModifiedBy', 'max_1':'lastTime', 'body':'lastPostBody'}, inplace=True)
     if not dfCategories.empty:
         dfCategories = dfCategories.merge(dfLastPosts, on='id', how='left')
     dfCategories[['lastModifiedBy', 'lastTime']].fillna('-', inplace=True)
     dfCategories['lastPostBody'] = dfCategories['lastPostBody'].str.replace('&nbsp;', '')
+
     dfCategories = dfCategories[['id', 'Photo', 'catname', 'topics', 'posts', 'lastModifiedBy', 'lastTime', 'lastPostBody']]
     return render_template('home/postsMain.html', segment='postsMain', row_data=list(dfCategories.values.tolist()))
 
@@ -639,7 +643,6 @@ def postsTopics(category_id):
     query = db.session.query(Post.query.with_entities(Post.topic_label, Post.category_id, Users.username).join(Users).\
             filter(Post.category_id==category_id).group_by(Post.topic_label).order_by(Post.timestamp).subquery())
     dfTopics = pd.read_sql(query.statement, db.session.bind)
-    print(dfTopics)
     #рассчитаем количество постов по топикам
     query = db.session.query(Post.query.with_entities(Post.topic_label, func.count()).filter(Post.category_id==category_id).\
             group_by(Post.topic_label).subquery())
@@ -656,12 +659,11 @@ def postsTopics(category_id):
     query = db.session.query(Post.query.with_entities(Post.body, Post.topic_label, Users.username, func.max(Post.timestamp)).\
                              join(Users).filter(Post.category_id==category_id).group_by(Post.topic_label).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
-    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] + '...')
+    dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
     dfLastPosts.rename(columns={'username':'lastModifiedBy', 'max_1':'last'
                                                                      'Time', 'body':'lastPostBody'}, inplace=True)
     if len(dfPosts.loc[~dfPosts['topic_label'].isna()]) >0:
         dfTopics = dfTopics.merge(dfLastPosts, on='topic_label', how='left')
-    print(dfTopics)
     #Теперь найдем количество просмотров - в первом посте с этим топиком, без родителей
     query = db.session.query(Post.query.with_entities(Post.id, Post.topic_label, Post.views)\
                              .filter((Post.category_id==category_id) & (Post.parentPost == None)).subquery())
@@ -674,6 +676,7 @@ def postsTopics(category_id):
         dfTopics['views'].fillna(0, inplace=True)
         dfTopics['views'] = dfTopics['views'].round(0).astype(int)
         dfTopics['lastPostBody'] = dfTopics['lastPostBody'].str.replace('&nbsp;', '')
+        # print(dfTopics['lastPostBody'])
         dfTopics = dfTopics[['topic_label', 'username', 'posts', 'lastModifiedBy', 'lastTime', 'lastPostBody', 'views', 'id']]
     # print('Topics = ', dfTopics)
 

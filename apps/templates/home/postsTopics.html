@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Tables {% endblock %} 
+{% block title %} Tables {% endblock title %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -20,36 +20,38 @@
               <li class="breadcrumb-item active" aria-current="page">{{catname}}</li>
           </ol>
       </nav>
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
-      <div class="d-flex justify-content-between w-100 flex-wrap">
-          <div class="mb-3 mb-lg-0">
-              <h1 class="h4">Топики форума в категории {{catname}}</h1>
-          </div>
-          <div class="mb-3 mb-lg-0">
-              {% if post_id is defined %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=-1, post_id=post_id) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
-              {% else %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
-              {% endif %}
-                  <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                  Новый топик
-              </a>
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center">
+          <div class="d-flex justify-content-between w-100 flex-wrap">
+              <div class="mb-3 mb-lg-0">
+                  <h1 class="h4">Топики форума в категории {{catname}}</h1>
+              </div>
+              <div class="mb-3 mb-lg-0">
+                  {% if post_id is defined %}
+                    <a href="{{ url_for('home_blueprint.addPost', category_id=-1, post_id=post_id) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
+                      <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                      Новый топик
+                    </a>
+                  {% else %}
+                    <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center mr-2">
+                      <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                      Новый топик
+                    </a>
+                  {% endif %}
+              </div>
           </div>
       </div>
-  </div>
-    <a class="fw-bold text-dark hover:underline d-inline-flex align-items-center mb-2 mb-lg-0" href="{{ url_for('home_blueprint.postsMain') }}">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-caret-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M14 6l-6 6l6 6v-12" />
-        </svg>
- В начало
-    </a>
-
+        <a class="fw-bold text-dark hover:underline d-inline-flex align-items-center mb-2 mb-lg-0" href="{{ url_for('home_blueprint.postsMain') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-caret-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M14 6l-6 6l6 6v-12" />
+            </svg>
+            В начало
+        </a>
   </div>
 
   <div class="card border-0 shadow">
       <div class="card-body">
-          <p class="table-responsive">
+          <div class="table-responsive">
               <table class="table table-centered table-nowrap mb-0 rounded table-hover table-responsive-lg">
                   <thead class="thead-light">
                       <tr>
@@ -65,9 +67,10 @@
                       <tr>
                             <td class="border-0 col-4">
                                 <div class="h5">
-                                    <a class="link" href="{{ url_for('home_blueprint.forumPage', category_id=category_id,  post_id=row[7])}}">{{ row[0]|safe }}<a><br>
+                                    <a class="link" href="{{ url_for('home_blueprint.forumPage', category_id=category_id,  post_id=row[7])}}">{{ row[0]|safe }}</a><br>
                                 </div>
-                                <span class="font-small"><span class="fw-bold">автор: {{row[1]|safe}}</span><br>
+                                <span class="font-small fw-bold">автор: {{row[1]|safe}}
+                                </span> <br>
                             </td>
                             <td class="border-0 align-middle">
                                 <p>{{ row[2]|safe }}</p>
@@ -77,8 +80,8 @@
                           </td>
                           <td class="border-0 col-4">
                                <a class="link" href="{{ url_for('home_blueprint.forumPage', category_id=category_id,  post_id=row[7])}}">
-                                  <p>{{ row[5]|safe}}</p>
-                                  <span class="font-small"><span class="fw-bold">{{row[3]|safe}}</span><br>
+                                  <p>{{ row[5]}}</p>
+                                  <span class="font-small fw-bold">{{row[3]|safe}}</span> <br>
                                   <span class="fw-normal text-gray-300 ms-2">{{ moment(row[4]).format('LLL') }}</span>
                                </a>
                           </td>
