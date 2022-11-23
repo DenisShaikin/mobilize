@@ -70,6 +70,11 @@
                         <span class="fw-normal ms-2">{{ moment(row[2]).fromNow() }}</span>
                     </span>
                     <div class="d-none d-sm-block">
+                        {% if row[6] %}
+                            <a href="{{ url_for('home_blueprint.editPost', category_id=category_id, post_id=row[5]) }}">
+                                <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M432.4 787.2c-24.1 27.6-34.7 34.2-68.4 46.6-51.9 19.4-147 55.1-208.9 78.3-11.7 4.6-55.9 2.3-37.4-41.1 21-60.4 51.8-149.6 69.4-200.5 12.8-35.9 17.9-45.2 43.7-69.3l266.5-266.5L686 523.4C686 523.4 506.6 710.1 432.4 787.2z"  /><path d="M726.5 482.9 537.9 294.3 578.3 253.8 767 442.5Z"  /><path d="M888.3 321.2l-80.8 80.9L618.8 213.4l80.9-80.8c29.8-29.8 78-29.8 107.8 0l80.9 80.8C918.1 243.1 918.1 291.4 888.3 321.2z"  /></svg>
+                            </a>
+                        {% endif %}
                         <a href="{{ url_for('home_blueprint.quotePost', category_id=category_id, post_id=post_id) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-quote" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -77,6 +82,7 @@
                               <path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" />
                             </svg>
                         </a>
+
                     </div>
                 </div>
                 <div class="m-0"> {{row[3]|safe}}</div>
@@ -88,6 +94,11 @@
                         <span class="fw-normal text-gray-300 ms-2">{{ moment(row[2]).fromNow() }}</span>
                     </span>
                     <div class="d-none d-sm-block">
+                        {% if row[6] %}
+                            <a href="{{ url_for('home_blueprint.editPost', category_id=category_id, post_id=row[5]) }}">
+                                <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M432.4 787.2c-24.1 27.6-34.7 34.2-68.4 46.6-51.9 19.4-147 55.1-208.9 78.3-11.7 4.6-55.9 2.3-37.4-41.1 21-60.4 51.8-149.6 69.4-200.5 12.8-35.9 17.9-45.2 43.7-69.3l266.5-266.5L686 523.4C686 523.4 506.6 710.1 432.4 787.2z"  /><path d="M726.5 482.9 537.9 294.3 578.3 253.8 767 442.5Z"  /><path d="M888.3 321.2l-80.8 80.9L618.8 213.4l80.9-80.8c29.8-29.8 78-29.8 107.8 0l80.9 80.8C918.1 243.1 918.1 291.4 888.3 321.2z"  /></svg>
+                            </a>
+                        {% endif %}
                         <a href="{{ url_for('home_blueprint.quotePost', category_id=category_id, post_id=row[5]) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-quote" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                               <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -95,10 +106,10 @@
                               <path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" />
                             </svg>
                         </a>
-                        </svg>
+
                     </div>
                 </div>
-                <p class="m-0">{{row[3]|safe}}</p>
+                <div class="m-0">{{row[3]|safe}}</div>
             </div>
         {% endif %}
         {% endfor %}
