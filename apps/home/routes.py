@@ -696,6 +696,7 @@ def forumPage(category_id, post_id):
         currPost.views =1 if not currPost.views  else currPost.views +1
         db.session.commit()
         topic_label = currPost.topic_label
+        print(currPost.topic_label)
         query = db.session.query(Post).with_entities(Post.id, Users.username, Users.avatar_photo, Post.timestamp, Post.body,
                             Post.parentPost, Post.sourcebody, Users.id.label('user_id')).join(Users).\
             filter((Post.topic_label == topic_label) & (Post.category_id==category_id)).order_by(Post.timestamp)
@@ -709,9 +710,10 @@ def forumPage(category_id, post_id):
         # print(dfPosts.head())
         dfPosts = dfPosts [['username', 'avatar_photo', 'timestamp', 'body', 'child', 'id', 'postOwner']]
 #         print(dfPosts.head())
+        catname = Category.query.get(currPost.category_id).catname
 
         return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()), topic_label=topic_label,
-                               category_id=category_id, post_id=post_id)
+                               category_id=category_id, post_id=post_id, catname=catname)
 
 #Добавление новой статьи
 @blueprint.route('/addPost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
@@ -765,7 +767,15 @@ def editPost(category_id=None, post_id=None):
         if post_id != '-1':
             post = Post.query.get(post_id)
             post.body = argslst['body']
+            print(argslst)
             db.session.commit()
+            #Если это родительский пост то можно менять и топик - тогда у всех детей!
+            if not post.parentPost:
+                post.topic_label=post_form.title.data
+                childs = Post.query.filter(Post.parentPost==post.id).all()
+                for childPost in childs:
+                    childPost.topic_label=post_form.title.data
+                db.session.commit()
             return redirect(url_for('home_blueprint.postsTopics', category_id=post.category_id))
         else:
             return redirect(url_for('home_blueprint.postsMain'))
@@ -774,11 +784,42 @@ def editPost(category_id=None, post_id=None):
         return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
     elif request.method=='GET':
         if post_id != '-1':
+
             post_form.post_id.data=post_id
             currPost= Post.query.get(post_id)
             post_form.title.data = currPost.topic_label
             post_form.body.data = currPost.body
         return render_template('home/editPost.html', segment='postsMain', form=post_form, category_id=category_id, post_id=post_id)
+
+@blueprint.route('/deletePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
+@login_required
+def deletePost(category_id=None, post_id=None):
+    if post_id != '-1':
+        # Соберем все посты у которых этот родитель
+        currPost = Post.query.get(post_id)
+        parentPost=Post.query.get(currPost.parentPost)
+        if not parentPost:
+            category_id=currPost.category_id
+            post_id=currPost.id
+        else:
+            category_id = parentPost.category_id
+            post_id = parentPost.id
+        childs = Post.query.filter(Post.parentPost==currPost.id).all()
+        #И меняем у них родителя
+        if len(childs)>0:
+            for childItem in childs:
+                if parentPost:
+                    childItem.parentPost= currPost.parentPost
+                else:
+                # Удаляем родителя ветки, всех детей долой!
+                    db.session.delete(childItem)
+            db.session.commit()
+        db.session.delete(currPost)
+        db.session.commit()
+    if parentPost:
+        return redirect(url_for('home_blueprint.forumPage', category_id=category_id, post_id=post_id)) #, catname=catname
+    else:
+        return redirect(url_for('home_blueprint.postsTopics', category_id=category_id))
 
 @blueprint.route('/quotePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
