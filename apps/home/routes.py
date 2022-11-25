@@ -613,12 +613,12 @@ def postsMain():
     # print(dfPosts.head(10))
 
     #Теперь найдем последний пост по каждому топику
-    query = db.session.query(Post.query.with_entities(Post.body, Post.category_id, Users.username, func.max(Post.timestamp)).\
-                             join(Users).group_by(Post.category_id).subquery())
+    query = db.session.query(Post.query.with_entities(Post.topic_label, Post.category_id, Users.username, func.max(Post.timestamp)).\
+                             join(Users).filter(Post.parentPost == None).group_by(Post.category_id).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
     # dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
 
-    dfLastPosts['body'] = dfLastPosts['body'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
+    dfLastPosts['body'] = dfLastPosts['topic_label'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
     dfLastPosts.rename(columns={'category_id':'id', 'username':'lastModifiedBy', 'max_1':'lastTime', 'body':'lastPostBody'}, inplace=True)
     if not dfCategories.empty:
         dfCategories = dfCategories.merge(dfLastPosts, on='id', how='left')
@@ -696,7 +696,6 @@ def forumPage(category_id, post_id):
         currPost.views =1 if not currPost.views  else currPost.views +1
         db.session.commit()
         topic_label = currPost.topic_label
-        print(currPost.topic_label)
         query = db.session.query(Post).with_entities(Post.id, Users.username, Users.avatar_photo, Post.timestamp, Post.body,
                             Post.parentPost, Post.sourcebody, Users.id.label('user_id')).join(Users).\
             filter((Post.topic_label == topic_label) & (Post.category_id==category_id)).order_by(Post.timestamp)
@@ -767,7 +766,6 @@ def editPost(category_id=None, post_id=None):
         if post_id != '-1':
             post = Post.query.get(post_id)
             post.body = argslst['body']
-            print(argslst)
             db.session.commit()
             #Если это родительский пост то можно менять и топик - тогда у всех детей!
             if not post.parentPost:
