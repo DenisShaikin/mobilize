@@ -90,7 +90,7 @@ def main():
         return '<a href = "' + url_for('home_blueprint.edititem', item_id=str(id)) + \
                '">' + str(name) + '</a>'
     def makePhoto(link, alt):
-        return '<img  src=' + str(link) + ' width="100px" height="100px" class="img-fluid rounded-0 alt="' + str(alt) + '">'
+        return '<img itemprop="image" src="' + str(link) +'" alt="'+ str(alt) +'" src=' + str(link) + ' width="100px" height="100px" class="img-fluid rounded-0 alt="' + str(alt) + '">'
 
     page = request.args.get('page', 1, type=int)
 
@@ -167,11 +167,12 @@ def main():
     dfItems['id'] = dfItems['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.edititem', item_id=str(x)) +
                    '">' + str(x) + '</a>')
+    itemscount=len(dfItems.index)
 
 
     return render_template('home/main.html', segment='main', row_data=list(dfItems.values.tolist()),
                            currPage=page, pagesCount=pagesCount, categories=list(dfFilters['catname']),
-                           dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy)) #
+                           dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy), itemscount=itemscount) #
 
 
 @blueprint.route('/checkStatus', methods=['POST'])
