@@ -15,6 +15,34 @@ function encode_params(object) {
     return encodedString;
 }
 
+function confirmDeletePost(link){
+    Swal.fire({
+      title: 'Вы уверены?',
+      text: "Безвозвратно удалить этот пост?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Да, удалить!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('post', link);
+        xhr.onload = function() {
+            if (this.readyState === 4 && this.status === 200) {
+                var myResponse = JSON.parse(xhr.responseText);
+                window.location.href = myResponse['link']
+//                window.location.reload();
+            }
+            else if (xhr.status !== 200) {
+            }
+        };
+        var csrf_token = document.querySelector('meta[name=csrf-token]').content;
+        xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.send();
+      };
+    });
+}
+
 //Проверяем статус логина, если нет - сообщение о необходимости залогиниться
 function checkButtonsStatus() {
 /*отправляем на сервер сообщение с id элемента, который надо поменять*/
@@ -69,7 +97,7 @@ function onCommentChange(item_id){
     xhr.open('post', 'addNewComment');
     xhr.onload = function() {
         if (this.readyState === 4 && this.status === 200) {
-            var myResponse = JSON.parse(xhr.responseText);
+//            var myResponse = JSON.parse(xhr.responseText);
 //            console.log(myResponse.result)
             window.location.reload();
         }

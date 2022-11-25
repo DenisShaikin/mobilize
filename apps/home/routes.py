@@ -793,6 +793,7 @@ def editPost(category_id=None, post_id=None):
 @blueprint.route('/deletePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
 def deletePost(category_id=None, post_id=None):
+    print('Мы здесь', category_id, post_id)
     if post_id != '-1':
         # Соберем все посты у которых этот родитель
         currPost = Post.query.get(post_id)
@@ -816,9 +817,11 @@ def deletePost(category_id=None, post_id=None):
         db.session.delete(currPost)
         db.session.commit()
     if parentPost:
-        return redirect(url_for('home_blueprint.forumPage', category_id=category_id, post_id=post_id)) #, catname=catname
+        return jsonify({'link': url_for('home_blueprint.forumPage', category_id=category_id, post_id=post_id)}) #, catname=catname
     else:
-        return redirect(url_for('home_blueprint.postsTopics', category_id=category_id))
+        return jsonify({'link': url_for('home_blueprint.postsTopics', category_id=category_id)})
+    # return redirect(url_for('home_blueprint.postsTopics', category_id=category_id))
+
 
 @blueprint.route('/quotePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
@@ -831,7 +834,6 @@ def quotePost(category_id=None, post_id=None):
         argslst['user_added'] = current_user.id
         argslst['category_id'] = category_id
         post = Post(**argslst)
-        print(argslst)
         newParent = Post.query.filter(Post.topic_label==post_form.title.data).all()
         if post_id != '-1':
             parentPost=Post.query.get(post_id)
