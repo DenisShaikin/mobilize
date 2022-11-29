@@ -14,23 +14,38 @@
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
       <div class="d-block mb-2 mb-md-0">
           <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
-              <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
-                  <li class="breadcrumb-item">
-                      <a href="#">
+              <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent" itemscope itemtype="https://schema.org/BreadcrumbList">
+                  <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                      <a itemprop="item"  href="{{ url_for('home_blueprint.index') }}">
                           <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                         <meta itemprop="name">Index</meta>
                       </a>
+                      <meta itemprop="position" content="1" />
                   </li>
-                  <li class="breadcrumb-item"><a href="#">Мобилизация</a></li>
-                  <li class="breadcrumb-item active" aria-current="page">Форум</li>
-                  <li class="breadcrumb-item active" aria-current="page">Общие темы</li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                      <a itemprop="item" href="{{ url_for('home_blueprint.postsMain') }}">
+                          <span itemprop="name">Форум</span>
+                      </a>
+                      <meta itemprop="position" content="1" />
+                  </li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                      <a itemprop="item" href="{{ url_for('home_blueprint.postsTopics', category_id=category_id) }}">
+                          <span itemprop="name">{{catname}}</span>
+                      </a>
+                      <meta itemprop="position" content="1" />
+                  </li>
+                  <li class="breadcrumb-item active" aria-current="page">
+                      <span itemprop="name">{{topic_label}}</span>
+                      <meta itemprop="position" content="1" />
+                  </li>
               </ol>
           </nav>
       </div>
           <div class="mb-3 mb-lg-0">
               {% if post_id is defined %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=post_id) }}" class="btn btn-sm btn-secondary d-inline-flex align-items-center mr-2">
+                <a id="answer_btn" href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=post_id) }}" class="btn btn-sm btn-secondary d-inline-flex align-items-center mr-2">
               {% else %}
-                <a href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-secondary d-inline-flex align-items-center mr-2">
+                <a  id="answer_btn" href="{{ url_for('home_blueprint.addPost', category_id=category_id, post_id=-1) }}" class="btn btn-sm btn-secondary d-inline-flex align-items-center mr-2">
               {% endif %}
                   <svg class="icon icon-xs me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                   Ответить
@@ -74,6 +89,9 @@
                             <a href="{{ url_for('home_blueprint.editPost', category_id=category_id, post_id=row[5]) }}">
                                 <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M432.4 787.2c-24.1 27.6-34.7 34.2-68.4 46.6-51.9 19.4-147 55.1-208.9 78.3-11.7 4.6-55.9 2.3-37.4-41.1 21-60.4 51.8-149.6 69.4-200.5 12.8-35.9 17.9-45.2 43.7-69.3l266.5-266.5L686 523.4C686 523.4 506.6 710.1 432.4 787.2z"  /><path d="M726.5 482.9 537.9 294.3 578.3 253.8 767 442.5Z"  /><path d="M888.3 321.2l-80.8 80.9L618.8 213.4l80.9-80.8c29.8-29.8 78-29.8 107.8 0l80.9 80.8C918.1 243.1 918.1 291.4 888.3 321.2z"  /></svg>
                             </a>
+                            <button type="button"  class="bg-gray-800 text-white border-0" onClick="confirmDeletePost('{{ url_for('home_blueprint.deletePost', category_id=category_id, post_id=row[5])}}')">
+                                <svg fill=currentColor xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/></svg>
+                            </button>
                         {% endif %}
                         <a href="{{ url_for('home_blueprint.quotePost', category_id=category_id, post_id=post_id) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-quote" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -98,6 +116,9 @@
                             <a href="{{ url_for('home_blueprint.editPost', category_id=category_id, post_id=row[5]) }}">
                                 <svg class="svg-icon" style="width: 1em; height: 1em;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M432.4 787.2c-24.1 27.6-34.7 34.2-68.4 46.6-51.9 19.4-147 55.1-208.9 78.3-11.7 4.6-55.9 2.3-37.4-41.1 21-60.4 51.8-149.6 69.4-200.5 12.8-35.9 17.9-45.2 43.7-69.3l266.5-266.5L686 523.4C686 523.4 506.6 710.1 432.4 787.2z"  /><path d="M726.5 482.9 537.9 294.3 578.3 253.8 767 442.5Z"  /><path d="M888.3 321.2l-80.8 80.9L618.8 213.4l80.9-80.8c29.8-29.8 78-29.8 107.8 0l80.9 80.8C918.1 243.1 918.1 291.4 888.3 321.2z"  /></svg>
                             </a>
+                            <button type="button"  class="btn btn-light btn-outline-light border-0" onClick="confirmDeletePost('{{ url_for('home_blueprint.deletePost', category_id=category_id, post_id=row[5])}}')">
+                                <svg fill="#000000" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="24px" height="24px"><path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/></svg>
+                            </button>
                         {% endif %}
                         <a href="{{ url_for('home_blueprint.quotePost', category_id=category_id, post_id=row[5]) }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-quote" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">

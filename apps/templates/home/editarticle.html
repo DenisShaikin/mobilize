@@ -15,14 +15,18 @@
 
   <div class="py-4">
       <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
-          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
-              <li class="breadcrumb-item">
-                  <a href="#">
+          <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent"  itemscope itemtype="https://schema.org/BreadcrumbList">
+              <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                  <a itemprop="item" href="{{ url_for('home_blueprint.index') }}">
                       <svg class="icon icon-xxs" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                      <meta itemprop="name">Index</meta>
                   </a>
+                  <meta itemprop="position" content="1" />
               </li>
-              <li class="breadcrumb-item"><a href="#">Мобилизация</a></li>
-              <li class="breadcrumb-item active" aria-current="page">Редактирование статьи</li>
+              <li class="breadcrumb-item active" aria-current="page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                  <span itemprop="name">Редактирование статьи </span>
+                  <meta itemprop="position" content="2" />
+              </li>
           </ol>
       </nav>
       <div class="d-flex justify-content-between w-100 flex-wrap">
@@ -88,11 +92,12 @@
                                                     <meta itemprop="name" content="YouTube" />
                                                   </div>
                                                   <link itemprop="interactionType" href="https://schema.org/LikeAction"/>
+                                                  <link itemprop="embedUrl" content="https://www.youtube.com/embed/{{ video_link }}"/>
                                                   <span itemprop="userInteractionCount">{{ articleStruct.video_likes }}</span>
                                                 </div>
                                                 <meta itemprop="commentCount" content="{{ articleStruct.video_commentsCount }}"/>
                                                 <meta itemprop="keywords" content="{{ articleStruct.video_keywords }}"/>
-                                                <meta itemprop="embedUrl" content="https://www.youtube.com/embed/{{ video_link }}"/>
+
                                             </div>
                                             <div><iframe width="700" height="394" src="https://www.youtube.com/embed/{{ video_link }}?feature=oembed"  title="{{ form.title.data|safe }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                                         </div>
@@ -185,7 +190,9 @@
           {% if changeRating %}
           <tr>
               <td>
-                {{current_user.username}}
+                  {% if current_user.password %}
+                    {{current_user.username}}
+                  {% endif %}
               </td>
               <td>
                 <textarea rows="1" class="form-control" placeholder="Ваш коментарий..." id="newArticleComment" name="newComment"
@@ -197,7 +204,11 @@
                     <tr>
                         {% for cell_ in row %}
                             <td>
+                            {% if loop.index == 1 and cell_|length ==36 %}
+                                Неизвестный
+                            {% else %}
                                     {{ cell_|safe }}
+                            {% endif %}
                             </td>
                         {% endfor %}
                     </tr>

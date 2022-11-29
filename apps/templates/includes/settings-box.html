@@ -17,7 +17,7 @@
                 </a>
             </div>
             <div class="btn-group ms-2 ms-lg-3" hidden="true">
-                {% if not current_user.is_anonymous %}
+                {% if current_user.password %}
                     <a id="{{current_user.username}}" href="{{ config.ASSETS_ROOT }}/uploads/{{current_user.username}}.xlsx"
                        class="btn btn-secondary d-inline-flex align-items-center justify-content-center mb-3 w-100">
                     </a>

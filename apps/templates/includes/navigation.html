@@ -49,13 +49,13 @@
                     <li class="nav-item dropdown ms-lg-3">
                       <a class="nav-link dropdown-toggle pt-1 px-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <div class="media d-flex align-items-center">
-                        {% if not current_user.is_anonymous %}
+                        {% if current_user.password %}
                           <img class="avatar rounded-circle" alt="Image placeholder" src="{{ url_for('static', filename=current_user.avatar_photo) }}">
                         {% else %}
                         {% endif %}
                           <div class="media-body ms-2 text-dark align-items-center d-none d-lg-block">
                             <span class="mb-0 font-small fw-bold text-gray-900">
-                              Пользователь: <strong>{{ current_user.username }}</strong>
+                              Пользователь: <strong>{% if current_user.password %}{{ current_user.username }}{% endif %}</strong>
                             </span>
                           </div>
                         </div>
@@ -75,7 +75,7 @@
                           <svg class="dropdown-icon text-danger me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                           </svg>
-                            {% if not current_user.is_anonymous %}
+                            {% if current_user.password %}
                                 Выйти
                             {% else %}
                                 Войти

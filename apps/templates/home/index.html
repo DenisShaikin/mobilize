@@ -81,14 +81,15 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/91105115" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
+
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-QMYYZE53J1"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2LJ2EEX6SC"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-QMYYZE53J1');
+  gtag('config', 'G-2LJ2EEX6SC');
 </script>
 {% endif %}
 </head>
@@ -113,7 +114,7 @@
                         <li class="nav-item mr-2">
                             <img class="navbar-brand-dark mb-4" height="35" src="{{ config.ASSETS_ROOT }}/img/brand/mobilisation.png" alt="Logo light">
                         </li>
-                        {% if current_user.is_anonymous %}
+                        {% if current_user.password %}
                         <li class="nav-item mr-2">
                             <a href="{{ url_for('authentication_blueprint.register') }}" class="nav-link">Регистрация</a>
                         </li>

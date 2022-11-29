@@ -4,7 +4,6 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from flask import render_template, redirect, request, url_for
-from apps.home.routes import UpdateActivities
 
 from flask_login import (
     current_user,
@@ -13,7 +12,6 @@ from flask_login import (
 )
 
 from flask_dance.contrib.github import github
-
 from apps import db, login_manager
 from apps.authentication import blueprint
 from apps.authentication.forms import LoginForm, CreateAccountForm
@@ -22,7 +20,11 @@ from apps.authentication.forms import ResetPasswordRequestForm, ResetPasswordFor
 from apps.authentication.email import send_password_reset_email
 from apps.authentication.util import verify_pass
 from apps.authentication.models import Users, Category, UserCatFilters, CategoryPhotos
-
+from datetime import datetime, timedelta
+from flask import current_app as app
+from apps.authentication.pseudo_loginDB import PseudoUser
+from sqlalchemy import update, values
+from apps.authentication.util import hash_pass
 
 @blueprint.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -99,9 +101,12 @@ def login():
 
         # Check the password
         if user and verify_pass(password, user.password):
-
-            login_user(user)
-            UpdateActivities(user)
+            if not current_user.is_anonymous:
+                logout_user()
+            login_user(user, remember=True)
+            # if not current_user.is_anonymous:
+            #     current_user.username=username
+            #     current_user.password=password
 
             return redirect(url_for('home_blueprint.main'))
 
@@ -141,30 +146,54 @@ def register():
                                    form=create_account_form)
 
         # else we can create the user
-        user = Users(**request.form)
-        db.session.add(user)
-        db.session.flush()
-        db.session.commit()
+        # print(current_user.is_authenticated)
+        user = PseudoUser(log_in=False)
+        if user:
+            db.session.execute(update(Users).where(Users.id == int(user.id)).\
+                values(username=username, password=hash_pass(request.form['password']), email=email))
+            db.session.flush()
+            db.session.commit()
+        # print(user)
+        # if not current_user.is_authenticated:  #Пользователь не залогинен
+        #     print('Создаем нового')
+        #     user = Users(**request.form)
+        #     db.session.add(user)
+        #     db.session.flush()
+        #     db.session.commit()
+        # else:       #Пользователь залогинен как аноним
+        #     user=PseudoUser()
+        #     logout_user()
+        #     print('Переименовываем')
+        #     user.username = username
+        #     user.password = request.form['password']
+        #     user.email = email
+        #     db.session.commit()
+        #     # user=current_user
+        #     print(user.username)
+
         #Добавляем так же все фильтры для всех категорий в True
         categories = Category.query.all()
-        if len(categories)==0: #Если нет категорий - добавляем по умолчанию
+        if not categories: #Если нет категорий - добавляем по умолчанию
             catsList= ['Хозяйственный набор', 'Аптечка хозяйственная', 'Аптечка тактическая', 'Защита', 'Подготовка']
             catPhotos = ['ownclothes.png', 'medics.png', 'firstaid.png', 'multicam.png', 'phisics.png']
             for catPhoto, category in zip(catPhotos, catsList):
-                # print(category, catPhoto)
                 cat = Category(catname=category)
                 db.session.add(cat)
                 db.session.commit()
                 photo = CategoryPhotos(category_id=cat.id, photo=catPhoto)
                 db.session.add(photo)
                 db.session.commit()
-
             categories = Category.query.all()
-        for cat in categories:
-            userFilter = UserCatFilters(user, cat)
-            db.session.add(userFilter)
-            db.session.commit()
 
+        #Обновляем фильтры категорий только если для данного пользователя их еще нет
+        catFilters = UserCatFilters.query.filter(UserCatFilters.user==user.id).first()
+        if not catFilters:
+            for cat in categories:
+                userFilter = UserCatFilters(user, cat)
+                db.session.add(userFilter)
+                db.session.commit()
+        #Удаляем мусорных пользователей старше OLD_USERS_DELAY дней
+        clearOldUsers(app.config['OLD_USERS_DELAY'])
         # Delete user from session
         logout_user()
         
@@ -176,6 +205,20 @@ def register():
     else:
         return render_template('accounts/register.html', form=create_account_form)
 
+#Чистим базу от старых пользователей
+def clearOldUsers(ddays=30):
+    '''
+    Удаляет всех псевдо пользователей с возрастом старше ddays дней
+    :return:
+    '''
+    #Удалим всех пользователей без пароля старше месяца
+    oldUsers=Users.query.filter((Users.password==None) & (Users.timestamp < datetime.utcnow()-timedelta(seconds=ddays))).all()
+    for old in oldUsers:
+        db.session.delete(old)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
 
 @blueprint.route('/logout')
 def logout():
@@ -203,3 +246,4 @@ def not_found_error(error):
 @blueprint.errorhandler(500)
 def internal_error(error):
     return render_template('home/page-500.html'), 500
+

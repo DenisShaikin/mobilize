@@ -14,6 +14,9 @@ from apps.authentication.models import Users
 from apps import db, csrf
 from apps.authentication.models import Category, ItemPhotos, Item, Activity, Comment, Article, \
     ArticlePhotos, UserCatFilters, Post
+from apps.authentication.pseudo_loginDB import PseudoUser
+from flask_login import login_user
+
 from werkzeug.utils import secure_filename
 import os
 from datetime import datetime, timedelta
@@ -27,6 +30,7 @@ import xlsxwriter
 from pytube import YouTube
 import requests
 import re
+
 # import bbcode
 
 @blueprint.route('/index')
@@ -36,7 +40,7 @@ def index():
 @blueprint.route('/robots.txt')
 @blueprint.route('/sitemap.xml')
 def static_from_root():
-    print(app.config['SITEMAP_FILEPATH'], request.path[1:])
+    # print(app.config['SITEMAP_FILEPATH'], request.path[1:])
     return send_from_directory(app.config['SITEMAP_FILEPATH'], request.path[1:])
 
 @blueprint.route('/settings.html', methods=['GET', 'POST'])
@@ -60,62 +64,29 @@ def settings():
 @blueprint.route('/main.html', methods=['GET'])
 # @login_required
 def main():
-    def getSessionUser():
-        bNewUser=False
-        #Удалим всех старше месяца
-        oldUsers=Users.query.filter((Users.password==None) & (Users.timestamp < datetime.utcnow()-timedelta(minutes=1))).all()
-        for old in oldUsers:
-            db.session.delete(old)
-            db.session.commit()
-        # print(oldUsers)
-        #А теперь создадим нового или выберем существующего
-        if 'username' in session:
-            tempUserName = session['username']
-            user = Users.query.filter(Users.username==tempUserName).first()
-            if not user:
-                bNewUser=True
-                user = Users(username=tempUserName)
-                db.session.add(user)
-                db.session.commit()
-        else:
-            bNewUser=True
-            tempUserName= str(uuid.uuid4())
-            session['username'] =tempUserName
-            user = Users(username=tempUserName)
-            db.session.add(user)
-            db.session.commit()
-        #Если пользователь новый -создаем все фильтры категорий для него
-        if bNewUser:
-            categories = Category.query.all()
-            for cat in categories:
-                userFilter = UserCatFilters(user, cat)
-                db.session.add(userFilter)
-                db.session.commit()
-            UpdateActivities(user)
-        return user
 
     def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
-        bLogged = 'False' if current_user.is_anonymous else 'True'
+        bLogged = 'False' if current_user.is_authenticated else 'True'
         if selectedState:
-            result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result = '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                + '''" id="inList_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")> 
                <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         else:
-            result =  '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result =  '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                    +  '''" id="inList_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")>
                    <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         if haveItState:
-            result = result + ''' <div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + ''' <div class="form-switch"> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         else:
-            result = result + '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
     def makeFilter(id, label, value, bDisabled):
-        result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
+        result = '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
                  + '" id="mainFilter_' + str(id) + '" ' + value + bDisabled +'onclick=changeFilter("mainFilter_' + str(id) + \
         '")><label class ="form-check-label mx-2" for ="mainFilter_' + str(id) + '">' + label + '</label></div>'
         return result
@@ -124,40 +95,39 @@ def main():
         return '<a href = "' + url_for('home_blueprint.edititem', item_id=str(id)) + \
                '">' + str(name) + '</a>'
     def makePhoto(link, alt):
-        return '<img  src=' + str(link) + ' width="100px" height="100px" class="img-fluid rounded-0 alt="' + str(alt) + '">'
+        return '<img itemprop="image" src="' + str(link) +'" alt="'+ str(alt) +'" src=' + str(link) + ' width="100px" height="100px" class="img-fluid rounded-0 alt="' + str(alt) + '">'
 
     page = request.args.get('page', 1, type=int)
 
-    #Данные пользователя, если он залогинен
-    # if current_user.is_anonymous:
-    #     user = Users.query.filter(Users.username=='anonimous').first()
-    # else:
-    #     user = current_user
-    user=getSessionUser()
-    print(user)
-    if user:
+    pseudoUser = PseudoUser()
+    # print(current_user.is_authenticated)
+    if current_user.is_authenticated:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
                 LEFT JOIN Activity act ON (act.item_id = itm.id) 
-                WHERE act.user_id=''' + str(user.id) +
+                WHERE act.user_id=''' + str(current_user.id) +
                               ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
+
     #Собираем строку фильтров
-        catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == user.id).order_by(Category.id).subquery())
+        # Собираем строку фильтров
+        catFiltersquery = db.session.query(
+            UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
+            .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
         dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
     else:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
-                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''', db.session.bind)
+                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''',
+                              db.session.bind)
         bDisabled = ' Disabled '
         # Собираем строку фильтров без user, всем True
         catFiltersquery = db.session.query(Category.query.with_entities(Category.id, Category.catname) \
-            .order_by(Category.id).subquery())
+                                           .order_by(Category.id).subquery())
         dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
         dfFilters['value'] = True
-    #преобразуем catname в html
+    # преобразуем catname в html
     dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
     # print(dfFilters.head())
     if not dfFilters.empty:
@@ -165,9 +135,9 @@ def main():
     dfFilters.drop(columns=['id', 'value'], inplace=True)
 
     #фильтруем Items по выбранным фильтрам, если без пользователя - показываем все предметы
-    if user:
+    if current_user.is_authenticated:
         categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == user.id, UserCatFilters.value==True).subquery())
+            .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
         dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
         dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
         dfItems = dfItems.loc[dfItems['value']==True]
@@ -177,12 +147,12 @@ def main():
             filter(Activity.rating != None).subquery())
     dfRating = pd.read_sql(query.statement, db.session.bind)
     dfRating.rename(columns={'item_id':'id', 'avg_1':'rating'}, inplace=True)
-    # dfRating.dropna(subset=['rating'], inplace=True)
     dfRating=dfRating.groupby('id').mean().reset_index()
     dfRating.columns=['id', 'rating']
-    if not dfRating.empty:
-        dfRating['rating'] = dfRating['rating'].round(1)
     dfItems = dfItems.merge(dfRating, on='id', how='left')
+    dfItems['rating'].fillna('0', inplace=True)
+
+    dfItems['rating'] = dfItems['rating'].astype(float).round(1)
 
     #Посчитаем стоимость предметов в списке
     dTotalSomme = dfItems.loc[dfItems['inList']==True]['price'].sum()
@@ -204,11 +174,12 @@ def main():
     dfItems['id'] = dfItems['id'].apply \
         (lambda x: '<a href = "' + url_for('home_blueprint.edititem', item_id=str(x)) +
                    '">' + str(x) + '</a>')
+    itemscount=len(dfItems.index)
 
 
     return render_template('home/main.html', segment='main', row_data=list(dfItems.values.tolist()),
                            currPage=page, pagesCount=pagesCount, categories=list(dfFilters['catname']),
-                           dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy)) #
+                           dSommeInList=round(dTotalSomme), dSommeToBuy=round(dSommeToBuy), itemscount=itemscount) #
 
 
 @blueprint.route('/checkStatus', methods=['POST'])
@@ -650,12 +621,12 @@ def postsMain():
     # print(dfPosts.head(10))
 
     #Теперь найдем последний пост по каждому топику
-    query = db.session.query(Post.query.with_entities(Post.body, Post.category_id, Users.username, func.max(Post.timestamp)).\
-                             join(Users).group_by(Post.category_id).subquery())
+    query = db.session.query(Post.query.with_entities(Post.topic_label, Post.category_id, Users.username, func.max(Post.timestamp)).\
+                             join(Users).filter(Post.parentPost == None).group_by(Post.category_id).subquery())
     dfLastPosts=pd.read_sql(query.statement, db.session.bind)
     # dfLastPosts['body']=dfLastPosts['body'].apply(lambda x: x[:50] +'...')
 
-    dfLastPosts['body'] = dfLastPosts['body'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
+    dfLastPosts['body'] = dfLastPosts['topic_label'].apply(lambda x: ''.join([re.sub(r'\<[^>]*\>', '', x)[:50], '...']))
     dfLastPosts.rename(columns={'category_id':'id', 'username':'lastModifiedBy', 'max_1':'lastTime', 'body':'lastPostBody'}, inplace=True)
     if not dfCategories.empty:
         dfCategories = dfCategories.merge(dfLastPosts, on='id', how='left')
@@ -746,9 +717,10 @@ def forumPage(category_id, post_id):
         # print(dfPosts.head())
         dfPosts = dfPosts [['username', 'avatar_photo', 'timestamp', 'body', 'child', 'id', 'postOwner']]
 #         print(dfPosts.head())
+        catname = Category.query.get(currPost.category_id).catname
 
         return render_template('home/forumPage.html', segment='forumPage', row_data=list(dfPosts.values.tolist()), topic_label=topic_label,
-                               category_id=category_id, post_id=post_id)
+                               category_id=category_id, post_id=post_id, catname=catname)
 
 #Добавление новой статьи
 @blueprint.route('/addPost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
@@ -803,6 +775,13 @@ def editPost(category_id=None, post_id=None):
             post = Post.query.get(post_id)
             post.body = argslst['body']
             db.session.commit()
+            #Если это родительский пост то можно менять и топик - тогда у всех детей!
+            if not post.parentPost:
+                post.topic_label=post_form.title.data
+                childs = Post.query.filter(Post.parentPost==post.id).all()
+                for childPost in childs:
+                    childPost.topic_label=post_form.title.data
+                db.session.commit()
             return redirect(url_for('home_blueprint.postsTopics', category_id=post.category_id))
         else:
             return redirect(url_for('home_blueprint.postsMain'))
@@ -811,11 +790,45 @@ def editPost(category_id=None, post_id=None):
         return redirect(url_for('home_blueprint.postsTopics', category_id=parentPost.category_id))
     elif request.method=='GET':
         if post_id != '-1':
+
             post_form.post_id.data=post_id
             currPost= Post.query.get(post_id)
             post_form.title.data = currPost.topic_label
             post_form.body.data = currPost.body
         return render_template('home/editPost.html', segment='postsMain', form=post_form, category_id=category_id, post_id=post_id)
+
+@blueprint.route('/deletePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
+@login_required
+def deletePost(category_id=None, post_id=None):
+    print('Мы здесь', category_id, post_id)
+    if post_id != '-1':
+        # Соберем все посты у которых этот родитель
+        currPost = Post.query.get(post_id)
+        parentPost=Post.query.get(currPost.parentPost)
+        if not parentPost:
+            category_id=currPost.category_id
+            post_id=currPost.id
+        else:
+            category_id = parentPost.category_id
+            post_id = parentPost.id
+        childs = Post.query.filter(Post.parentPost==currPost.id).all()
+        #И меняем у них родителя
+        if len(childs)>0:
+            for childItem in childs:
+                if parentPost:
+                    childItem.parentPost= currPost.parentPost
+                else:
+                # Удаляем родителя ветки, всех детей долой!
+                    db.session.delete(childItem)
+            db.session.commit()
+        db.session.delete(currPost)
+        db.session.commit()
+    if parentPost:
+        return jsonify({'link': url_for('home_blueprint.forumPage', category_id=category_id, post_id=post_id)}) #, catname=catname
+    else:
+        return jsonify({'link': url_for('home_blueprint.postsTopics', category_id=category_id)})
+    # return redirect(url_for('home_blueprint.postsTopics', category_id=category_id))
+
 
 @blueprint.route('/quotePost.html/<category_id>/<post_id>', methods=['GET', 'POST'])
 @login_required
@@ -828,7 +841,6 @@ def quotePost(category_id=None, post_id=None):
         argslst['user_added'] = current_user.id
         argslst['category_id'] = category_id
         post = Post(**argslst)
-        print(argslst)
         newParent = Post.query.filter(Post.topic_label==post_form.title.data).all()
         if post_id != '-1':
             parentPost=Post.query.get(post_id)
@@ -1012,26 +1024,6 @@ def addNewComment():
         update({Comment.text:s['value']}, synchronize_session="fetch")
     db.session.commit()
     return jsonify({'result': 'success'})
-
-def UpdateActivities(user):
-    '''Добавляет все продукты текущему пользователю, даже если  он их не создавал
-     Значение по умолчанию InList = True, haveIt=False'''
-    #Проверим что еще нет вещей у user
-    itemsNow=Item.query.with_entities(Item.id, Activity.id).join(Activity).filter(Activity.user_id ==user.id).all()
-    print(itemsNow)
-    if len(itemsNow)==0:
-        allItems = Item.query.with_entities(Item.id).all()
-        itemsList = [r[0] for r in allItems] #перевели список enum'ов в list
-        Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == user.id).all()
-        activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
-        listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
-        # print(listToAdd)
-        for item in listToAdd:
-            newactivity = Activity(item_id=item, User=user, inList=False,
-                                   haveIt=False)
-            db.session.add(newactivity)
-        db.session.commit()
-    return
 
 
 #Снимаем с или ставим продвижение Авито

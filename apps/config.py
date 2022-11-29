@@ -59,6 +59,7 @@ class Config(object):
     MAIL_USERNAME = os.getenv('MAIL_USERNAME')
     MAIL_PASSWORD = os.getenv('MAIL_PASSWORD')
     ADMINS = ['chaikide@mail.ru']
+    OLD_USERS_DELAY = 3
 
     GITHUB_ID      = os.getenv('GITHUB_ID')
     GITHUB_SECRET  = os.getenv('GITHUB_SECRET')
