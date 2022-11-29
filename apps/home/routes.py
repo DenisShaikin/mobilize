@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.home import blueprint
-from flask import render_template, request, redirect, url_for, jsonify, send_file
+from flask import render_template, request, redirect, url_for, jsonify, session
 from flask import send_from_directory, make_response
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
@@ -27,6 +27,7 @@ import xlsxwriter
 from pytube import YouTube
 import requests
 import re
+from apps import pseudoUser
 # import bbcode
 
 @blueprint.route('/index')
@@ -63,25 +64,25 @@ def main():
     def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
         bLogged = 'False' if current_user.is_anonymous else 'True'
         if selectedState:
-            result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result = '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                + '''" id="inList_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")> 
                <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         else:
-            result =  '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
+            result =  '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="inList_''' + str(id) \
                    +  '''" id="inList_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("inList_''' + str(id) + '''")>
                    <label class ="form-check-label" for ="inList_''' + str(id) + '''"> В списке </label></div>'''
         if haveItState:
-            result = result + ''' <div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + ''' <div class="form-switch"> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" checked ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         else:
-            result = result + '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
+            result = result + '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="idHaveIt_''' + str(id) \
                      + '''" id="idHaveIt_''' + str(id) + '" ' + bDisabled +''' onclick=changeSelected("idHaveIt_''' + str(id) + '''")>
                      <label class ="form-check-label" for ="idHaveIt_''' + str(id) + '''"> Уже есть </label></div>'''
         return result
 
     def makeFilter(id, label, value, bDisabled):
-        result = '''<div class="form-switch" onclick=checkButtonsStatus()> <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
+        result = '''<div class="form-switch"> <input class="form-check-input" type="checkbox" name="mainFilter_''' + str(id) \
                  + '" id="mainFilter_' + str(id) + '" ' + value + bDisabled +'onclick=changeFilter("mainFilter_' + str(id) + \
         '")><label class ="form-check-label mx-2" for ="mainFilter_' + str(id) + '">' + label + '</label></div>'
         return result
@@ -94,30 +95,33 @@ def main():
 
     page = request.args.get('page', 1, type=int)
 
-    #Данные
-    if not current_user.is_anonymous:
+    user = pseudoUser.getSessionUser()
+    print(user)
+    if user:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
                 LEFT JOIN Activity act ON (act.item_id = itm.id) 
-                WHERE act.user_id=''' + str(current_user.id) +
+                WHERE act.user_id=''' + str(user.id) +
                               ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
-    #Собираем строку фильтров
-        catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
+        # Собираем строку фильтров
+        catFiltersquery = db.session.query(
+            UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
+            .join(Category).filter(UserCatFilters.user == user.id).order_by(Category.id).subquery())
         dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
     else:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
-                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''', db.session.bind)
+                FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category) ORDER BY itm.update_date DESC;''',
+                              db.session.bind)
         bDisabled = ' Disabled '
         # Собираем строку фильтров без user, всем True
         catFiltersquery = db.session.query(Category.query.with_entities(Category.id, Category.catname) \
-            .order_by(Category.id).subquery())
+                                           .order_by(Category.id).subquery())
         dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
         dfFilters['value'] = True
-    #преобразуем catname в html
+    # преобразуем catname в html
     dfFilters['value'] = dfFilters['value'].apply(lambda x: ' checked ' if x else '')
     # print(dfFilters.head())
     if not dfFilters.empty:
@@ -125,9 +129,9 @@ def main():
     dfFilters.drop(columns=['id', 'value'], inplace=True)
 
     #фильтруем Items по выбранным фильтрам, если без пользователя - показываем все предметы
-    if not current_user.is_anonymous:
+    if user:
         categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
+            .join(Category).filter(UserCatFilters.user == user.id, UserCatFilters.value==True).subquery())
         dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
         dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
         dfItems = dfItems.loc[dfItems['value']==True]
@@ -1018,20 +1022,24 @@ def addNewComment():
     db.session.commit()
     return jsonify({'result': 'success'})
 
-def UpdateActivities():
+def UpdateActivities(user):
     '''Добавляет все продукты текущему пользователю, даже если  он их не создавал
      Значение по умолчанию InList = True, haveIt=False'''
-    allItems = Item.query.with_entities(Item.id).all()
-    itemsList = [r[0] for r in allItems] #перевели список enum'ов в list
-    Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == current_user.id).all()
-    activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
-    listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
-    print(listToAdd)
-    for item in listToAdd:
-        newactivity = Activity(item_id=item, User=current_user, inList=False,
-                               haveIt=False)
-        db.session.add(newactivity)
-    db.session.commit()
+    #Проверим что еще нет вещей у user
+    itemsNow=Item.query.with_entities(Item.id, Activity.id).join(Activity).filter(Activity.user_id ==user.id).all()
+    print(itemsNow)
+    if len(itemsNow)==0:
+        allItems = Item.query.with_entities(Item.id).all()
+        itemsList = [r[0] for r in allItems] #перевели список enum'ов в list
+        Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == user.id).all()
+        activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
+        listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
+        # print(listToAdd)
+        for item in listToAdd:
+            newactivity = Activity(item_id=item, User=user, inList=False,
+                                   haveIt=False)
+            db.session.add(newactivity)
+        db.session.commit()
     return
 
 

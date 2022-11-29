@@ -79,9 +79,12 @@ class UserCatFilters(db.Model):
     value   = db.Column(db.Boolean)
 #инициализируем все пользовательские фильтры в True - все показываем
     def __init__(self, User, Category):
-        self.user = User.id
-        self.category = Category.id
-        self.value = True
+        catFilters=self.query.filter(self.user==User, self.category==Category).all()
+        #Создаем фильтры категорий для пользователя только если их еще нет
+        if len(catFilters) ==0:
+            self.user = User.id
+            self.category = Category.id
+            self.value = True
 
 @login_manager.user_loader
 def user_loader(id):

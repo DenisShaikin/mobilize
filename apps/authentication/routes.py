@@ -101,7 +101,7 @@ def login():
         if user and verify_pass(password, user.password):
 
             login_user(user, remember=True)
-            UpdateActivities()
+            UpdateActivities(user)
 
             return redirect(url_for('home_blueprint.main'))
 
@@ -151,6 +151,7 @@ def register():
             catsList= ['Хозяйственный набор', 'Аптечка хозяйственная', 'Аптечка тактическая', 'Защита', 'Подготовка']
             catPhotos = ['ownclothes.png', 'medics.png', 'firstaid.png', 'multicam.png', 'phisics.png']
             for catPhoto, category in zip(catPhotos, catsList):
+                # print(category, catPhoto)
                 cat = Category(catname=category)
                 db.session.add(cat)
                 db.session.commit()
