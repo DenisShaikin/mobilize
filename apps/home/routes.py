@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from apps.home import blueprint
-from flask import render_template, request, redirect, url_for, jsonify, send_file
+from flask import render_template, request, redirect, url_for, jsonify, session
 from flask import send_from_directory, make_response
 from flask_login import login_required, current_user
 from jinja2 import TemplateNotFound
@@ -60,6 +60,40 @@ def settings():
 @blueprint.route('/main.html', methods=['GET'])
 # @login_required
 def main():
+    def getSessionUser():
+        bNewUser=False
+        #Удалим всех старше месяца
+        oldUsers=Users.query.filter((Users.password==None) & (Users.timestamp < datetime.utcnow()-timedelta(minutes=1))).all()
+        for old in oldUsers:
+            db.session.delete(old)
+            db.session.commit()
+        # print(oldUsers)
+        #А теперь создадим нового или выберем существующего
+        if 'username' in session:
+            tempUserName = session['username']
+            user = Users.query.filter(Users.username==tempUserName).first()
+            if not user:
+                bNewUser=True
+                user = Users(username=tempUserName)
+                db.session.add(user)
+                db.session.commit()
+        else:
+            bNewUser=True
+            tempUserName= str(uuid.uuid4())
+            session['username'] =tempUserName
+            user = Users(username=tempUserName)
+            db.session.add(user)
+            db.session.commit()
+        #Если пользователь новый -создаем все фильтры категорий для него
+        if bNewUser:
+            categories = Category.query.all()
+            for cat in categories:
+                userFilter = UserCatFilters(user, cat)
+                db.session.add(userFilter)
+                db.session.commit()
+            UpdateActivities(user)
+        return user
+
     def makeSelectedButton(selectedState, haveItState, id, user, bDisabled):
         bLogged = 'False' if current_user.is_anonymous else 'True'
         if selectedState:
@@ -94,18 +128,24 @@ def main():
 
     page = request.args.get('page', 1, type=int)
 
-    #Данные
-    if not current_user.is_anonymous:
+    #Данные пользователя, если он залогинен
+    # if current_user.is_anonymous:
+    #     user = Users.query.filter(Users.username=='anonimous').first()
+    # else:
+    #     user = current_user
+    user=getSessionUser()
+    print(user)
+    if user:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, act.inList, act.haveIt,
                 (SELECT itf.photo FROM ItemPhotos itf WHERE itf.item_id = itm.id ORDER BY Photo ASC LIMIT 1) AS Photo
                 FROM Items itm LEFT JOIN Categories ctg ON (ctg.id = itm.category)
                 LEFT JOIN Activity act ON (act.item_id = itm.id) 
-                WHERE act.user_id=''' + str(current_user.id) +
+                WHERE act.user_id=''' + str(user.id) +
                               ' ORDER BY itm.update_date DESC;', db.session.bind)
         bDisabled = ''
     #Собираем строку фильтров
         catFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id, Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == current_user.id).order_by(Category.id).subquery())
+            .join(Category).filter(UserCatFilters.user == user.id).order_by(Category.id).subquery())
         dfFilters = pd.read_sql(catFiltersquery.statement, db.session.bind)
     else:
         dfItems = pd.read_sql('''SELECT  itm.id, itm.name, itm.price, itm.user_added, ctg.catname, '1' AS inList, '1' AS haveIt,
@@ -125,43 +165,40 @@ def main():
     dfFilters.drop(columns=['id', 'value'], inplace=True)
 
     #фильтруем Items по выбранным фильтрам, если без пользователя - показываем все предметы
-    if not current_user.is_anonymous:
+    if user:
         categoryFiltersquery = db.session.query(UserCatFilters.query.with_entities(Category.id.label('cat_id'), Category.catname, UserCatFilters.value) \
-            .join(Category).filter(UserCatFilters.user == current_user.id, UserCatFilters.value==True).subquery())
+            .join(Category).filter(UserCatFilters.user == user.id, UserCatFilters.value==True).subquery())
         dfCatFilters = pd.read_sql(categoryFiltersquery.statement, db.session.bind)
         dfItems = dfItems.merge(dfCatFilters[['catname', 'value']], on = 'catname', how='left')
         dfItems = dfItems.loc[dfItems['value']==True]
 
     #Из Activity рассчитаем среднюю оценку
-    query = db.session.query(Activity.query.with_entities(Activity.item_id, func.avg(Activity.rating)).\
-            group_by(Activity.item_id).subquery())
+    query = db.session.query(Activity.query.with_entities(Activity.item_id, Activity.rating).\
+            filter(Activity.rating != None).subquery())
     dfRating = pd.read_sql(query.statement, db.session.bind)
     dfRating.rename(columns={'item_id':'id', 'avg_1':'rating'}, inplace=True)
-    dfRating.dropna(subset=['rating'], inplace=True)
+    # dfRating.dropna(subset=['rating'], inplace=True)
+    dfRating=dfRating.groupby('id').mean().reset_index()
+    dfRating.columns=['id', 'rating']
     if not dfRating.empty:
         dfRating['rating'] = dfRating['rating'].round(1)
     dfItems = dfItems.merge(dfRating, on='id', how='left')
 
     #Посчитаем стоимость предметов в списке
     dTotalSomme = dfItems.loc[dfItems['inList']==True]['price'].sum()
-    # print(dTotalSomme)
     #Теперь сколько из списка осталось докупить
     dSommeToBuy = dfItems.loc[(dfItems['inList']==True) & (dfItems['haveIt']==False)]['price'].sum()
-    # print(dSommeToBuy)
 
     #выбираем только записи нужной страницы
     pagesCount = ceil(len(dfItems.index)/app.config['ITEMS_PER_PAGE'])
     dfItems = dfItems[app.config['ITEMS_PER_PAGE'] * (page-1):app.config['ITEMS_PER_PAGE'] * (page)]
-
-    # print(dfRating)
-    # print(dfItems.head())
     dfItems['selected'] = dfItems['inList']
     dfItems['selected'] = dfItems.apply(lambda x: makeSelectedButton(x.selected, x.haveIt, x.id, x.user_added, bDisabled), axis=1)
 
     dfItems = dfItems[['Photo', 'id', 'selected', 'catname', 'name', 'rating', 'price']]
     dfItems['Photo'] = dfItems['Photo'].apply( lambda x: url_for('static',
                     filename=os.path.join(app.config['PHOTOS_FOLDER'], x).replace('\\','/')) if x else None)
-    dfItems['Photo'] = dfItems.apply( lambda x: makePhoto(x['Photo'], x['name']), axis=1)
+    dfItems['Photo'] = dfItems.apply(lambda x: makePhoto(x['Photo'], x['name']), axis=1)
     dfItems['Photo'] = dfItems.apply(lambda x: makeLink(x['id'], x['Photo']), axis=1)
     dfItems['name'] = dfItems.apply(lambda x: makeLink(x['id'], x['name']), axis=1)
     dfItems['id'] = dfItems['id'].apply \
@@ -976,20 +1013,24 @@ def addNewComment():
     db.session.commit()
     return jsonify({'result': 'success'})
 
-def UpdateActivities():
+def UpdateActivities(user):
     '''Добавляет все продукты текущему пользователю, даже если  он их не создавал
      Значение по умолчанию InList = True, haveIt=False'''
-    allItems = Item.query.with_entities(Item.id).all()
-    itemsList = [r[0] for r in allItems] #перевели список enum'ов в list
-    Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == current_user.id).all()
-    activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
-    listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
-    print(listToAdd)
-    for item in listToAdd:
-        newactivity = Activity(item_id=item, User=current_user, inList=False,
-                               haveIt=False)
-        db.session.add(newactivity)
-    db.session.commit()
+    #Проверим что еще нет вещей у user
+    itemsNow=Item.query.with_entities(Item.id, Activity.id).join(Activity).filter(Activity.user_id ==user.id).all()
+    print(itemsNow)
+    if len(itemsNow)==0:
+        allItems = Item.query.with_entities(Item.id).all()
+        itemsList = [r[0] for r in allItems] #перевели список enum'ов в list
+        Activities = Activity.query.with_entities(Activity.item_id).filter(Activity.user_id == user.id).all()
+        activitiesList = [r[0] for r in Activities] #перевели список enum'ов в list
+        listToAdd = list(elem for elem in itemsList if elem not in activitiesList)
+        # print(listToAdd)
+        for item in listToAdd:
+            newactivity = Activity(item_id=item, User=user, inList=False,
+                                   haveIt=False)
+            db.session.add(newactivity)
+        db.session.commit()
     return
 
 
