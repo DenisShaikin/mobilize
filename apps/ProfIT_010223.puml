@@ -1,0 +1,50 @@
+@startgantt
+'https://plantuml.com/gantt-diagram
+
+@startgantt
+
+Project starts 2022-12-01
+
+-- Team 1 --
+[Карточка АМ И Учет Vin Номеров] starts at 2022-12-01 and lasts 14 days
+[Карточка АМ И Учет Vin Номеров 2] is colored in GreenYellow/Green and starts at 2022-12-01 and lasts 14 days
+[Дилеры (адреса)/ Код дилера] starts at 2022-12-01 and lasts 14 days
+[Дилеры (адреса)/ Код дилера 2] is colored in GreenYellow/Green and starts at 2022-12-01 and lasts 66 days
+[Договора с дилером] starts at 2022-12-15 and lasts 15 days
+[Договора с дилером 2] is colored in GreenYellow/Green and starts at 2022-12-15 and lasts 31 days
+[Интеграция с ALR] starts at 2022-12-01 and lasts 14 days
+[Интеграция с ALR 2] is colored in GreenYellow/Green and  starts at 2022-12-01 and lasts 71 days
+[ЭДО] starts at 2022-12-01 and lasts 29 days
+[ЭДО 2] is colored in GreenYellow/Green and  starts at 2022-12-01 and lasts 119 days
+[Данные о конечном клиенте] starts at 2023-01-10 and lasts 5 days
+[Данные о конечном клиенте 2] is colored in GreenYellow/Green and  starts at 2023-01-10 and lasts 36 days
+[Интеграция с УТ по конечным клиентам] starts at 2023-01-15 and lasts 10 days
+[Отчеты/Печатные формы] starts at 2023-01-01 and lasts 55 days
+[Отчеты/Печатные формы 2] is colored in GreenYellow/Green and  starts at 2023-01-01 and lasts 88 days
+[Интеграция с РН банком] starts at 2023-01-01 and lasts 30 days
+[Интеграция с РН банком 2] is colored in GreenYellow/Green and  starts at 2023-01-01 and lasts 40 days
+[Лимиты] starts at 2023-01-15 and lasts 16 days
+[Лимиты 2] is colored in GreenYellow/Green and  starts at 2023-01-15 and lasts 72 days
+[Интеграция c MES] starts at 2022-12-10 and lasts 20 days
+[Интеграция c MES 2] is colored in GreenYellow/Green and  starts at 2022-12-10 and lasts 81 days
+[Формирование цен и скидок] starts at 2023-01-15 and lasts 5 days
+[Формирование цен и скидок 2] is colored in GreenYellow/Green and  starts at 2023-01-15 and lasts 54 days
+[Расчет/пересчет прогнозных дат] starts at 2023-02-01 and lasts 27 days
+[Расчет/пересчет прогнозных дат 2] is colored in GreenYellow/Green and  starts at 2023-02-01 and lasts 42 days
+[План продаж] starts at 2023-02-15 and lasts 13 days
+[План продаж 2] is colored in GreenYellow/Green and  starts at 2023-02-15 and lasts 33 days
+[Квотирование] starts at 2023-02-01 and lasts 11 days
+[Квотирование 2] is colored in GreenYellow/Green and  starts at 2023-02-01 and lasts 24 days
+[Акцизы и Утиль сбор] starts at 2023-01-10 and lasts 0 days
+[Акцизы и Утиль сбор 2] is colored in GreenYellow/Green and  starts at 2023-01-10 and lasts 15 days
+[Заказ дилера/Резервирование дилером] starts at 2023-02-10 and lasts 18 days
+[Заказ дилера/Резервирование дилером 2] is colored in GreenYellow/Green and  starts at 2023-02-10 and lasts 33 days
+[Формирование ВИН] starts at 2023-02-01 and lasts 9 days
+[Формирование ВИН 2] is colored in GreenYellow/Green and  starts at 2023-02-01 and lasts 14 days
+[Заказ поставщику ХитМоторс «Машкомплекты» (закладки). Загрузка из Excel] starts at 2023-02-10 and lasts 18 days
+[Заказ поставщику ХитМоторс «Машкомплекты» (закладки). Загрузка из Excel 2] is colored in GreenYellow/Green and  starts at 2023-02-10 and lasts 28 days
+[Задание на склад WMS] starts at 2022-12-20 and lasts 10 days
+[Задание на склад WMS 2] is colored in GreenYellow/Green and  starts at 2022-12-20 and lasts 62 days
+
+@endgantt
+@endgantt
