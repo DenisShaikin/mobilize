@@ -9,5 +9,10 @@ Disallow: /additem.html
 Disallow: /additem/
 Disallow: /settings.html
 Disallow: /settings/
+Disallow: /*.xls$
+Disallow: /uploads/
+Disallow: /register.html
+Disallow: /login.html
+
 
 Sitemap: https://takemobil.ru/sitemap.xml
